@@ -7,7 +7,7 @@ System: minimum 8GB of RAM requiered and minimum 4 cores CPU
 Grg Ai is a high speed Ai assistent that runs in terminal.
 
 Attention:
-The knowlege.txt file contains the information that the Ai uses to know programing
+The Knowledge folder contains the information that the Ai uses to know programing
 DO NOT DELETE IT unless you want to train it for yourself
 
 MAKE SURE YOU HAVE PYTHON INSTALLED ON YOUR COMPUTER!
