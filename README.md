@@ -18,7 +18,7 @@ MAKE SURE THAT YOU HAVE llama-cpp-python:
 pip install llama-cpp-python
 
 MAKE SURE THAT YOU HAVE chromadb sentence-transformers:
-pip install llama-cpp-python
+pip install chromadb sentence-transformers
 
 Navigate to the project directory in terminal and run:
 python Grg_ai.py
