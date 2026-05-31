@@ -3,6 +3,7 @@ Trained Ai specialized in programing
 
 Model architecture: Qwen 2.5 1.5B (GGUF)
 System: minimum 8GB of RAM requiered and minimum 4 cores CPU
+GPU is recomanded for higher performance.
 
 Grg Ai assistent that runs in terminal.
 
