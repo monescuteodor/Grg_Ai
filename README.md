@@ -5,7 +5,8 @@ Model architecture: Qwen 2.5 1.5B (GGUF)
 System: minimum 8GB of RAM requiered and minimum 4 cores CPU
 GPU is recomanded for higher performance.
 
-Grg Ai assistent that runs in terminal.
+Don't use the python file!
+Download the version you want in Releases(use the .exe file)!!!!!!!
 
 Attention:
 The Knowledge folder contains the information that the Ai uses to know programing
