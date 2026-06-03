@@ -13,14 +13,6 @@ DO NOT DELETE IT unless you want to train it for yourself
 
 DO NOT DELETE THE .grg_index!!!!!
 
-MAKE SURE YOU HAVE PYTHON INSTALLED ON YOUR COMPUTER!
-
-MAKE SURE THAT YOU HAVE llama-cpp-python:
-pip install llama-cpp-python
-
-MAKE SURE THAT YOU HAVE chromadb sentence-transformers:
-pip install chromadb sentence-transformers
-
 TO RUN:
 1. Go in Releases and download the version you want.
 2. Download the Qwen 2.5 1.5B (GGUF) from hugging face
@@ -29,5 +21,4 @@ https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/blob/main/qwen2.5-1.5b-in
 
 4. Move the grg-model.gguf in the same folder as the grg_ai.py file and the knowledge folder.
 
-5. Navigate to the project directory in terminal and run:
-python Grg_ai.py
+5. Double click the grg_ai.exe file!
