@@ -1,0 +1,282 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is Common Lisp and what is it used for?"},
+      {"role": "assistant", "content": "Common Lisp is a **multi-paradigm, general-purpose Lisp dialect** standardized by ANSI in 1994.\n\nKey features:\n- **Extremely powerful macro system** — code is data, compile-time metaprogramming\n- **CLOS** (Common Lisp Object System) — one of the most advanced OOP systems ever designed\n- **Condition system** — more powerful than try/catch, with restarts for interactive error recovery\n- **REPL-driven development** — interactive, incremental development\n- **Multiple paradigms** — functional, imperative, OOP all in one language\n\nUsed in: AI research, financial systems, embedded applications, and any domain requiring extreme flexibility.\n\nImplementations: **SBCL** (Steel Bank Common Lisp, most popular), **CCL** (Clozure CL), **CLISP**, **ECL**, **Allegro CL**."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "Write a Hello World program in Common Lisp and show how to run it."},
+      {"role": "assistant", "content": "```lisp\n;; hello.lisp\n(defun main ()\n  (format t \"Hello, World!~%\")\n  (format t \"Hello, ~a!~%\" \"Common Lisp\"))\n\n(main)\n```\n\nRun with SBCL:\n```bash\nsbcl --script hello.lisp\n\n# Or load and call:\nsbcl --eval \"(load \\\"hello.lisp\\\")\" --eval \"(main)\" --eval \"(quit)\"\n```\n\nInteractive REPL:\n```bash\nsbcl\n* (format t \"Hello, World!~%\")\nHello, World!\nNIL\n```\n\n- `format t` prints to stdout (`t` = standard output)\n- `~%` is a newline in format strings\n- `~a` prints a value aesthetically (without quotes)\n- Functions always return the value of their last expression"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is the Common Lisp type hierarchy?"},
+      {"role": "assistant", "content": "```\nT  (top type — every value is of type T)\n├── NUMBER\n│   ├── REAL\n│   │   ├── RATIONAL\n│   │   │   ├── INTEGER  (fixnum, bignum)\n│   │   │   └── RATIO    (exact fractions like 1/3)\n│   │   └── FLOAT  (short, single, double, long)\n│   └── COMPLEX\n├── SEQUENCE\n│   ├── LIST  (CONS, NULL)\n│   └── VECTOR  (SIMPLE-VECTOR, STRING, BIT-VECTOR)\n├── ARRAY  (includes vectors and strings)\n├── CHARACTER\n├── SYMBOL\n├── HASH-TABLE\n├── STRUCTURE-OBJECT  (from defstruct)\n├── STANDARD-OBJECT   (from CLOS defclass)\n└── FUNCTION\n```\n\nKey characteristics:\n- `NIL` is both a symbol and the empty list `()`\n- Integers can be arbitrarily large (bignums)\n- Exact rational arithmetic: `(/ 1 3)` → `1/3` (not a float)\n- `T` matches everything — useful as a catch-all type specifier"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are the integer literal formats in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n42            ; decimal fixnum\n1000000000000 ; bignum (arbitrary precision, no overflow)\n#b1010        ; binary: 10\n#o17          ; octal: 15\n#xDEADBEEF    ; hexadecimal\n```\n\nCommon Lisp integers have **arbitrary precision** — bignums are handled automatically with no overflow:\n```lisp\n(expt 2 100)  ; 1267650600228229401496703205376\n(* 1000000000 1000000000)  ; 1000000000000000000\n```\n\nBase prefix rule: `#b` = binary, `#o` = octal, `#x` = hex, `#Nrdigits` = base N."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do rationals and floating-point numbers work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;;; Rationals — exact fractions\n2/3         ; ratio: two-thirds\n3/1         ; simplified to 3\n(+ 1/3 1/6) ; => 1/2  (exact arithmetic!)\n(* 2/3 3/4) ; => 1/2\n\n;;; Floating point\n3.14        ; single-float (32-bit)\n3.14d0      ; double-float (64-bit)\n1.0e-5      ; 0.00001  (scientific notation)\npi          ; 3.141592653589793D0 (double-float constant)\n\n;;; Integer vs float division\n(/ 10 3)    ; 10/3  (exact ratio!)\n(/ 10.0 3)  ; 3.3333...  (float result when float operand used)\n```\n\nCL preserves exactness as long as possible — `(/ 10 3)` gives the exact ratio `10/3`, not a truncated float. Use a float operand to force floating-point arithmetic."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are the arithmetic functions in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(+ 1 2 3 4)         ; 10  (n-ary — any number of args)\n(- 10 3 2)          ; 5\n(* 2 3 4)           ; 24\n(/ 10 2)            ; 5\n(floor 17 5)        ; 3, 2   (returns TWO values: quotient and remainder)\n(ceiling 17 5)      ; 4, -3\n(truncate 17 5)     ; 3, 2   (truncate toward zero)\n(round 17 5)        ; 3, 2   (round to nearest, ties to even)\n(mod 17 5)          ; 2      (modulo)\n(rem 17 5)          ; 2      (remainder)\n(expt 2 10)         ; 1024\n(expt 2.0 0.5)      ; 1.4142...  (square root via expt)\n(sqrt 2)            ; 1.4142...\n(isqrt 16)          ; 4  (integer square root)\n(gcd 12 8)          ; 4\n(lcm 4 6)           ; 12\n(abs -5)            ; 5\n(max 3 7 2)         ; 7  (n-ary)\n(min 3 7 2)         ; 2  (n-ary)\n(1+ 5)              ; 6  (increment by 1)\n(1- 5)              ; 4  (decrement by 1)\n```\n\n`floor`, `ceiling`, `truncate`, and `round` return **two values**: quotient and remainder. Use `multiple-value-bind` or `values` to capture both."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are the numeric type predicates in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(numberp 42)        ; T\n(integerp 42)       ; T\n(floatp 3.14)       ; T\n(rationalp 1/3)     ; T\n(complexp #c(1 2))  ; T\n(zerop 0)           ; T\n(plusp 5)           ; T  (strictly positive)\n(minusp -3)         ; T  (strictly negative)\n(evenp 4)           ; T\n(oddp 5)            ; T\n\n;; Comparisons\n(> 3 2 1)           ; T  (chained: 3 > 2 > 1)\n(= 1 1.0)           ; T  (numeric equality, ignores type)\n(eql 1 1)           ; T  (same type and value for atoms)\n```\n\nNote the naming convention: predicates end with `p` (for \"predicate\") in Common Lisp — `numberp`, `zerop`, `oddp`, etc."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do strings work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(length \"hello\")              ; 5\n(char \"hello\" 0)              ; #\\h  (character object)\n(string-upcase \"hello\")       ; \"HELLO\"\n(string-downcase \"HELLO\")     ; \"hello\"\n(string-capitalize \"hello world\")  ; \"Hello World\"\n(string= \"abc\" \"abc\")         ; T  (string equality)\n(string< \"abc\" \"abd\")         ; T  (lexicographic comparison)\n(search \"lo\" \"hello world\")   ; 3  (position of substring)\n(position #\\l \"hello\")        ; 2  (position of character)\n\n;; Trimming\n(string-trim '(#\\space) \"  hello  \")        ; \"hello\"\n(string-left-trim '(#\\space) \"  hi\")        ; \"hi\"\n(string-right-trim '(#\\space) \"hi  \")       ; \"hi\"\n\n;; Concatenation\n(concatenate 'string \"hello\" \" \" \"world\")  ; \"hello world\"\n(format nil \"~a ~a\" \"hello\" \"world\")       ; \"hello world\"\n```\n\nCharacter literals use `#\\` prefix: `#\\a`, `#\\space`, `#\\newline`, `#\\tab`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you convert between strings, characters, and lists in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; Character/number → string\n(string #\\A)            ; \"A\"  (character to string)\n(string 65)             ; \"A\"  (char code to string)\n\n;; String → list of characters\n(coerce \"hello\" 'list)  ; (#\\h #\\e #\\l #\\l #\\o)\n\n;; List of characters → string\n(coerce '(#\\h #\\i) 'string)  ; \"hi\"\n\n;; Number → string\n(format nil \"~a\" 42)    ; \"42\"\n(write-to-string 42)    ; \"42\"\n\n;; String → number\n(parse-integer \"42\")    ; 42\n(read-from-string \"3.14\")  ; 3.14\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are the generic sequence functions in Common Lisp?"},
+      {"role": "assistant", "content": "These functions work on **any sequence** — lists, vectors, and strings:\n\n```lisp\n(length seq)                   ; number of elements\n(elt seq 0)                    ; access element by index\n(setf (elt v 0) 99)           ; set element by index\n(reverse seq)                  ; new reversed sequence\n(sort seq #'<)                 ; DESTRUCTIVE sort (modifies seq!)\n(stable-sort seq #'<)          ; stable DESTRUCTIVE sort\n\n(find 3 seq)                   ; first element equal to 3, or NIL\n(find-if #'evenp seq)          ; first element satisfying predicate\n(position 3 seq)               ; index of first match\n(position-if #'evenp seq)      ; index of first match via predicate\n\n(count 3 seq)                  ; number of occurrences\n(count-if #'evenp seq)         ; count matching predicate\n\n(remove 3 seq)                 ; new seq with all 3s removed\n(remove-if #'oddp seq)         ; remove matching elements\n(remove-duplicates seq)        ; remove duplicates\n\n(substitute 99 3 seq)          ; replace 3 with 99\n(substitute-if 0 #'oddp seq)   ; replace matching elements\n\n;; Subsequences\n(subseq \"hello world\" 6)       ; \"world\"\n(subseq \"hello world\" 0 5)     ; \"hello\"\n(subseq '(1 2 3 4 5) 1 4)     ; (2 3 4)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How does map work in Common Lisp (sequence mapping functions)?"},
+      {"role": "assistant", "content": "```lisp\n;; map — generic, works on any sequence, specify output type\n(map 'list #'(lambda (x) (* x x)) '(1 2 3 4 5))  ; (1 4 9 16 25)\n(map 'vector #'1+ #(1 2 3))                        ; #(2 3 4)\n(map nil #'print '(1 2 3))                          ; side effects only, returns NIL\n\n;; mapcar — list-specific (more common)\n(mapcar #'1+ '(1 2 3))        ; (2 3 4)\n(mapcar #'+ '(1 2 3) '(4 5 6))  ; (5 7 9)  (multiple lists)\n\n;; mapc — like mapcar but returns original list (for side effects)\n(mapc #'print '(1 2 3))       ; prints 1 2 3, returns (1 2 3)\n\n;; mapcan — like mapcar but concatenates results\n(mapcan #'(lambda (x) (list x (* x x))) '(1 2 3))  ; (1 1 2 4 3 9)\n\n;; maplist — mapcar over successive cdrs\n(maplist #'car '(a b c))       ; (a b c)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are the basic list construction and access operations in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; Construction\n(cons 1 '(2 3))         ; (1 2 3)  — prepend element to list\n(list 1 2 3)            ; (1 2 3)  — build list from args\n(list* 1 2 '(3 4))     ; (1 2 3 4) — list with final dotted tail\n\n;; Access\n(car '(1 2 3))          ; 1  — first element (head)\n(cdr '(1 2 3))          ; (2 3) — rest of list (tail)\n\n;; Convenience accessors (compositions of car/cdr)\n(cadr '(1 2 3))         ; 2  = (car (cdr ...))\n(caddr '(1 2 3))        ; 3  = (car (cddr ...))\n(caadr '(1 (2 3)))      ; 2  = (car (car (cdr ...)))\n(cddr '(1 2 3))         ; (3) = (cdr (cdr ...))\n```\n\nThe `cXXXr` combinations can be up to 4 levels deep: `caaar`, `caadr`, `cadar`, `caddr`, etc. They are named by reading the `a`s and `d`s right to left — `cadr` = take cdr first, then car."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do append, reverse, and list operations work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; Append — non-destructive concatenation\n(append '(1 2) '(3 4) '(5))    ; (1 2 3 4 5)\n\n;; nconc — destructive version (modifies the last cell of each list)\n(nconc (list 1 2) (list 3 4))  ; (1 2 3 4)  (modifies first list!)\n\n;; Reverse\n(reverse '(1 2 3))              ; (3 2 1)  — non-destructive\n(nreverse '(1 2 3))             ; (3 2 1)  — destructive (faster)\n```\n\n**Destructive vs non-destructive:**\n- Functions starting with `n` (nconc, nreverse, sort) are **destructive** — they modify the original list in place\n- They are faster (no copying) but the original list should not be used afterward\n- Non-destructive versions are safer — always create new structures\n\nWhen in doubt, use non-destructive versions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you search within lists in Common Lisp (member and assoc)?"},
+      {"role": "assistant", "content": "```lisp\n;; member — find element, returns tail starting at match (or NIL)\n(member 3 '(1 2 3 4))           ; (3 4)\n(member 3 '(1 2 3 4) :test #'=) ; (3 4)  — with custom equality test\n(member \"abc\" '(\"xyz\" \"abc\") :test #'string=)  ; (\"abc\")\n;; Note: member returns the tail (truthy if found), not just T or NIL\n\n;; assoc — search association list (list of pairs) by key\n(assoc 'b '((a 1) (b 2) (c 3)))  ; (b 2)\n(assoc 'z '((a 1) (b 2)))         ; NIL  — not found\n\n;; rassoc — search by value (reverse assoc)\n(rassoc 2 '((a 1) (b 2) (c 3)))  ; (b 2)\n\n;; Both support :test keyword:\n(assoc \"b\" '((\"a\" 1) (\"b\" 2)) :test #'string=)  ; (\"b\" 2)\n```\n\nAssociation lists (alists) are a simple key-value structure in CL: `((key1 val1) (key2 val2) ...)`. `assoc` returns the whole pair, so use `cadr` to get the value: `(cadr (assoc 'b alist))`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do set operations work on lists in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(union '(1 2 3) '(2 3 4))             ; (1 2 3 4)  — order not guaranteed\n(intersection '(1 2 3) '(2 3 4))      ; (2 3)      — order not guaranteed\n(set-difference '(1 2 3 4) '(2 4))    ; (1 3)      — elements in first not in second\n(set-exclusive-or '(1 2 3) '(2 3 4))  ; (1 4)      — elements in exactly one\n\n;; All support :test keyword for custom equality\n(union '(\"a\" \"b\") '(\"b\" \"c\") :test #'string=)  ; (\"a\" \"b\" \"c\")\n```\n\nThese operate on **lists** as if they were sets. For performance-sensitive set operations with large collections, use hash tables or proper sets (from libraries like `cl-containers`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What are property lists (plists) in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; plist — alternating key/value pairs in a flat list\n;; (:key1 val1 :key2 val2 ...)\n\n(getf '(:name \"Alice\" :age 30) :name)        ; \"Alice\"\n(getf '(:name \"Alice\" :age 30) :city \"NYC\")  ; \"NYC\"  (default value)\n(getf '(:name \"Alice\" :age 30) :missing)      ; NIL\n\n;; setf with getf modifies a plist variable\n(defvar *person* '(:name \"Alice\" :age 30))\n(setf (getf *person* :age) 31)  ; modifies *person*\n*person*  ; (:name \"Alice\" :age 31)\n\n;; remf — remove a property\n(remf *person* :age)\n*person*  ; (:name \"Alice\")\n```\n\nPlists are simple but O(n) lookup. Symbol plist (each symbol has its own plist built in):\n```lisp\n(setf (get 'myvar 'my-property) 42)\n(get 'myvar 'my-property)   ; 42\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How does reduce work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(reduce #'+ '(1 2 3 4 5))                      ; 15\n(reduce #'+ '(1 2 3 4 5) :from-end t)          ; 15  (same for +)\n(reduce #'cons '(1 2 3) :initial-value '())    ; (3 2 1)\n(reduce #'max '(3 1 4 1 5 9) :initial-value 0) ; 9\n(reduce #'string-concat '(\"a\" \"b\" \"c\"))        ; \"abc\" (if available)\n\n;; apply is another way to fold over a list\n(apply #'+ '(1 2 3 4 5))    ; 15\n(apply #'max '(3 1 4 1 5))  ; 5\n```\n\n`reduce` folds a binary function over a list:\n- Left fold by default: `((1 + 2) + 3) + 4 + 5`\n- `:from-end t` for right fold\n- `:initial-value` sets the starting accumulator (important when list might be empty)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you sort lists in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; sort — DESTRUCTIVE sort (modifies the list!)\n(sort (list 3 1 4 1 5 9) #'<)               ; (1 1 3 4 5 9)\n(sort (list \"banana\" \"apple\" \"cherry\") #'string<)  ; (\"apple\" \"banana\" \"cherry\")\n\n;; Sort by key with :key argument\n(sort (list '(3 \"c\") '(1 \"a\") '(2 \"b\")) #'< :key #'car)\n;; => ((1 \"a\") (2 \"b\") (3 \"c\"))\n\n;; stable-sort — preserves relative order of equal elements\n(stable-sort (list '(2 :b) '(1 :a) '(2 :c)) #'< :key #'car)\n;; => ((1 :a) (2 :b) (2 :c))  — :b before :c preserved\n```\n\n**Important**: `sort` is **destructive** — always use it like this:\n```lisp\n;; SAFE pattern: save the result\n(setf my-list (sort my-list #'<))\n\n;; Or copy first:\n(sort (copy-list my-list) #'<)\n```\n\nNever use the original list after calling `sort` on it — use the returned value."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you define functions with defun in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n(defun factorial (n)\n  \"Compute n! recursively.\"    ; docstring (optional)\n  (if (<= n 1)\n    1\n    (* n (factorial (- n 1)))))\n\n(factorial 5)    ; 120\n(factorial 10)   ; 3628800\n```\n\n- `defun` defines a named function in the global namespace\n- The docstring is the second element if it's a string before the body\n- Functions return the value of their last expression\n- `(documentation 'factorial 'function)` retrieves the docstring"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do optional parameters work in Common Lisp functions?"},
+      {"role": "assistant", "content": "```lisp\n;; &optional — positional optional parameters\n(defun greet (name &optional (greeting \"Hello\") (punct \"!\"))\n  (format nil \"~a, ~a~a\" greeting name punct))\n\n(greet \"Alice\")              ; \"Hello, Alice!\"\n(greet \"Bob\" \"Hi\")           ; \"Hi, Bob!\"\n(greet \"Carol\" \"Hey\" \".\")    ; \"Hey, Carol.\"\n```\n\n- `&optional` introduces optional parameters\n- Each optional param can have a **default form**: `(param default-value)`\n- Without a default, it defaults to `NIL`\n- A third variable can track whether the argument was supplied: `(param default supplied-p)` — `supplied-p` is `T` if explicitly passed"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do keyword parameters work in Common Lisp functions?"},
+      {"role": "assistant", "content": "```lisp\n;; &key — keyword parameters (named, order-independent)\n(defun connect (&key (host \"localhost\") (port 8080) (protocol :http))\n  (format t \"~a://~a:~a~%\" protocol host port))\n\n(connect)                            ; http://localhost:8080\n(connect :port 443 :protocol :https) ; https://localhost:443\n(connect :host \"example.com\" :port 80)  ; http://example.com:80\n\n;; &allow-other-keys — ignore unknown keywords (useful for passing through)\n(defun wrapper (&key color size &allow-other-keys)\n  (list color size))\n(wrapper :color :red :size 10 :ignored :value)  ; (:red 10)\n```\n\nKeyword arguments are called by name — order doesn't matter. Each `&key` param can have a default and a supplied-p variable:\n```lisp\n(defun foo (&key (x 0 x-supplied-p))\n  (if x-supplied-p (format t \"x=~a\" x) (format t \"no x\")))\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do rest parameters and complex signatures work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; &rest — collect remaining args into a list\n(defun my-list (&rest args) args)\n(my-list 1 2 3)    ; (1 2 3)\n(my-list)          ; NIL\n\n;; apply with rest\n(defun sum (&rest nums)\n  (apply #'+ nums))\n(sum 1 2 3 4 5)    ; 15\n\n;; Complex signature — combining all parameter types\n(defun complex-fn (req1 req2\n                   &optional opt1 (opt2 \"default\")\n                   &rest rest-args\n                   &key key1 (key2 0))\n  (list req1 req2 opt1 opt2 rest-args key1 key2))\n```\n\nParameter order in lambda list:\n1. Required parameters\n2. `&optional` parameters\n3. `&rest` parameter\n4. `&key` parameters\n5. `&aux` parameters (local variables)\n\n`&rest` and `&key` can be combined — `&rest` captures all remaining args including keyword pairs."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do lambda, funcall, and apply work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; lambda — anonymous function\n(funcall (lambda (x y) (+ x y)) 3 4)    ; 7\n\n;; funcall — call a function object with arguments\n(funcall #'+ 1 2 3)    ; 6\n(funcall #'car '(1 2 3))  ; 1\n\n;; #' — function object (sharpsign-quote)\n#'car           ; function object for car\n(function car)  ; same, verbose form\n\n;; apply — call with args, last arg must be a list\n(apply #'+ 1 2 '(3 4))     ; 10  = (+ 1 2 3 4)\n(apply #'list 1 2 '(3 4))   ; (1 2 3 4)\n(apply #'max '(3 1 4 1 5))  ; 5\n```\n\nIn Common Lisp there are **two namespaces**: one for variables and one for functions. `#'foo` refers to the function named `foo`; `foo` alone refers to the variable `foo`. This is why `funcall` is needed — you must explicitly call a function stored in a variable."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do closures work in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; make-adder — factory function returning a closure\n(defun make-adder (n)\n  (lambda (x) (+ n x)))   ; lambda closes over n\n\n(let ((add5 (make-adder 5)))\n  (funcall add5 10))    ; 15\n  (funcall add5 100))   ; 105\n\n;; Counter with mutable state\n(defun make-counter ()\n  (let ((count 0))\n    (lambda ()\n      (incf count)   ; incf modifies count in the closure\n      count)))\n\n(let ((c (make-counter)))\n  (funcall c)   ; 1\n  (funcall c)   ; 2\n  (funcall c))  ; 3\n```\n\nClosures **capture** the lexical environment where they are created. Each call to `make-counter` creates an independent closure with its own `count` variable."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do flet and labels work for local functions in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; flet — define local functions (cannot call each other)\n(flet ((double (x) (* x 2))\n       (square (x) (* x x)))\n  (double (square 3)))   ; 18  (square first: 9, then double: 18)\n\n;; labels — like flet but functions CAN call each other (mutual recursion)\n(labels ((even? (n) (if (= n 0) t   (odd?  (1- n))))\n         (odd?  (n) (if (= n 0) nil (even? (1- n)))))\n  (even? 10))    ; T\n  (odd? 7))      ; T\n```\n\n- `flet` — local functions; each function is independent (no recursion, no mutual calls)\n- `labels` — local functions with full access to all other locally defined functions\n- Both are scoped to their body — not visible outside\n- Functions defined by `flet`/`labels` are called directly by name (no `funcall` needed)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you define classes in Common Lisp with CLOS?"},
+      {"role": "assistant", "content": "```lisp\n;; Define base class\n(defclass shape ()\n  ((color :initarg :color\n          :accessor shape-color\n          :initform \"black\")))\n\n;; Define subclass (inherits from shape)\n(defclass circle (shape)\n  ((radius :initarg :radius\n           :accessor circle-radius\n           :initform 1.0)))\n\n(defclass rectangle (shape)\n  ((width  :initarg :width  :accessor rect-width  :initform 1.0)\n   (height :initarg :height :accessor rect-height :initform 1.0)))\n```\n\nSlot options:\n- `:initarg :keyword` — keyword used in `make-instance`\n- `:initform expr` — default value when not supplied\n- `:accessor name` — creates both reader and writer\n- `:reader name` — creates only a reader\n- `:writer name` — creates only a writer\n- `:allocation :class` — shared across all instances (like a static field)\n- `:type type` — type constraint (advisory)\n- `:documentation \"string\"` — slot docstring"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you create and access instances of CLOS classes?"},
+      {"role": "assistant", "content": "```lisp\n;; Create instances with make-instance\n(defvar *c* (make-instance 'circle :radius 5.0 :color \"red\"))\n(defvar *r* (make-instance 'rectangle :width 4.0 :height 6.0))\n\n;; Access slots via accessors\n(circle-radius *c*)          ; 5.0\n(shape-color *c*)            ; \"red\"\n(rect-width *r*)             ; 4.0\n\n;; Modify via setf + accessor\n(setf (circle-radius *c*) 6.0)  ; set radius to 6.0\n(setf (shape-color *c*) \"blue\")\n\n;; slot-value — direct slot access (bypasses accessors)\n(slot-value *c* 'radius)    ; 6.0\n(slot-boundp *c* 'color)    ; T\n(slot-makunbound *c* 'color)  ; unbind the slot\n\n;; Type checking\n(typep *c* 'circle)    ; T\n(typep *c* 'shape)     ; T  (inherits from shape)\n(class-of *c*)         ; #<STANDARD-CLASS CIRCLE>\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do generic functions and methods work in CLOS?"},
+      {"role": "assistant", "content": "```lisp\n;; defgeneric — declare the interface\n(defgeneric area (shape)\n  (:documentation \"Compute the area of a shape.\"))\n\n;; defmethod — provide implementation for specific type\n(defmethod area ((c circle))\n  (* pi (expt (circle-radius c) 2)))\n\n(defmethod area ((r rectangle))\n  (* (rect-width r) (rect-height r)))\n\n;; Calling — dispatch happens at runtime based on argument type\n(area *c*)    ; pi * 6^2 = 113.09...\n(area *r*)    ; 4 * 6 = 24.0\n\n;; Auxiliary methods — run in addition to the primary method\n(defmethod area :before ((s shape))\n  (format t \"Computing area...~%\"))  ; runs before every area call\n\n(defmethod area :after ((s shape))\n  (format t \"Done.~%\"))              ; runs after every area call\n\n(defmethod area :around ((c circle))\n  (let ((result (call-next-method)))  ; call :before, primary, :after\n    (format t \"Circle area: ~a~%\" result)\n    result))\n```\n\nCLOS dispatch is **multiple dispatch** — methods can specialize on multiple arguments simultaneously."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do initialize-instance and print-object work in CLOS?"},
+      {"role": "assistant", "content": "```lisp\n;; initialize-instance :after — run after make-instance\n(defmethod initialize-instance :after ((c circle) &key)\n  (format t \"Created circle with radius ~a~%\" (circle-radius c)))\n\n;; Now:\n(make-instance 'circle :radius 5.0)\n;; prints: Created circle with radius 5.0\n\n;; print-object — customize how objects print\n(defmethod print-object ((c circle) stream)\n  (print-unreadable-object (c stream :type t :identity t)\n    (format stream \"r=~a\" (circle-radius c))))\n\n;; Now:\n*c*   ; => #<CIRCLE {1001234567} r=5.0>\n```\n\n- `initialize-instance :after` is the standard hook for post-construction logic\n- `print-unreadable-object` prints `#<TYPE identity ...>` format (not readable back)\n- `:type t` prints the class name, `:identity t` prints the object's address"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you define custom condition types in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; define-condition — like defclass but for conditions\n(define-condition my-error (error)\n  ((message :initarg :message :reader error-message))\n  (:report (lambda (c stream)\n             (format stream \"My error: ~a\" (error-message c)))))\n\n;; Subclass for more specific errors\n(define-condition file-not-found-error (my-error)\n  ((filename :initarg :filename :reader error-filename))\n  (:report (lambda (c stream)\n             (format stream \"File not found: ~a\" (error-filename c)))))\n\n;; Signal conditions\n(error \"Something went wrong!\")           ; signal standard error\n(error 'my-error :message \"custom msg\")   ; signal custom condition\n(warn  \"This is a warning\")               ; signal warning\n(signal 'my-error :message \"soft error\") ; signal without necessarily stopping\n```\n\nCondition hierarchy mirrors class hierarchy — use inheritance to build specific error types."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How does handler-case work for catching errors in Common Lisp?"},
+      {"role": "assistant", "content": "```lisp\n;; handler-case — catch errors (like try/catch, unwinds stack)\n(handler-case\n  (progn\n    (error \"oops\")\n    \"success\")               ; never reached\n  (my-error (c)\n    (format t \"Got my-error: ~a~%\" c)\n    \"recovered\")\n  (error (c)\n    (format t \"Got error: ~a~%\" c)  ; catches any other error\n    \"fallback\"))\n\n;; ignore-errors — catch everything, return (values nil condition)\n(multiple-value-bind (result error)\n  (ignore-errors (/ 1 0))\n  (if error\n    (format t \"Error: ~a~%\" error)\n    (format t \"Result: ~a~%\" result)))\n\n;; handler-case returns the value of the first matching clause\n;; Clauses are tested in order — put specific types before general ones\n```\n\nHandler clauses match by condition type (using `typep`). The condition object `c` is bound in each clause for inspection."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is handler-bind and how is it different from handler-case?"},
+      {"role": "assistant", "content": "```lisp\n;; handler-bind — intercept WITHOUT unwinding the stack\n(handler-bind\n  ((error (lambda (c)\n            (format t \"Intercepted: ~a~%\" c)\n            ;; returning normally here means control goes back to handler-case\n            ;; or wherever the next handler is\n            )))\n  (error \"test\"))\n```\n\n**Key difference:**\n- `handler-case` — catches the error, **unwinds the stack** to the handler, resumes from there\n- `handler-bind` — **does not unwind** — the handler runs while the stack is still intact (useful for logging, restarting)\n\n`handler-bind` is used when you want to:\n1. Log an error without stopping the computation\n2. Invoke a restart (with `invoke-restart`)\n3. Examine the stack before deciding what to do\n\nIf the `handler-bind` handler returns normally, the search for a handler continues up the stack."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do restarts work in Common Lisp? Show restart-case and invoke-restart."},
+      {"role": "assistant", "content": "```lisp\n;; restart-case — establish restarts at the point of potential error\n(defun carefully-divide (x y)\n  (restart-case\n    (if (zerop y)\n      (error 'division-by-zero)  ; signal error\n      (/ x y))                    ; normal case\n    (use-value (new-y)            ; restart: try with different value\n      :report \"Provide a different divisor\"\n      (/ x new-y))\n    (return-zero ()               ; restart: just return 0\n      :report \"Return 0 instead\"\n      0)))\n\n;; invoke a restart from a handler (without unwinding!)\n(handler-bind\n  ((division-by-zero\n    (lambda (c)\n      (declare (ignore c))\n      (invoke-restart 'return-zero))))  ; choose restart\n  (carefully-divide 10 0))   ; => 0\n```\n\nRestarts are **recovery strategies** established where the error originates. Handlers higher up the call stack can **choose which recovery to use** without the intermediate code knowing about it.\n\nThis separation (error signaling ↔ recovery strategy) is unique to Common Lisp and far more powerful than try/catch."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do macros work in Common Lisp? Show defmacro with backquote."},
+      {"role": "assistant", "content": "```lisp\n;; defmacro — generates code at compile time\n(defmacro while (test &body body)\n  `(do ()\n       ((not ,test))\n     ,@body))\n\n;; Usage\n(let ((x 5))\n  (while (> x 0)\n    (print x)\n    (decf x)))\n;; Expands to: (do () ((not (> x 0))) (print x) (decf x))\n```\n\nBackquote operators:\n- `` ` `` — quasi-quote: like `quote` but allows `~` and `~@` inside\n- `,x` — unquote: insert the **value** of `x`\n- `,@x` — unquote-splice: insert the **elements of list** `x` (flattens the list)\n\n```lisp\n(let ((x 42) (items '(1 2 3)))\n  `(the answer is ,x and items are ,@items))\n;; => (THE ANSWER IS 42 AND ITEMS ARE 1 2 3)\n```\n\nMacros receive their arguments **unevaluated** as raw forms, transform them, and return new code to be compiled."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is gensym and why is it important in Lisp macros?"},
+      {"role": "assistant", "content": "```lisp\n;; gensym — generate a unique symbol (avoids variable capture)\n(defmacro swap! (a b)\n  (let ((tmp (gensym \"TMP\")))\n    `(let ((,tmp ,a))\n       (setf ,a ,b)\n       (setf ,b ,tmp))))\n\n;; Without gensym — BUGGY if user has a variable called 'tmp'\n(defmacro bad-swap! (a b)\n  `(let ((tmp ,a))   ; 'tmp' could clash with user's variable!\n     (setf ,a ,b)\n     (setf ,b tmp)))\n```\n\n**Variable capture** is a macro bug where a name introduced by the macro accidentally refers to or shadows a user's variable.\n\n`(gensym \"prefix\")` returns a **new unique symbol** every time it is called — guaranteed not to clash with any existing symbol:\n```lisp\n(gensym \"TMP\")  ; TMP1234  (unique each call)\n(gensym \"TMP\")  ; TMP1235\n```\n\nAlways use `gensym` for any temporary variable introduced inside a macro."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you debug macros in Common Lisp with macroexpand?"},
+      {"role": "assistant", "content": "```lisp\n;; macroexpand-1 — expand one level of macros\n(macroexpand-1 '(while (> x 0) (decf x)))\n;; => (DO NIL ((NOT (> X 0))) (DECF X))\n\n;; macroexpand — expand all macros recursively\n(macroexpand '(while (> x 0) (decf x)))\n;; => expanded form of DO too\n\n;; SBCL-specific: pp macroexpand nicely\n(pprint (macroexpand-1 '(while (> x 0) (decf x))))\n```\n\nMacroexpand is essential for debugging — it shows exactly what code your macro generates before it is compiled and run.\n\nWorkflow:\n1. Write the macro\n2. `(macroexpand-1 '(your-macro args...))` to see output\n3. Check if the expansion is correct\n4. Fix the macro if needed"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How do you compile and load Common Lisp files?"},
+      {"role": "assistant", "content": "```lisp\n;; Load source directly (interpreted)\n(load \"my-module.lisp\")\n\n;; Compile to native code (creates .fasl file — fast load)\n(compile-file \"my-module.lisp\")    ; creates my-module.fasl\n(load \"my-module.fasl\")            ; load compiled version\n\n;; compile-and-load pattern\n(load (compile-file \"my-module.lisp\"))\n\n;; Compile a single function\n(compile 'my-function)\n```\n\n`.fasl` (Fast Load) files are compiled machine code — much faster to load than re-interpreting source each time.\n\nFor production: always compile. For development/REPL: loading source is fine."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "How does ASDF (the Common Lisp build system) work?"},
+      {"role": "assistant", "content": "```lisp\n;; my-system.asd — system definition file\n(asdf:defsystem \"my-system\"\n  :version \"1.0\"\n  :description \"My Common Lisp application\"\n  :components ((:file \"package\")                          ; defines the package\n               (:file \"utils\" :depends-on (\"package\"))    ; depends on package\n               (:file \"main\"  :depends-on (\"utils\")))     ; depends on utils\n  :depends-on (\"alexandria\" \"cl-ppcre\"))                  ; external dependencies\n```\n\nASDF (Another System Definition Facility) is the standard build system:\n```lisp\n;; Load a system\n(asdf:load-system \"my-system\")\n\n;; Compile a system\n(asdf:compile-system \"my-system\")\n```\n\nWith Quicklisp (package manager):\n```lisp\n(ql:quickload \"my-system\")       ; install dependencies and load\n(ql:quickload \"alexandria\")      ; load a library\n```\n\nQuicklisp is the equivalent of npm/pip/cargo for Common Lisp — it downloads and manages libraries automatically."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is the assert-equal macro example and how does it use backquote?"},
+      {"role": "assistant", "content": "```lisp\n(defmacro assert-equal (a b)\n  `(unless (equal ,a ,b)\n     (error \"Assertion failed: ~s /= ~s~%  Actual: ~s~%  Expected: ~s\"\n            ',a ',b ,a ,b)))\n\n;; Usage\n(assert-equal (+ 1 2) 3)   ; passes silently\n(assert-equal (+ 1 2) 4)   ; signals error:\n;; Assertion failed: (+ 1 2) /= 4\n;;   Actual: 3\n;;   Expected: 4\n```\n\nKey backquote usage:\n- `,a` — insert the **value** of `a` (the computed result)\n- `',a` — insert the **form** (source code) of `a` as a quoted list, for display\n- `~s` format directive prints with `write` (adds quotes around strings, shows structure)\n\nThis demonstrates how macros can capture both the **source code** and **evaluated value** of their arguments — impossible with functions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Common Lisp programming language tutor. Answer clearly and always include working Common Lisp code examples with comments."},
+      {"role": "user", "content": "What is the format function in Common Lisp and what are its directives?"},
+      {"role": "assistant", "content": "```lisp\n;; format — printf-style output\n;; (format destination control-string args...)\n(format t \"Hello, World!~%\")          ; print to stdout\n(format nil \"~a and ~a\" 1 2)          ; return as string: \"1 and 2\"\n(format *error-output* \"Error~%\")     ; print to stderr\n\n;; Common directives:\n~a    ; Aesthetic — prints readably for humans (no quotes)\n~s    ; S-expression — prints with read syntax (quoted strings, etc.)\n~d    ; Decimal integer\n~f    ; Fixed-point float\n~e    ; Scientific notation\n~g    ; General float (shorter of ~f and ~e)\n~%    ; Newline\n~~    ; Literal tilde\n~{~}  ; Iterate over a list: (format t \"~{~a ~}\" '(1 2 3)) → \"1 2 3 \"\n~*    ; Skip an argument\n~[~]  ; Conditional: (format t \"~[zero~;one~;two~]\" 1) → \"one\"\n~r    ; Radix: (format t \"~r\" 42) → \"forty-two\"\n```\n\n`format` with `nil` as destination returns a string instead of printing — useful for building strings."}
+    ]
+  }
+]

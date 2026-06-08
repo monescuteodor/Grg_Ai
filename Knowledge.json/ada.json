@@ -1,0 +1,163 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What is Ada and what is it used for?"},
+      {"role": "assistant", "content": "Ada is a statically-typed, structured, high-level programming language designed for safety-critical and real-time systems. It is standardized by ISO (Ada 83, 95, 2005, 2012, 2022). Ada is used in aerospace, defense, air traffic control, and medical devices. Ada 2012 introduced Design by Contract.\n\nTools used with Ada:\n- **GNAT** (GNU Ada Translator, part of GCC) — the compiler\n- **GPS / GNAT Studio** — the IDE\n- **Alire** — the package manager"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Write a Hello World program in Ada and show how to compile it."},
+      {"role": "assistant", "content": "```ada\n-- hello.adb\nwith Ada.Text_IO;\n\nprocedure Hello is\nbegin\n   Ada.Text_IO.Put_Line (\"Hello, World!\");\n   Ada.Text_IO.Put_Line (\"Hello, Ada!\");\nend Hello;\n```\n\nCompile and run:\n```bash\ngnatmake hello.adb && ./hello\n```\n\nOr with Alire:\n```bash\nalr build && alr run\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me how to declare integer, float, boolean, character and string variables in Ada."},
+      {"role": "assistant", "content": "Declarations must precede statements in a block:\n\n```ada\n-- Integer types\nX : Integer := 42;\nY : Long_Integer := 1_000_000_000;\nZ : Short_Integer := 32767;\n\n-- Floating point\nF : Float := 3.14;\nD : Long_Float := 3.14159265358979;\n\n-- Boolean\nB : Boolean := True;\n\n-- Character and String\nC : Character := 'A';\nS : String := \"Hello, World!\";\nS2 : String (1 .. 5) := \"Hello\";   -- fixed length\n```\n\nPrinting them:\n```ada\nAda.Text_IO.Put_Line (\"X = \" & Integer'Image (X));\nAda.Text_IO.Put_Line (\"F = \" & Float'Image (F));\nAda.Text_IO.Put_Line (\"B = \" & Boolean'Image (B));\nAda.Text_IO.Put_Line (\"C = \" & C);\nAda.Text_IO.Put_Line (S);\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you define custom integer types and subtypes in Ada?"},
+      {"role": "assistant", "content": "Ada lets you define integer types constrained to a specific range, and subtypes as aliases with narrower constraints:\n\n```ada\n-- User-defined integer types\ntype Age_Type is range 0 .. 150;\ntype Percentage is range 0 .. 100;\n\nAge : Age_Type := 30;\nPct : Percentage := 75;\n\n-- Subtypes (constrained views of existing types)\nsubtype Weekday is Day range Monday .. Friday;\nsubtype Natural is Integer range 0 .. Integer'Last;\nsubtype Positive is Integer range 1 .. Integer'Last;\n\n-- Constants\nPi : constant Float := 3.14159;\nMax_Size : constant Integer := 100;\n```\n\nAssigning a value outside the range raises `Constraint_Error` at runtime. This is Ada's way of enforcing domain constraints at the type level."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do enumeration types work in Ada and what attributes do they have?"},
+      {"role": "assistant", "content": "```ada\n-- Define an enumeration type\ntype Day is (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday);\nToday : Day := Monday;\n```\n\nEnumeration attributes:\n```ada\nAda.Text_IO.Put_Line (Day'Image (Today));          -- \"MONDAY\"\nAda.Text_IO.Put_Line (Day'Image (Day'First));      -- \"MONDAY\"\nAda.Text_IO.Put_Line (Day'Image (Day'Last));       -- \"SUNDAY\"\nAda.Text_IO.Put_Line (Integer'Image (Day'Pos (Wednesday)));  -- 2\nAda.Text_IO.Put_Line (Day'Image (Day'Val (4)));    -- \"FRIDAY\"\n```\n\n- `Day'First` / `Day'Last` — first and last values\n- `Day'Pos(val)` — zero-based numeric position of a value\n- `Day'Val(n)` — enum value at position n\n- `Day'Image(val)` — converts value to uppercase string"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What type attributes does Ada provide for Integer and Float types?"},
+      {"role": "assistant", "content": "```ada\n-- Integer attributes\nAda.Text_IO.Put_Line (Integer'Image (Integer'First));  -- minimum value\nAda.Text_IO.Put_Line (Integer'Image (Integer'Last));   -- maximum value\nAda.Text_IO.Put_Line (Integer'Image (Integer'Size));   -- size in bits\n```\n\nThese attributes work on any scalar type:\n- `T'First` — smallest value of type T\n- `T'Last` — largest value of type T\n- `T'Size` — number of bits used\n- `T'Image(X)` — converts value X to a String representation"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me all control flow structures in Ada: if, case, for, while, and loop with exit."},
+      {"role": "assistant", "content": "```ada\nwith Ada.Text_IO;\nuse Ada.Text_IO;\n\nprocedure Control_Demo is\n   X : Integer := 10;\n   N : Integer := 1;\nbegin\n\n   -- if/elsif/else\n   if X > 0 then\n      Put_Line (\"positive\");\n   elsif X = 0 then\n      Put_Line (\"zero\");\n   else\n      Put_Line (\"negative\");\n   end if;\n\n   -- case statement (all values must be covered)\n   case X is\n      when 0 =>\n         Put_Line (\"zero\");\n      when 1 .. 9 =>\n         Put_Line (\"single digit\");\n      when 10 | 20 | 30 =>\n         Put_Line (\"ten, twenty, or thirty\");\n      when others =>\n         Put_Line (\"something else\");\n   end case;\n\n   -- for loop (range)\n   for I in 1 .. 10 loop\n      Put (Integer'Image (I) & \" \");\n   end loop;\n   New_Line;\n\n   -- for loop (reverse)\n   for I in reverse 1 .. 10 loop\n      Put (Integer'Image (I) & \" \");\n   end loop;\n   New_Line;\n\n   -- while loop\n   while N < 100 loop\n      N := N * 2;\n   end loop;\n   Put_Line (\"N = \" & Integer'Image (N));\n\n   -- infinite loop with exit\n   loop\n      N := N - 1;\n      exit when N < 50;\n   end loop;\n\nend Control_Demo;\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you iterate over an array using for-of in Ada 2012?"},
+      {"role": "assistant", "content": "Ada 2012 introduced the for-of loop that iterates directly over elements:\n\n```ada\ndeclare\n   Arr : array (1 .. 5) of Integer := (10, 20, 30, 40, 50);\nbegin\n   for Item of Arr loop          -- Ada 2012 for-of\n      Put (Integer'Image (Item) & \" \");\n   end loop;\n   New_Line;\nend;\n```\n\nThis is equivalent to iterating over indices but cleaner — `Item` is a reference to each element in order. The `declare` block is needed here because the array is declared locally inside the procedure body."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do labeled loops and exit work in Ada for nested loops?"},
+      {"role": "assistant", "content": "Ada supports labeled loops so you can `exit` or `next` a specific outer loop:\n\n```ada\nOuter : for I in 1 .. 5 loop\n   Inner : for J in 1 .. 5 loop\n      exit Outer when I * J > 15;\n      Put (Integer'Image (I) & \",\" & Integer'Image (J) & \" \");\n   end loop Inner;\nend loop Outer;\nNew_Line;\n```\n\n- Labels are placed before the loop keyword (`Outer :`) and repeated at `end loop`\n- `exit Outer` exits the outer loop entirely, not just the inner one\n- Without a label, `exit` exits the innermost enclosing loop"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me how to create a Math_Utils package in Ada with factorial, GCD, power, and swap."},
+      {"role": "assistant", "content": "A package in Ada has a specification and a body:\n\n```ada\n-- Math_Utils package specification\npackage Math_Utils is\n   function Factorial (N : Natural) return Natural;\n   function Gcd (A, B : Positive) return Positive;\n   function Power (Base : Float; Exp : Natural) return Float;\n   procedure Swap (A, B : in out Integer);\nend Math_Utils;\n\n-- Math_Utils package body\npackage body Math_Utils is\n\n   function Factorial (N : Natural) return Natural is\n   begin\n      if N <= 1 then\n         return 1;\n      else\n         return N * Factorial (N - 1);\n      end if;\n   end Factorial;\n\n   function Gcd (A, B : Positive) return Positive is\n   begin\n      if B = 0 then\n         return A;\n      else\n         return Gcd (B, A mod B);\n      end if;\n   end Gcd;\n\n   function Power (Base : Float; Exp : Natural) return Float is\n      Result : Float := 1.0;\n   begin\n      for I in 1 .. Exp loop\n         Result := Result * Base;\n      end loop;\n      return Result;\n   end Power;\n\n   procedure Swap (A, B : in out Integer) is\n      Temp : Integer := A;\n   begin\n      A := B;\n      B := Temp;\n   end Swap;\n\nend Math_Utils;\n```\n\nUsage:\n```ada\nwith Ada.Text_IO;\nwith Math_Utils;\n\nprocedure Main is\n   use Ada.Text_IO;\n   X : Integer := 10;\n   Y : Integer := 20;\nbegin\n   Put_Line (Natural'Image (Math_Utils.Factorial (10)));\n   Put_Line (Positive'Image (Math_Utils.Gcd (48, 18)));\n   Math_Utils.Swap (X, Y);\n   Put_Line (\"X=\" & Integer'Image (X) & \" Y=\" & Integer'Image (Y));\nend Main;\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What does 'in out' mean as a parameter mode in Ada? Show with the Swap procedure."},
+      {"role": "assistant", "content": "`in out` means the parameter is both read and written — the caller's variable is modified directly:\n\n```ada\nprocedure Swap (A, B : in out Integer) is\n   Temp : Integer := A;\nbegin\n   A := B;\n   B := Temp;\nend Swap;\n```\n\nParameter modes in Ada:\n- `in` — read-only input (default, value cannot be changed)\n- `out` — write-only output (caller receives the value back)\n- `in out` — bidirectional (read the caller's value, write back a result)\n\nAfter calling `Math_Utils.Swap (X, Y)`, the values of X and Y are exchanged in the caller."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me array types, array operations, slices and aggregates in Ada."},
+      {"role": "assistant", "content": "```ada\n-- Array type definitions\ntype Int_Array is array (1 .. 10) of Integer;\ntype Matrix is array (1 .. 3, 1 .. 3) of Float;\ntype Unbounded_Array is array (Positive range <>) of Integer;\n\n-- Declarations\nArr : Int_Array := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);\nM   : Matrix;\nVec : Unbounded_Array (1 .. 5) := (others => 0);\n\n-- Element access\nPut_Line (Integer'Image (Arr (1)));          -- first element\nPut_Line (Integer'Image (Arr (Arr'Last)));   -- last element\nPut_Line (Integer'Image (Arr'Length));       -- 10\n\n-- Slice iteration\nfor I in 2 .. 4 loop\n   Put (Integer'Image (Arr (I)) & \" \");\nend loop;\nNew_Line;\n\n-- Aggregate with partial override\nArr := (1, 2, 3, others => 0);\n\n-- 2D matrix aggregate\nM := (others => (others => 0.0));\n```\n\n- `Arr'Last` — last valid index\n- `Arr'Length` — number of elements\n- `others => 0` — sets all unspecified elements to a default value\n- Unbounded arrays use `Positive range <>` and get their bounds at the point of declaration"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you define records with and without default values in Ada?"},
+      {"role": "assistant", "content": "```ada\n-- Basic record\ntype Person is record\n   Name  : String (1 .. 20);\n   Age   : Natural;\n   Score : Float;\nend record;\n\n-- Record with default values\ntype Config is record\n   Host  : String (1 .. 50) := (others => ' ');\n   Port  : Natural  := 8080;\n   Debug : Boolean  := False;\nend record;\n\n-- Initialize with named aggregate\nAlice : Person := (Name  => \"Alice               \",\n                   Age   => 30,\n                   Score => 95.5);\n\n-- Config uses defaults automatically\nCfg : Config;\n\n-- Field access\nPut_Line (Alice.Name);\nPut_Line (Natural'Image (Alice.Age));\n```\n\nFields with defaults don't need to be specified in the aggregate. Fields without defaults must always be provided."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What is a variant record (discriminated union) in Ada and how do you use it safely?"},
+      {"role": "assistant", "content": "A variant record uses a discriminant to select which fields exist at runtime:\n\n```ada\ntype Shape_Kind is (Circle, Rectangle);\n\ntype Shape (Kind : Shape_Kind) is record\n   case Kind is\n      when Circle =>\n         Radius : Float;\n      when Rectangle =>\n         Width, Height : Float;\n   end case;\nend record;\n\nC : Shape := (Kind => Circle, Radius => 5.0);\nR : Shape := (Kind => Rectangle, Width => 4.0, Height => 6.0);\n```\n\nAlways access fields via a `case` on the discriminant:\n```ada\ncase C.Kind is\n   when Circle =>\n      Put_Line (\"Circle r=\" & Float'Image (C.Radius));\n   when Rectangle =>\n      Put_Line (\"Rectangle \" & Float'Image (R.Width) &\n                \"x\" & Float'Image (R.Height));\nend case;\n```\n\nAccessing the wrong variant's field (e.g., `C.Width` when `C.Kind = Circle`) raises `Constraint_Error` at runtime."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you define a tagged type (base class) and a derived type in Ada?"},
+      {"role": "assistant", "content": "```ada\n-- animal.ads (specification)\npackage Animals is\n\n   -- Tagged type (base class)\n   type Animal is tagged record\n      Name  : String (1 .. 20);\n      Sound : String (1 .. 20);\n      Age   : Natural := 0;\n   end record;\n\n   -- Primitive operations (methods)\n   function Speak (A : Animal) return String;\n   procedure Birthday (A : in out Animal);\n   function Is_Adult (A : Animal) return Boolean;\n\n   -- Derived type (inheritance)\n   type Dog is new Animal with record\n      Breed : String (1 .. 30);\n   end record;\n\n   overriding function Speak (D : Dog) return String;\n   function Fetch (D : Dog) return String;\n\nend Animals;\n```\n\n- `tagged` makes a type extensible (inheritable)\n- `type Dog is new Animal with record` adds new fields while inheriting all of Animal's fields and operations\n- `overriding` is a safety keyword — the compiler errors if Speak doesn't actually override a parent operation"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you implement methods for tagged types and call the parent method in Ada?"},
+      {"role": "assistant", "content": "```ada\n-- animal.adb (body)\npackage body Animals is\n\n   function Speak (A : Animal) return String is\n   begin\n      return A.Name (1 .. 5) & \" says \" & A.Sound (1 .. 4);\n   end Speak;\n\n   procedure Birthday (A : in out Animal) is\n   begin\n      A.Age := A.Age + 1;\n   end Birthday;\n\n   function Is_Adult (A : Animal) return Boolean is\n   begin\n      return A.Age >= 1;\n   end Is_Adult;\n\n   overriding function Speak (D : Dog) return String is\n   begin\n      return Speak (Animal (D)) & \"!\";   -- call parent\n   end Speak;\n\n   function Fetch (D : Dog) return String is\n   begin\n      return D.Name (1 .. 3) & \" fetches!\";\n   end Fetch;\n\nend Animals;\n```\n\nTo call the parent's method, convert the derived type to the parent type explicitly: `Animal (D)`. This is Ada's equivalent of `super.Speak()` in other languages."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do abstract types and abstract operations work in Ada?"},
+      {"role": "assistant", "content": "```ada\n-- Abstract type — cannot be instantiated\ntype Shape is abstract tagged null record;\n\n-- Abstract operations — must be overridden by any concrete derived type\nfunction Area (S : Shape) return Float is abstract;\nfunction Perimeter (S : Shape) return Float is abstract;\n\n-- Concrete derived type\ntype Circle is new Shape with record\n   Radius : Float;\nend record;\n\noverriding function Area (C : Circle) return Float;\noverriding function Perimeter (C : Circle) return Float;\n```\n\nImplementation:\n```ada\noverriding function Area (C : Circle) return Float is\nbegin\n   return 3.14159 * C.Radius ** 2;\nend Area;\n\noverriding function Perimeter (C : Circle) return Float is\nbegin\n   return 2.0 * 3.14159 * C.Radius;\nend Perimeter;\n```\n\nIf a derived type does not implement all abstract operations, it is itself considered abstract and cannot be instantiated. `tagged null record` means the base type has no fields of its own."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me a complete example of exception handling in Ada including custom exceptions, catching, and getting exception info."},
+      {"role": "assistant", "content": "```ada\nwith Ada.Text_IO;\nuse Ada.Text_IO;\nwith Ada.Exceptions;\n\nprocedure Exception_Demo is\n\n   -- Define custom exceptions\n   Validation_Error : exception;\n   Connection_Error : exception;\n\n   procedure Validate_Age (Age : Integer) is\n   begin\n      if Age < 0 or Age > 150 then\n         raise Validation_Error with\n               \"Age must be between 0 and 150, got: \" & Integer'Image (Age);\n      end if;\n   end Validate_Age;\n\n   function Safe_Divide (X, Y : Integer) return Integer is\n   begin\n      if Y = 0 then\n         raise Constraint_Error with \"Division by zero\";\n      end if;\n      return X / Y;\n   end Safe_Divide;\n\nbegin\n   -- Basic exception handling\n   begin\n      Validate_Age (-5);\n   exception\n      when Validation_Error =>\n         Put_Line (\"Caught validation error\");\n      when Constraint_Error =>\n         Put_Line (\"Caught constraint error\");\n   end;\n\n   -- With exception information\n   begin\n      Validate_Age (200);\n   exception\n      when E : Validation_Error =>\n         Put_Line (\"Error: \" & Ada.Exceptions.Exception_Message (E));\n         Put_Line (\"Name: \" & Ada.Exceptions.Exception_Name (E));\n   end;\n\nend Exception_Demo;\n```\n\n- `when E : ExceptionType` — binds the exception object to `E` so you can inspect it\n- `Ada.Exceptions.Exception_Message(E)` — the message string passed with `raise ... with`\n- `Ada.Exceptions.Exception_Name(E)` — the fully qualified exception name as a string"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How do you re-raise an exception and use a catch-all handler in Ada?"},
+      {"role": "assistant", "content": "```ada\n-- Reraise\nbegin\n   begin\n      raise Connection_Error with \"Server unreachable\";\n   exception\n      when Connection_Error =>\n         Put_Line (\"Logging connection error...\");\n         raise;   -- reraise the same exception\n   end;\nexception\n   when E : others =>\n      Put_Line (\"Outer: \" & Ada.Exceptions.Exception_Message (E));\nend;\n```\n\n- `raise;` with no arguments re-raises the currently active exception to the next outer handler\n- `when others =>` is the catch-all, equivalent to `catch (Exception e)` in Java — it catches any exception not matched by a previous `when` clause\n- Nesting `begin...exception...end` blocks lets you handle errors at different levels"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What are Ada's predefined exceptions?"},
+      {"role": "assistant", "content": "Ada defines four predefined exceptions that the runtime can raise automatically:\n\n```ada\n-- Constraint_Error: type range, array bounds, null access\n-- Program_Error: logic errors (uninitialized, wrong mode)\n-- Storage_Error: out of memory\n-- Tasking_Error: task errors\n```\n\nExamples of what triggers each:\n\n| Exception | Triggered by |\n|-----------|-------------|\n| `Constraint_Error` | Value outside type range, array index out of bounds, dereferencing null |\n| `Program_Error` | Reading an uninitialized `out` parameter, violating elaboration order |\n| `Storage_Error` | Stack overflow, heap exhaustion |\n| `Tasking_Error` | A task terminates abnormally or a rendezvous partner fails |\n\nAll can be caught the same way as custom exceptions using `when Constraint_Error =>` etc."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "Show me a full Ada tasking example with a Worker task type, entries, and rendezvous."},
+      {"role": "assistant", "content": "```ada\nwith Ada.Text_IO;\nuse Ada.Text_IO;\n\nprocedure Tasking_Demo is\n\n   -- Task type with entry points\n   task type Worker is\n      entry Start (ID : Positive);\n      entry Get_Result (R : out Integer);\n   end Worker;\n\n   task body Worker is\n      Worker_ID : Positive;\n      Result    : Integer := 0;\n   begin\n      -- Wait for caller to call Start (rendezvous)\n      accept Start (ID : Positive) do\n         Worker_ID := ID;\n      end Start;\n\n      -- Do work concurrently\n      for I in 1 .. 100 loop\n         Result := Result + I;\n      end loop;\n\n      Put_Line (\"Worker \" & Positive'Image (Worker_ID) & \" done.\");\n\n      -- Return result via rendezvous\n      accept Get_Result (R : out Integer) do\n         R := Result;\n      end Get_Result;\n   end Worker;\n\n   W1, W2 : Worker;   -- two task instances, start running immediately\n   R1, R2 : Integer;\n\nbegin\n   -- Rendezvous: call entries on each task\n   W1.Start (1);\n   W2.Start (2);\n\n   W1.Get_Result (R1);\n   W2.Get_Result (R2);\n\n   Put_Line (\"R1 = \" & Integer'Image (R1));\n   Put_Line (\"R2 = \" & Integer'Image (R2));\nend Tasking_Demo;\n```\n\nTasks are declared and begin executing immediately. Rendezvous synchronizes them: whichever side reaches the entry/accept first waits for the other."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "How does a protected type work in Ada for thread-safe shared data?"},
+      {"role": "assistant", "content": "```ada\n-- Protected type (synchronized data)\nprotected type Counter is\n   procedure Increment;         -- exclusive access\n   function Value return Natural; -- shared read access\nprivate\n   Count : Natural := 0;\nend Counter;\n\nprotected body Counter is\n   procedure Increment is\n   begin\n      Count := Count + 1;\n   end Increment;\n\n   function Value return Natural is\n   begin\n      return Count;\n   end Value;\nend Counter;\n\n-- Usage\nShared_Counter : Counter;\n\nbegin\n   Shared_Counter.Increment;\n   Shared_Counter.Increment;\n   Put_Line (\"Counter = \" & Natural'Image (Shared_Counter.Value));\nend;\n```\n\nProtected type rules:\n- `procedure` — only one task can execute it at a time (mutual exclusion)\n- `function` — multiple tasks can read simultaneously (shared access)\n- `entry` — like a procedure but with a guard condition (`when Count > 0 =>`)\n- Private section holds the actual data, invisible outside the protected object"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Ada programming language tutor. Answer clearly and always include code examples from the Ada reference."},
+      {"role": "user", "content": "What is the select statement in Ada tasking and what is it used for?"},
+      {"role": "assistant", "content": "The `select` statement allows non-deterministic choice between multiple entry calls or accepts — whichever is ready first wins:\n\n```ada\n-- select statement (non-deterministic receive)\nselect\n   W1.Get_Result (R1) =>\n      Put_Line (\"Got R1\");\nor\n   W2.Get_Result (R2) =>\n      Put_Line (\"Got R2\");\nor\n   delay 5.0 =>\n      Put_Line (\"Timeout\");\nend select;\n```\n\nThis is useful when:\n- You want to respond to whichever of several tasks finishes first\n- You need a timeout (`delay`) if no task responds in time\n- You want to poll without blocking indefinitely\n\nNote: the `select` statement is commented out in the reference example as it requires both workers to not yet have been consumed by the earlier `Get_Result` calls."}
+    ]
+  }
+]

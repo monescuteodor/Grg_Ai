@@ -1,0 +1,674 @@
+[
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is application security?"
+      },
+      {
+        "role": "assistant",
+        "content": "Application security is the practice of protecting software from threats by designing, building, and maintaining it to prevent unauthorized access, data breaches, and misuse."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between authentication and authorization?"
+      },
+      {
+        "role": "assistant",
+        "content": "Authentication verifies who a user is, while authorization determines what an authenticated user is allowed to do."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is encryption?"
+      },
+      {
+        "role": "assistant",
+        "content": "Encryption is the process of converting data into an unreadable form using an algorithm and a key, so that only authorized parties with the correct key can read it."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between symmetric and asymmetric encryption?"
+      },
+      {
+        "role": "assistant",
+        "content": "Symmetric encryption uses the same key to encrypt and decrypt data, while asymmetric encryption uses a public key to encrypt and a separate private key to decrypt."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is hashing?"
+      },
+      {
+        "role": "assistant",
+        "content": "Hashing converts data into a fixed-length value using a one-way function; unlike encryption it cannot be reversed, making it useful for storing passwords."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between hashing and encryption?"
+      },
+      {
+        "role": "assistant",
+        "content": "Encryption is reversible with the right key, while hashing is a one-way process that cannot be reversed back to the original data."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is salting in password storage?"
+      },
+      {
+        "role": "assistant",
+        "content": "Salting adds a unique random value to each password before hashing, ensuring identical passwords produce different hashes and defending against precomputed attacks."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should passwords never be stored in plain text?"
+      },
+      {
+        "role": "assistant",
+        "content": "Storing passwords in plain text means anyone who accesses the database can read them directly, so passwords should always be hashed with a strong algorithm and a salt."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is HTTPS and why is it important?"
+      },
+      {
+        "role": "assistant",
+        "content": "HTTPS is HTTP secured with TLS encryption, protecting data in transit between the client and server from eavesdropping and tampering."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is TLS?"
+      },
+      {
+        "role": "assistant",
+        "content": "TLS (Transport Layer Security) is a cryptographic protocol that encrypts data sent over a network, providing privacy and integrity for communications."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a security vulnerability?"
+      },
+      {
+        "role": "assistant",
+        "content": "A security vulnerability is a weakness in a system that can be exploited by an attacker to compromise its confidentiality, integrity, or availability."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the principle of least privilege?"
+      },
+      {
+        "role": "assistant",
+        "content": "The principle of least privilege means giving users and components only the minimum access and permissions they need to perform their tasks."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is defense in depth?"
+      },
+      {
+        "role": "assistant",
+        "content": "Defense in depth is a strategy that uses multiple layers of security controls so that if one layer fails, others still protect the system."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is SQL injection?"
+      },
+      {
+        "role": "assistant",
+        "content": "SQL injection is an attack where malicious SQL code is inserted into input fields to manipulate a database, potentially exposing or destroying data."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can SQL injection be prevented?"
+      },
+      {
+        "role": "assistant",
+        "content": "SQL injection can be prevented by using parameterized queries or prepared statements, validating input, and using ORMs that escape user data safely."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is cross-site scripting (XSS)?"
+      },
+      {
+        "role": "assistant",
+        "content": "Cross-site scripting (XSS) is an attack where malicious scripts are injected into web pages and executed in other users' browsers, often to steal data or session tokens."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can XSS be prevented?"
+      },
+      {
+        "role": "assistant",
+        "content": "XSS can be prevented by escaping and sanitizing user input, encoding output, and using Content Security Policy headers."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is cross-site request forgery (CSRF)?"
+      },
+      {
+        "role": "assistant",
+        "content": "CSRF is an attack that tricks an authenticated user's browser into sending unwanted requests to a web application, performing actions without their consent."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can CSRF be prevented?"
+      },
+      {
+        "role": "assistant",
+        "content": "CSRF can be prevented using anti-CSRF tokens, checking the origin and referer headers, and using the SameSite attribute on cookies."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a man-in-the-middle attack?"
+      },
+      {
+        "role": "assistant",
+        "content": "A man-in-the-middle attack occurs when an attacker secretly intercepts and possibly alters communication between two parties who believe they are talking directly."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a brute-force attack?"
+      },
+      {
+        "role": "assistant",
+        "content": "A brute-force attack is an attempt to gain access by systematically trying many passwords or keys until the correct one is found."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a denial-of-service (DoS) attack?"
+      },
+      {
+        "role": "assistant",
+        "content": "A denial-of-service attack floods a system with traffic or requests to exhaust its resources and make it unavailable to legitimate users."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is phishing?"
+      },
+      {
+        "role": "assistant",
+        "content": "Phishing is a social-engineering attack where attackers impersonate trusted entities to trick users into revealing sensitive information like passwords or card details."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is input validation important?"
+      },
+      {
+        "role": "assistant",
+        "content": "Input validation ensures that data entering an application meets expected formats and rules, preventing many attacks such as injection and helping maintain data integrity."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between input validation and output encoding?"
+      },
+      {
+        "role": "assistant",
+        "content": "Input validation checks and rejects untrusted data when it enters the system, while output encoding safely formats data when it is displayed to prevent injection in the output context."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is secure coding?"
+      },
+      {
+        "role": "assistant",
+        "content": "Secure coding is the practice of writing software in a way that guards against vulnerabilities by following established security guidelines and avoiding risky patterns."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the role of code reviews in security?"
+      },
+      {
+        "role": "assistant",
+        "content": "Code reviews help catch security flaws, logic errors, and risky practices early by having other developers examine the code before it is merged."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should dependencies be kept up to date?"
+      },
+      {
+        "role": "assistant",
+        "content": "Keeping dependencies up to date ensures known vulnerabilities in third-party libraries are patched, reducing the risk of exploitation."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a software dependency vulnerability?"
+      },
+      {
+        "role": "assistant",
+        "content": "It is a security flaw in a third-party library or package your application uses, which can be exploited even if your own code is secure."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What are environment variables used for in security?"
+      },
+      {
+        "role": "assistant",
+        "content": "Environment variables store configuration and secrets such as API keys and database credentials outside the source code, keeping them out of version control."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should secrets not be hard-coded in source code?"
+      },
+      {
+        "role": "assistant",
+        "content": "Hard-coded secrets can be exposed if the code is shared, leaked, or committed to version control, so they should be stored securely in environment variables or secret managers."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is multi-factor authentication (MFA)?"
+      },
+      {
+        "role": "assistant",
+        "content": "Multi-factor authentication requires users to provide two or more independent forms of verification, adding a strong layer of protection beyond just a password."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a JSON Web Token (JWT)?"
+      },
+      {
+        "role": "assistant",
+        "content": "A JWT is a compact, signed token used to securely transmit claims between parties, commonly used for stateless authentication in web applications."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is session management?"
+      },
+      {
+        "role": "assistant",
+        "content": "Session management is how an application tracks and secures a user's authenticated state across multiple requests, including creating, validating, and expiring sessions."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is rate limiting and why is it used?"
+      },
+      {
+        "role": "assistant",
+        "content": "Rate limiting restricts how many requests a client can make in a given time period, helping prevent abuse, brute-force attacks, and denial-of-service."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is data sanitization?"
+      },
+      {
+        "role": "assistant",
+        "content": "Data sanitization is the process of cleaning input by removing or escaping potentially harmful characters before it is processed or stored."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the principle of fail securely?"
+      },
+      {
+        "role": "assistant",
+        "content": "Failing securely means that when an error or failure occurs, the system defaults to a safe state rather than exposing data or granting unintended access."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is logging important for security?"
+      },
+      {
+        "role": "assistant",
+        "content": "Logging records events and actions in a system, enabling detection of suspicious activity, investigation of incidents, and auditing, though logs must avoid storing sensitive data."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is penetration testing?"
+      },
+      {
+        "role": "assistant",
+        "content": "Penetration testing is an authorized simulated attack on a system to identify and fix security weaknesses before real attackers can exploit them."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the OWASP Top Ten?"
+      },
+      {
+        "role": "assistant",
+        "content": "The OWASP Top Ten is a widely referenced list of the most critical web application security risks, published to help developers prioritize security efforts."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is data privacy?"
+      },
+      {
+        "role": "assistant",
+        "content": "Data privacy is the proper handling, processing, and protection of personal data in line with user expectations and legal regulations such as GDPR."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in application security and best practices, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What does security by design mean?"
+      },
+      {
+        "role": "assistant",
+        "content": "Security by design means building security into a system from the very beginning of development rather than adding it as an afterthought."
+      }
+    ]
+  }
+]

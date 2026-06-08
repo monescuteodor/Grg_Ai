@@ -1,0 +1,324 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is assembly language and what is the relationship between assembly and machine code?"},
+      {"role": "assistant", "content": "Assembly language is a low-level programming language with a strong correspondence to machine code instructions. Each line of assembly maps to one (or very few) CPU instructions.\n\nKey characteristics:\n- Assembly is human-readable; machine code is binary\n- Each assembly mnemonic (like `mov`, `add`, `jmp`) maps directly to a CPU opcode\n- There is almost no abstraction — you control registers, memory, and flags directly\n\nThis reference covers **x86-64 (AMD64)** assembly using **NASM syntax**."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the main x86-64 assemblers?"},
+      {"role": "assistant", "content": "- **NASM** (Netwide Assembler) — cross-platform, popular for Linux, uses Intel syntax\n- **MASM** (Microsoft Macro Assembler) — Windows, Intel syntax\n- **GAS** (GNU Assembler) — part of binutils, uses AT&T syntax by default, used by `gcc`\n- **FASM** (Flat Assembler) — self-hosting, very fast"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "Write a Hello World program in x86-64 assembly for Linux using NASM."},
+      {"role": "assistant", "content": "```nasm\n; hello.asm — x86-64 Linux\nsection .data\n    msg db \"Hello, World!\", 10   ; message + newline (10 = '\\n')\n    len equ $ - msg              ; length = current position minus start of msg\n\nsection .text\n    global _start\n\n_start:\n    ; sys_write(stdout, msg, len)\n    mov rax, 1          ; syscall number: write\n    mov rdi, 1          ; file descriptor: stdout\n    mov rsi, msg        ; pointer to buffer\n    mov rdx, len        ; number of bytes to write\n    syscall\n\n    ; sys_exit(0)\n    mov rax, 60         ; syscall number: exit\n    xor rdi, rdi        ; exit code 0 (xor is faster than mov rdi,0)\n    syscall\n```\n\nAssemble and run:\n```bash\nnasm -f elf64 hello.asm -o hello.o\nld hello.o -o hello\n./hello\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you assemble and link a NASM program on Linux?"},
+      {"role": "assistant", "content": "```bash\n# Assemble to object file\nnasm -f elf64 hello.asm -o hello.o\n\n# Link to executable (no C runtime)\nld hello.o -o hello\n\n./hello\n\n# Alternative: link with C runtime (macOS/Windows friendly)\nnasm -f elf64 hello.asm\ngcc hello.o -o hello -nostartfiles\n```\n\n- `-f elf64` specifies the 64-bit ELF output format (Linux)\n- `ld` is the GNU linker, used when you write your own `_start` entry point\n- `-nostartfiles` skips the C startup code but uses the C linker"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the x86-64 general-purpose registers and their sub-registers?"},
+      {"role": "assistant", "content": "Each register has four sizes you can access independently:\n\n```\n; 64-bit registers\nrax  rcx  rdx  rbx  rsp  rbp  rsi  rdi\nr8   r9   r10  r11  r12  r13  r14  r15\n\n; 32-bit sub-registers (writing zero-extends to 64-bit)\neax  ecx  edx  ebx  esp  ebp  esi  edi\nr8d  r9d  r10d r11d r12d r13d r14d r15d\n\n; 16-bit sub-registers\nax   cx   dx   bx   sp   bp   si   di\nr8w  r9w  r10w r11w r12w r13w r14w r15w\n\n; 8-bit sub-registers (low byte)\nal   cl   dl   bl   spl  bpl  sil  dil\nr8b  r9b  r10b r11b r12b r13b r14b r15b\n\n; 8-bit high bytes (only ax,cx,dx,bx)\nah   ch   dh   bh\n```\n\nImportant: writing to a 32-bit register (e.g., `eax`) **zero-extends** the result into the full 64-bit `rax`. Writing to 8-bit or 16-bit sub-registers does **not** zero-extend."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the special-purpose registers in x86-64?"},
+      {"role": "assistant", "content": "```\nrip     ; instruction pointer — address of next instruction to execute\nrsp     ; stack pointer — top of the stack (grows downward)\nrbp     ; base pointer / frame pointer — tracks the current stack frame\nrflags  ; flags register — holds ZF, SF, OF, CF, PF etc.\n\n; Segment registers (mostly legacy in 64-bit mode)\ncs  ds  es  fs  gs  ss\n\n; SIMD registers\nxmm0..xmm15    ; 128-bit (SSE/SSE2)\nymm0..ymm15    ; 256-bit (AVX)\nzmm0..zmm31    ; 512-bit (AVX-512)\n```\n\n`rip` cannot be moved to directly — it is controlled by `jmp`, `call`, and `ret`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the Linux System V AMD64 calling convention?"},
+      {"role": "assistant", "content": "The **System V AMD64** calling convention is used on Linux, macOS, and BSDs:\n\n```\n; Function arguments (in order):\nrdi  rsi  rdx  rcx  r8  r9   ; first 6 integer/pointer args\n; additional args go on the stack\n\n; Return values:\nrax       ; first return value (or only)\nrdx       ; second return value (e.g. for 128-bit results)\n\n; Callee-saved (function must preserve these):\nrbx  rbp  r12  r13  r14  r15\n\n; Caller-saved (may be clobbered by any call):\nrax  rcx  rdx  rsi  rdi  r8  r9  r10  r11\n```\n\nIf your function uses any callee-saved register, it must push it at the start and pop it before returning."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the Windows x64 calling convention?"},
+      {"role": "assistant", "content": "The **Windows x64** calling convention differs from Linux:\n\n```\n; Function arguments (in order):\nrcx  rdx  r8  r9   ; first 4 integer/pointer args\n; additional args go on the stack\n; caller must also allocate 32 bytes of \"shadow space\" on the stack before each call\n\n; Return value:\nrax\n\n; Callee-saved (function must preserve these):\nrbx  rbp  rdi  rsi  r12  r13  r14  r15\n; also: xmm6..xmm15\n\n; Caller-saved (may be clobbered):\nrax  rcx  rdx  r8  r9  r10  r11\n```\n\nKey difference from Linux: Windows uses `rcx rdx r8 r9` (not `rdi rsi rdx rcx`), and requires 32 bytes of shadow space on the stack before every call."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you define data in the .data and .bss sections in NASM?"},
+      {"role": "assistant", "content": "```nasm\nsection .data\n    byte_val  db 42          ; define byte  (1 byte)\n    word_val  dw 1000        ; define word  (2 bytes)\n    dword_val dd 100000      ; define dword (4 bytes)\n    qword_val dq 1000000000  ; define qword (8 bytes)\n    my_array  dd 1, 2, 3, 4, 5\n    my_str    db \"Hello\", 0  ; null-terminated string\n\nsection .bss\n    buffer  resb 256         ; reserve 256 bytes (uninitialized)\n    count   resq 1           ; reserve 1 qword (8 bytes)\n```\n\n- `.data` — initialized data (takes space in the binary)\n- `.bss` — uninitialized data (zero-filled at runtime, no space in binary)\n- `db/dw/dd/dq` — define byte/word/dword/qword\n- `resb/resw/resd/resq` — reserve bytes/words/dwords/qwords"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does the MOV instruction work in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; Register to register\nmov rax, 42\nmov rbx, rax\n\n; Immediate to register\nmov rax, 100             ; 64-bit immediate\nmov eax, 100             ; 32-bit (zero-extends to rax)\nmov ax,  100             ; 16-bit\nmov al,  100             ; 8-bit\n\n; Memory to register\nmov rax, [qword_val]     ; load qword from memory\nmov eax, [dword_val]\nmov ax,  [word_val]\nmov al,  [byte_val]\n\n; Register to memory\nmov [qword_val], rax\nmov qword [buffer], 0    ; explicit size override\n```\n\nNote: `mov` cannot move directly from memory to memory — you always need a register as an intermediate."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does memory addressing work in x86-64? Show the effective address formula."},
+      {"role": "assistant", "content": "x86-64 supports a flexible addressing mode:\n```\n[base + index*scale + displacement]\n```\n\n```nasm\nmov rax, [rsi]              ; base only\nmov rax, [rsi + 8]          ; base + displacement\nmov rax, [rsi + rcx*8]      ; base + index*scale (scale: 1,2,4,8)\nmov rax, [rsi + rcx*4 + 16] ; base + index*scale + displacement\n\nmov rax, [my_array + 4]     ; element at byte offset 4\n```\n\n- **base**: any general-purpose register\n- **index**: any register except `rsp`\n- **scale**: 1, 2, 4, or 8 (byte multiplier)\n- **displacement**: signed constant offset"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is LEA and how is it different from MOV?"},
+      {"role": "assistant", "content": "```nasm\n; MOV loads the VALUE at the address\nmov rax, [rsi + rcx*8]   ; rax = *(rsi + rcx*8)\n\n; LEA computes the ADDRESS without accessing memory\nlea rax, [rsi + rcx*8]   ; rax = rsi + rcx*8  (just arithmetic, no load)\nlea rdi, [my_str]         ; rdi = address of my_str (like &my_str in C)\n```\n\nLEA (Load Effective Address) is often used as a fast arithmetic trick:\n```nasm\nlea rax, [rax + rax*4]   ; rax = rax * 5  (1 instruction, no multiply)\nlea rax, [rax*2 + rax]   ; rax = rax * 3\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are MOVZX and MOVSX used for?"},
+      {"role": "assistant", "content": "```nasm\n; MOVZX — move with zero-extension\nmovzx rax, byte [buffer]    ; load byte, zero-extend to 64-bit rax\nmovzx eax, word [word_val]  ; load word, zero-extend to 32-bit eax\n\n; MOVSX — move with sign-extension\nmovsx rax, dword [dword_val] ; load dword, sign-extend to 64-bit rax\nmovsx rax, byte [buffer]     ; load signed byte, sign-extend to 64-bit\n```\n\n- **MOVZX**: fills the upper bits with **zeros** — treats the source as an unsigned value\n- **MOVSX**: fills the upper bits with the **sign bit** — treats the source as a signed (two's complement) value\n\nWithout these, moving a smaller value into a larger register leaves the upper bits undefined (or unchanged)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do XCHG, PUSH, POP, and CMOV work?"},
+      {"role": "assistant", "content": "```nasm\n; XCHG — swap two registers atomically\nxchg rax, rbx              ; rax ↔ rbx\n\n; PUSH — push value onto stack (rsp -= 8, then store)\npush rax\npush rbx\n\n; POP — pop value from stack (load, then rsp += 8)\npop  rcx     ; rcx = old rbx (LIFO order)\npop  rdx     ; rdx = old rax\n\n; CMOV — conditional move (no branch!)\ncmp rax, rbx\ncmovg rax, rbx   ; move rbx→rax only if rax > rbx (greater)\ncmovl rax, rbx   ; move rbx→rax only if rax < rbx (less)\n```\n\n`cmov` variants avoid branch mispredictions — useful for simple if/else patterns on modern CPUs."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do ADD, SUB, INC, and DEC work in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; ADD — addition\nadd rax, rbx       ; rax = rax + rbx\nadd rax, 10        ; rax = rax + 10  (immediate)\nadd rax, [mem]     ; rax = rax + value at mem\n\n; SUB — subtraction\nsub rax, rbx       ; rax = rax - rbx\nsub rax, [mem]\n\n; INC — increment by 1\ninc rax             ; rax++\n\n; DEC — decrement by 1\ndec rcx             ; rcx--\n```\n\nAll of these set the flags (ZF, SF, OF, CF) based on the result, which can then be used for conditional jumps."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does multiplication work in x86-64 assembly (MUL and IMUL)?"},
+      {"role": "assistant", "content": "```nasm\n; MUL — unsigned multiply\n; rdx:rax = rax * operand  (128-bit result in two registers)\nmul rbx            ; rdx:rax = rax * rbx\n\n; IMUL — signed multiply (three forms)\nimul rbx           ; rdx:rax = rax * rbx  (1 operand, like MUL but signed)\nimul rax, rbx      ; rax = rax * rbx      (2 operand, result truncated to 64-bit)\nimul rax, rbx, 5   ; rax = rbx * 5        (3 operand, immediate)\n```\n\n- 1-operand MUL/IMUL always uses `rax` as one input and stores the 128-bit result across `rdx:rax`\n- 2-operand and 3-operand IMUL are more convenient and keep the result in one register (overflow is silently truncated)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does division work in x86-64 assembly (DIV and IDIV)?"},
+      {"role": "assistant", "content": "```nasm\n; DIV — unsigned divide\n; rdx:rax ÷ operand → rax = quotient, rdx = remainder\nxor rdx, rdx       ; MUST clear rdx before dividing (set upper 64 bits to 0)\nmov rax, 100\nmov rbx, 7\ndiv rbx            ; rax = 14 (quotient), rdx = 2 (remainder)\n\n; IDIV — signed divide (same register convention)\ncdq                ; sign-extend rax into rdx:rax (for signed division)\nidiv rbx\n```\n\n**Important**: always clear (or sign-extend) `rdx` before dividing, or you will get wrong results or a divide exception. Use `xor rdx, rdx` for unsigned, `cqo` (or `cdq`) for signed."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do bitwise operations work in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; AND\nand rax, rbx\nand rax, 0xFF      ; mask: keep only lowest 8 bits\n\n; OR\nor  rax, rbx\nor  rax, 0x01      ; set bit 0\n\n; XOR\nxor rax, rax       ; rax = 0  (fastest way to zero a register)\nxor rax, 0xFF      ; flip lowest 8 bits\n\n; NOT\nnot rax            ; bitwise NOT (flip all bits)\n\n; NEG\nneg rax            ; rax = -rax  (two's complement negate)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do shift and rotate instructions work in x86-64?"},
+      {"role": "assistant", "content": "```nasm\n; SHL — shift left (multiply by 2 per shift)\nshl rax, 1         ; rax = rax * 2\nshl rax, cl        ; shift left by amount in cl register\n\n; SHR — logical shift right (unsigned division by 2 per shift)\nshr rax, 1         ; rax = rax / 2  (unsigned)\n\n; SAR — arithmetic shift right (signed, preserves sign bit)\nsar rax, 1         ; rax = rax / 2  (signed, sign-extends)\n\n; ROL / ROR — rotate left / rotate right (bits wrap around)\nrol rax, 4         ; rotate left by 4 bits\nror rax, 4         ; rotate right by 4 bits\n```\n\n- SHR fills the high bits with **0** (unsigned)\n- SAR fills the high bits with the **sign bit** (signed)\n- Rotate does not lose bits — they wrap to the other end"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do BSF, BSR, and POPCNT work?"},
+      {"role": "assistant", "content": "```nasm\n; BSF — Bit Scan Forward: find index of lowest set bit\nbsf rcx, rax       ; rcx = position of lowest 1-bit in rax\n                   ; ZF=1 if rax=0 (undefined result)\n\n; BSR — Bit Scan Reverse: find index of highest set bit\nbsr rcx, rax       ; rcx = position of highest 1-bit in rax\n\n; POPCNT — population count: count the number of set bits\npopcnt rax, rbx    ; rax = number of 1-bits in rbx\n```\n\nExample: if `rax = 0b00101000` (40):\n- `bsf` → 3 (lowest set bit is bit 3)\n- `bsr` → 5 (highest set bit is bit 5)\n- `popcnt` → 2 (two 1-bits)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the CPU flags and what do they represent?"},
+      {"role": "assistant", "content": "Arithmetic and logical instructions set flags in the `rflags` register:\n\n```\nZF — Zero Flag:     set if result == 0\nSF — Sign Flag:     set if result < 0 (MSB is 1)\nOF — Overflow Flag: set if signed overflow occurred\nCF — Carry Flag:    set if unsigned overflow / borrow occurred\nPF — Parity Flag:   set if low byte has even number of 1-bits\n```\n\nThese flags are then read by conditional jump instructions:\n- `je` (jump if equal) checks ZF\n- `jg` (jump if greater) checks ZF=0 and SF=OF\n- `jb` (jump if below) checks CF=1\n\nFlags are set by: `add`, `sub`, `cmp`, `test`, `and`, `or`, `xor`, etc."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do CMP and TEST work? How are they different?"},
+      {"role": "assistant", "content": "```nasm\n; CMP — compare by subtraction (sets flags, discards result)\ncmp rax, rbx      ; computes rax - rbx, updates flags, does NOT change rax or rbx\ncmp rax, 0        ; check if rax == 0\n\n; TEST — compare by AND (sets flags, discards result)\ntest rax, rax     ; computes rax & rax — sets ZF if rax == 0\ntest al, 1        ; checks if bit 0 of al is set (ZF=0 means bit is set)\n```\n\n- `cmp a, b` is best for comparing two values (equal, greater, less)\n- `test a, a` is the idiomatic way to check if a register is zero\n- `test a, mask` checks whether specific bits are set\n\nNeither instruction modifies their operands — they only affect flags."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the conditional jump instructions in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; Unconditional\njmp label          ; always jump\njmp rax            ; indirect jump (jump to address in rax)\n\n; Signed comparisons (use after cmp with signed integers)\nje  label  ; jump if equal          (ZF=1)\njne label  ; jump if not equal      (ZF=0)\njg  label  ; jump if greater        (ZF=0 and SF=OF)\njge label  ; jump if greater/equal  (SF=OF)\njl  label  ; jump if less           (SF≠OF)\njle label  ; jump if less/equal     (ZF=1 or SF≠OF)\n\n; Unsigned comparisons (use after cmp with unsigned integers)\nja  label  ; jump if above          (CF=0 and ZF=0)\njae label  ; jump if above/equal    (CF=0)\njb  label  ; jump if below          (CF=1)\njbe label  ; jump if below/equal    (CF=1 or ZF=1)\n\n; Flag-based\njz  label  ; jump if zero  (ZF=1)\njnz label  ; jump if not zero\njc  label  ; jump if carry\njnc label  ; jump if no carry\njs  label  ; jump if sign (result was negative)\njns label  ; jump if no sign (result was non-negative)\njo  label  ; jump if overflow\njno label  ; jump if no overflow\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you implement a loop in x86-64 assembly? Show the LOOP instruction and a manual loop."},
+      {"role": "assistant", "content": "```nasm\n; Using the LOOP instruction (decrements rcx, jumps if rcx != 0)\nmov rcx, 10\n.loop:\n    ; loop body here\n    loop .loop        ; rcx--; if rcx != 0: jump to .loop\n\n; Manual loop (more flexible, preferred in modern code)\nmov rcx, 10\n.loop:\n    ; loop body here\n    dec rcx\n    jnz .loop         ; jump if rcx != 0\n\n; Counting up\nxor rax, rax          ; rax = 0 (loop counter)\n.loop:\n    ; use rax\n    inc rax\n    cmp rax, 10\n    jl  .loop         ; jump if rax < 10\n```\n\nThe `loop` instruction is convenient but slower on modern CPUs — a `dec`/`jnz` pair is preferred for performance."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do CALL and RET work in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; CALL — push return address, jump to function\ncall my_function   ; pushes rip+next_instruction, then jumps to my_function\n; execution resumes here after ret\n\n; RET — pop return address and jump to it\nmy_function:\n    ; function body\n    ret              ; pops the address pushed by call, jumps there\n```\n\n`call label` is equivalent to:\n```nasm\npush rip + 5        ; (address of next instruction)\njmp  label\n```\n\n`ret` is equivalent to:\n```nasm\npop rip             ; restore instruction pointer\n```\n\nThe stack must be 16-byte aligned before a `call` (required by System V ABI)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you pass arguments to a function in x86-64 assembly (System V)?"},
+      {"role": "assistant", "content": "```nasm\n; System V AMD64: arguments go in registers (in order)\nmov rdi, arg1      ; 1st argument\nmov rsi, arg2      ; 2nd argument\nmov rdx, arg3      ; 3rd argument\nmov rcx, arg4      ; 4th argument\nmov r8,  arg5      ; 5th argument\nmov r9,  arg6      ; 6th argument\n; 7th+ arguments go on the stack (right to left)\ncall my_func\n; return value is in rax\n```\n\nInside the function:\n```nasm\nmy_func:\n    ; rdi = first arg, rsi = second arg, etc.\n    mov rax, rdi     ; return the first argument\n    ret\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the standard function prologue and epilogue in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\nmy_function:\n    ; --- Prologue ---\n    push rbp            ; save caller's base pointer\n    mov  rbp, rsp       ; set our frame pointer\n    sub  rsp, 48        ; allocate local stack space (keep 16-byte aligned)\n\n    ; Save any callee-saved registers we will use\n    push rbx\n    push r12\n    push r13\n\n    ; --- Function body ---\n    ; Parameters in: rdi, rsi, rdx, rcx, r8, r9\n    ; Return value:  rax\n\n    ; --- Epilogue ---\n    pop r13\n    pop r12\n    pop rbx\n\n    mov rsp, rbp        ; restore stack pointer\n    pop rbp             ; restore caller's base pointer\n    ret\n```\n\nThe stack must remain **16-byte aligned** at every `call` instruction. The `push rbp` + `sub rsp, N` pattern ensures this when N is chosen carefully."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "Write a recursive factorial function in x86-64 assembly."},
+      {"role": "assistant", "content": "```nasm\n; factorial(n) — n passed in rdi, result returned in rax\nfactorial:\n    push rbp\n    mov  rbp, rsp\n    push rbx\n    mov  rbx, rdi       ; save n (we need it after the recursive call)\n\n    cmp  rdi, 1\n    jle  .base_case     ; if n <= 1, return 1\n\n    dec  rdi            ; n - 1\n    call factorial       ; rax = factorial(n-1)\n    imul rax, rbx        ; rax = n * factorial(n-1)\n    jmp  .done\n\n.base_case:\n    mov  rax, 1         ; return 1\n\n.done:\n    pop  rbx\n    pop  rbp\n    ret\n```\n\nKey points:\n- `rbx` is callee-saved, so it is safe to use for storing `n` across the recursive call\n- `rdi` is caller-saved and will be clobbered by the recursive call — that is why we save `n` in `rbx`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the difference between callee-saved and caller-saved registers?"},
+      {"role": "assistant", "content": "**Caller-saved** (volatile) registers: the calling function must save them before a call if it needs them afterward — the called function may freely overwrite them.\n```\nrax  rcx  rdx  rsi  rdi  r8  r9  r10  r11\n```\n\n**Callee-saved** (non-volatile) registers: the called function must save and restore them if it uses them — the caller can rely on them being unchanged after a call.\n```\nrbx  rbp  r12  r13  r14  r15\n```\n\nExample: if you call a function and need `rcx` afterward, save it before the call:\n```nasm\npush rcx         ; save caller-saved register\ncall some_func\npop  rcx         ; restore it\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do SSE2 SIMD operations work in x86-64 assembly?"},
+      {"role": "assistant", "content": "SSE2 operates on 128-bit `xmm` registers holding multiple values simultaneously:\n\n```nasm\nsection .data\n    floats  dd 1.0, 2.0, 3.0, 4.0   ; 4 packed single-precision floats\n\nsection .text\n    ; Load 4 floats into xmm0\n    movaps  xmm0, [floats]   ; aligned load (address must be 16-byte aligned)\n    movups  xmm0, [floats]   ; unaligned load (no alignment requirement)\n\n    ; Packed single-precision arithmetic (4 floats at once)\n    addps   xmm0, xmm1       ; xmm0[0..3] += xmm1[0..3]\n    subps   xmm0, xmm1\n    mulps   xmm0, xmm1\n    divps   xmm0, xmm1\n    sqrtps  xmm0, xmm1       ; square root of all 4 floats\n\n    ; Scalar (operates on only the lowest element)\n    addss   xmm0, xmm1       ; xmm0[0] += xmm1[0], others unchanged\n    mulss   xmm0, xmm1\n\n    ; Double precision\n    addpd   xmm0, xmm1       ; 2 doubles added\n    addsd   xmm0, xmm1       ; 1 double added (scalar)\n```\n\n`ps` = packed single | `pd` = packed double | `ss` = scalar single | `sd` = scalar double"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do SSE compare and shuffle instructions work?"},
+      {"role": "assistant", "content": "```nasm\n; Compare — element-wise, sets each element to all-1s (true) or 0 (false)\ncmpeqps xmm0, xmm1       ; xmm0[i] = (xmm0[i] == xmm1[i]) ? 0xFFFFFFFF : 0\n\n; Shuffle / permute — rearrange elements within xmm registers\nshufps  xmm0, xmm1, 0b01001110\n; Immediate byte encodes which elements from xmm0 and xmm1 go where\n; bits [1:0] → dest[0], bits [3:2] → dest[1] (from xmm0)\n; bits [5:4] → dest[2], bits [7:6] → dest[3] (from xmm1)\n```\n\nSSE comparisons produce a **mask** (all 1s or all 0s per element) that can then be used with `andps`/`orps` to blend values."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do AVX 256-bit SIMD operations work?"},
+      {"role": "assistant", "content": "AVX uses 256-bit `ymm` registers (8 floats or 4 doubles at once):\n\n```nasm\n; Load 8 floats into ymm0\nvmovaps  ymm0, [floats8]     ; aligned 256-bit load\n\n; 3-operand arithmetic (non-destructive, result goes to dest)\nvaddps   ymm0, ymm0, ymm1   ; ymm0 = ymm0 + ymm1  (8 floats)\nvmulps   ymm2, ymm0, ymm1   ; ymm2 = ymm0 * ymm1  (ymm0 unchanged)\n```\n\nAVX uses a 3-operand form: `vOPps dest, src1, src2` — unlike SSE's 2-operand destructive form `addps xmm0, xmm1` which always overwrites the first operand.\n\nAVX-512 extends to 512-bit `zmm` registers (16 floats)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does the x87 FPU work in x86-64 assembly?"},
+      {"role": "assistant", "content": "The x87 FPU is the legacy floating-point unit — it uses a stack of 8 registers (`st0` through `st7`):\n\n```nasm\nfld     qword [val]       ; push val onto FP stack (st0 = val)\nfld     qword [val2]      ; push val2 (st0=val2, st1=old val)\nfadd                      ; st0 = st0 + st1 (pop both, push result)\nfstp    qword [result]    ; pop st0 and store to memory\n\n; Other FP operations\nfmul    st0, st1          ; st0 = st0 * st1\nfdiv    st0, st1          ; st0 = st0 / st1\nfsqrt                     ; st0 = sqrt(st0)\nfabs                      ; st0 = |st0|\nfchs                      ; st0 = -st0  (change sign)\n```\n\nThe x87 FPU is mostly legacy — prefer SSE2/AVX for new code. It is still used for **80-bit long double** (`long double` in C on Linux)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What are the most important Linux x86-64 syscall numbers?"},
+      {"role": "assistant", "content": "```nasm\n; Linux x86-64 syscall numbers\n; sys_read   = 0    args: (fd, buf, count)\n; sys_write  = 1    args: (fd, buf, count)\n; sys_open   = 2    args: (pathname, flags, mode)\n; sys_close  = 3    args: (fd)\n; sys_mmap   = 9    args: (addr, len, prot, flags, fd, offset)\n; sys_brk    = 12   args: (addr)\n; sys_fork   = 57\n; sys_exit   = 60   args: (error_code)\n```\n\nSyscall convention:\n- Syscall number in `rax`\n- Arguments in `rdi, rsi, rdx, r10, r8, r9` (note: `r10` not `rcx` for syscalls)\n- Return value in `rax` (negative value = errno)\n- Use the `syscall` instruction to invoke"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you make a sys_write syscall in Linux x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\nsection .data\n    msg db \"Hello\", 10    ; string + newline\n    msglen equ $ - msg    ; length\n\nsection .text\nglobal _start\n\n_start:\n    mov rax, 1            ; syscall number: sys_write\n    mov rdi, 1            ; fd: 1 = stdout\n    mov rsi, msg          ; pointer to buffer\n    mov rdx, msglen       ; number of bytes\n    syscall               ; invoke kernel\n```\n\nFor `sys_read` (read from stdin):\n```nasm\n    mov rax, 0            ; syscall: sys_read\n    mov rdi, 0            ; fd: 0 = stdin\n    mov rsi, buffer       ; destination buffer\n    mov rdx, 256          ; max bytes to read\n    syscall\n    ; rax = number of bytes actually read\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you define and use macros in NASM?"},
+      {"role": "assistant", "content": "```nasm\n; Define a macro with %macro / %endmacro\n; %macro name num_args\n%macro write_string 2     ; 2 arguments\n    mov rax, 1\n    mov rdi, 1\n    mov rsi, %1            ; first argument\n    mov rdx, %2            ; second argument\n    syscall\n%endmacro\n\n%macro exit_code 1        ; 1 argument\n    mov rax, 60\n    mov rdi, %1\n    syscall\n%endmacro\n\n; Usage\n_start:\n    write_string msg, msglen\n    exit_code 0\n```\n\n- `%1`, `%2`, … refer to macro arguments\n- Macros expand inline — no call overhead\n- Arguments are passed as text (token substitution)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you use local labels inside NASM macros to avoid label conflicts?"},
+      {"role": "assistant", "content": "```nasm\n%macro print_newline 0\n    push rax\n    push rdi\n    push rsi\n    push rdx\n    mov  rax, 1\n    mov  rdi, 1\n    mov  rsi, .nl        ; local label — unique per macro expansion\n    mov  rdx, 1\n    syscall\n    pop  rdx\n    pop  rsi\n    pop  rdi\n    pop  rax\n    jmp  .end            ; jump past the data\n.nl: db 10               ; newline byte embedded in code\n.end:\n%endmacro\n```\n\nLabels starting with `.` inside a macro are **local** — NASM generates a unique name for each macro expansion, so using the same macro multiple times does not cause duplicate label errors."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does conditional assembly work in NASM with %ifdef?"},
+      {"role": "assistant", "content": "```nasm\n; Conditional compilation — include code only if symbol is defined\n%ifdef DEBUG\n    %define LOG(x) mov rdi, x; call debug_print\n%else\n    %define LOG(x)            ; expands to nothing in release builds\n%endif\n\n; Use:\n    LOG(my_value)             ; only emits code in DEBUG builds\n```\n\n- `%ifdef SYMBOL` — true if SYMBOL was defined (via `%define` or `-dSYMBOL` on command line)\n- `%ifndef` — true if NOT defined\n- `%else` / `%endif` — branches\n- Define on command line: `nasm -dDEBUG -f elf64 file.asm`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you compute EQU and use the $ symbol in NASM?"},
+      {"role": "assistant", "content": "```nasm\nsection .data\n    msg db \"Hello, World!\", 10   ; define the string\n    len equ $ - msg              ; len = current position minus start of msg\n```\n\n- `$` is the **current address** (position counter) at that point in the file\n- `equ` defines a **compile-time constant** (not a variable — takes no memory)\n- `$ - msg` computes the byte length of the string between `msg` and the current position\n\nThis is the standard idiom for computing string lengths in NASM without hardcoding the number."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "Why is XOR used to zero a register instead of MOV in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\nxor rax, rax       ; rax = 0  (preferred)\nmov rax, 0         ; rax = 0  (also works but less efficient)\n```\n\n`xor rax, rax` is preferred because:\n1. **Smaller encoding** — `xor eax, eax` encodes in 2 bytes; `mov rax, 0` can be 5–10 bytes\n2. **Dependency breaking** — the CPU recognizes `xor reg, reg` as independent of the previous value of `reg`, enabling better pipelining\n3. **Zeroing the full 64-bit register** — writing to `eax` (32-bit) zero-extends to `rax`, so `xor eax, eax` is equivalent to `xor rax, rax`\n\nThis is one of the most common assembly micro-optimizations."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the difference between .data, .bss, and .text sections?"},
+      {"role": "assistant", "content": "```nasm\nsection .text    ; executable code goes here\n    global _start\n_start:\n    ; instructions\n\nsection .data    ; initialized data (exists in the binary file)\n    msg db \"Hello\", 10\n    count dd 42\n\nsection .bss     ; uninitialized data (zero-filled at runtime, NOT in binary)\n    buffer  resb 256    ; reserve 256 bytes\n    number  resq 1      ; reserve 1 qword\n```\n\n| Section | Contents | In binary? | Writeable? |\n|---------|----------|------------|------------|\n| `.text` | Machine code | Yes | No (read-execute) |\n| `.data` | Initialized variables | Yes | Yes |\n| `.bss`  | Uninitialized variables | No (just size) | Yes |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How does the stack work in x86-64? Which direction does it grow?"},
+      {"role": "assistant", "content": "The stack grows **downward** — toward lower memory addresses.\n\n```nasm\npush rax        ; rsp -= 8, then memory[rsp] = rax\n                ; (stack grows down by 8 bytes)\n\npop  rbx        ; rbx = memory[rsp], then rsp += 8\n                ; (stack shrinks up by 8 bytes)\n```\n\nVisually:\n```\nHigh addresses\n  [previous frame]\n  [return address]  ← rsp after call\n  [saved rbp]       ← rsp after push rbp\n  [local variables] ← rsp after sub rsp, N\nLow addresses\n```\n\nThe stack must be **16-byte aligned** before any `call` instruction (System V ABI requirement). A misaligned stack can cause crashes with SSE instructions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What is the difference between signed and unsigned jumps in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; After: cmp rax, rbx\n\n; Signed jumps (interpret values as two's complement signed integers)\njg  label  ; jump if rax > rbx  (signed greater)\njl  label  ; jump if rax < rbx  (signed less)\njge label  ; jump if rax >= rbx\njle label  ; jump if rax <= rbx\n\n; Unsigned jumps (interpret values as unsigned integers)\nja  label  ; jump if rax > rbx  (unsigned above)\njb  label  ; jump if rax < rbx  (unsigned below)\njae label  ; jump if rax >= rbx\njbe label  ; jump if rax <= rbx\n```\n\nExample: `-1` as a 64-bit unsigned value is `0xFFFFFFFFFFFFFFFF` (very large).\n- Signed: `-1 < 0` → `jl` would jump\n- Unsigned: `0xFFFFFFFF... > 0` → `ja` would jump\n\nChoose signed (`jg/jl`) for signed integers and unsigned (`ja/jb`) for pointers and unsigned values."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "How do you implement an if-else in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; C equivalent: if (rax > rbx) { rax = rax - rbx; } else { rax = rbx - rax; }\n\n    cmp rax, rbx\n    jle .else_branch        ; jump to else if NOT (rax > rbx)\n\n.if_branch:\n    sub rax, rbx\n    jmp .end_if\n\n.else_branch:\n    sub rbx, rax\n    mov rax, rbx\n\n.end_if:\n    ; continue\n```\n\nAlternatively using CMOV (branchless):\n```nasm\n    cmp  rax, rbx\n    cmovle rax, rbx         ; if rax <= rbx: rax = rbx (no branch!)\n```\n\nBranchless code with `cmov` is often faster due to avoiding branch mispredictions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What does 'global _start' mean in NASM and why is it needed?"},
+      {"role": "assistant", "content": "```nasm\nsection .text\n    global _start    ; export _start symbol to the linker\n\n_start:\n    ; program entry point\n```\n\n- `global` makes a label visible to the linker (exports it from the object file)\n- `_start` is the **entry point** of a Linux program when linking without the C runtime\n- Without `global _start`, the linker cannot find the entry point and will fail with `undefined reference to '_start'`\n\nWhen using the C runtime (via `gcc`), the entry point is `main` instead, and `_start` is provided by the C startup code (`crt0.o`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert x86-64 assembly language tutor. Answer clearly, use NASM syntax, and always include code comments."},
+      {"role": "user", "content": "What does the variadic function calling convention look like in x86-64 assembly?"},
+      {"role": "assistant", "content": "```nasm\n; Variadic function: print_ints(count, v1, v2, ...)\n; rdi = count\n; rsi = v1\n; rdx = v2\n; rcx = v3\n; r8  = v4\n; r9  = v5\n; [rsp+8]  = v6  (first stack argument after return address)\n; [rsp+16] = v7\n; ...\nprint_ints:\n    push rbp\n    mov  rbp, rsp\n    ; access stack args:\n    mov  rax, [rbp + 16]   ; v6 (7th argument)\n    mov  rax, [rbp + 24]   ; v7 (8th argument)\n    pop  rbp\n    ret\n```\n\nFor `printf` and other C variadic functions, the number of XMM registers used must also be passed in `rax` before the call."}
+    ]
+  }
+]

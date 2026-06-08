@@ -1,0 +1,387 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is APL and who created it?"},
+      {"role": "assistant", "content": "APL (A Programming Language) was created by Kenneth Iverson in 1962 and published in 1966.\n\nKey characteristics:\n- Uses a unique set of special mathematical symbols for array operations\n- Array-oriented — operations apply to entire arrays at once\n- Right-to-left evaluation — expressions are evaluated from right to left\n- Can express complex algorithms in very few characters"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the main APL implementations?"},
+      {"role": "assistant", "content": "- **Dyalog APL**: most popular, commercial but free for personal use. Runs on Linux/Mac/Windows.\n- **GNU APL**: open source\n- **ngn/apl**: web-based, runs in the browser at https://ngn.github.io/apl/web/\n- **APLX**: another commercial implementation\n\nTo start Dyalog APL on the command line:\n```bash\ndyalog\n# Then type expressions at the prompt\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you write Hello World in APL?"},
+      {"role": "assistant", "content": "```apl\n      'Hello, World!'\nHello, World!\n\n      ⎕←'Hello, APL!'\nHello, APL!\n```\n\n- A string literal by itself prints its value\n- `⎕←` explicitly prints to output\n- `⍝` is the comment character in APL (looks like a lamp)\n- Everything evaluates **right-to-left**"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does right-to-left evaluation work in APL?"},
+      {"role": "assistant", "content": "APL evaluates all expressions from right to left, with no operator precedence rules.\n\n```apl\n2 + 3 × 4       ⍝ 14  (NOT 20! evaluated as 2+(3×4))\n(2 + 3) × 4     ⍝ 20  (parentheses override right-to-left)\n```\n\nThere is no precedence hierarchy between operators — the only way to change evaluation order is with parentheses."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the arithmetic operators in APL?"},
+      {"role": "assistant", "content": "```apl\n3 + 4           ⍝ 7   (add)\n10 - 3          ⍝ 7   (subtract)\n3 × 4           ⍝ 12  (multiply, use × not *)\n10 ÷ 4          ⍝ 2.5 (divide, use ÷ not /)\n2 * 8           ⍝ 256 (power, * is exponent in APL)\n|¯5             ⍝ 5   (absolute value, | is monadic magnitude)\n⌊3.7            ⍝ 3   (floor)\n⌈3.2            ⍝ 4   (ceiling)\n7 | 3           ⍝ 1   (residue/modulo: 7 mod 3)\n```\n\nNote: `×` is multiply (not `*`), `÷` is divide (not `/`), and `*` is power (not multiply)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the comparison operators in APL?"},
+      {"role": "assistant", "content": "```apl\n3 < 5           ⍝ 1  (less than)\n3 > 5           ⍝ 0  (greater than)\n3 = 3           ⍝ 1  (equal)\n3 ≠ 4           ⍝ 1  (not equal)\n3 ≤ 3           ⍝ 1  (less than or equal)\n3 ≥ 4           ⍝ 0  (greater than or equal)\n```\n\nComparisons return 1 (true) or 0 (false), and work element-wise on arrays."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the boolean operators in APL?"},
+      {"role": "assistant", "content": "```apl\n1 ∧ 0           ⍝ 0  (AND)\n1 ∨ 0           ⍝ 1  (OR)\n~1              ⍝ 0  (NOT)\n1 ⍲ 1           ⍝ 0  (NAND)\n0 ⍱ 0           ⍝ 1  (NOR)\n```\n\nThese work on boolean arrays (0s and 1s) element-wise."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you create arrays and vectors in APL?"},
+      {"role": "assistant", "content": "```apl\n1 2 3 4 5              ⍝ vector [1,2,3,4,5] — just space-separated values\n⍳5                     ⍝ iota: 1 2 3 4 5  (index generator)\n⍳0                     ⍝ empty vector\n2 3⍴⍳6                 ⍝ 2×3 matrix: reshape ⍳6 into 2 rows, 3 cols\n                       ⍝   1 2 3\n                       ⍝   4 5 6\n```\n\n- `⍳n` generates integers 1 through n (with default `⎕IO←1`)\n- `rows cols ⍴ data` reshapes data into a matrix with given dimensions"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is iota (⍳) in APL?"},
+      {"role": "assistant", "content": "```apl\n⍳5                     ⍝ 1 2 3 4 5  (index generator, default ⎕IO←1)\n⍳0                     ⍝ empty vector\n```\n\n`⍳n` generates a vector of integers from 1 to n (when `⎕IO` is 1, which is the default).\n\nIf `⎕IO ← 0`, then `⍳5` gives `0 1 2 3 4`.\n\nCommonly used with reshape:\n```apl\n2 3⍴⍳6                 ⍝ reshape 1 2 3 4 5 6 into a 2×3 matrix\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you find the shape and rank of an array in APL?"},
+      {"role": "assistant", "content": "```apl\n⍴ 1 2 3 4 5            ⍝ shape: 5        (vector of length 5)\n⍴ 2 3⍴⍳6              ⍝ shape: 2 3     (2 rows, 3 cols)\n⍴⍴ 1 2 3               ⍝ rank: 1        (⍴⍴ gives number of dimensions)\n⍴⍴ 2 3⍴⍳6             ⍝ rank: 2\n```\n\n- `⍴` (rho) is the shape function — it returns the dimensions of an array\n- `⍴⍴` gives the rank (number of dimensions) because the shape is itself a vector whose length is the rank"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does indexing work in APL? Show vector and matrix indexing."},
+      {"role": "assistant", "content": "APL is **1-indexed by default** (`⎕IO←1`).\n\n```apl\nv ← 10 20 30 40 50     ⍝ assign vector\nv[3]                   ⍝ 30   (third element)\nv[2 4]                 ⍝ 20 40  (multiple indices at once)\n\nm ← 3 3⍴⍳9            ⍝ 3×3 matrix\nm[2;3]                 ⍝ 6   (row 2, col 3)\nm[2;]                  ⍝ 4 5 6  (entire row 2)\nm[;1]                  ⍝ 1 4 7  (entire col 1)\n```\n\n- Use `;` to separate row and column indices in matrices\n- Leave a dimension blank to select the entire row or column"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does arithmetic on arrays work in APL (scalar extension)?"},
+      {"role": "assistant", "content": "```apl\nv ← 10 20 30 40 50\nv + 1                  ⍝ 11 21 31 41 51  (scalar extends to match array)\nv × 2                  ⍝ 20 40 60 80 100\nv + v                  ⍝ 20 40 60 80 100\n\nv1 ← 1 2 3\nv2 ← 4 5 6\nv1 + v2                ⍝ 5 7 9  (element-wise addition)\n```\n\nA scalar automatically extends to match the shape of an array. Two arrays of the same shape are combined element-wise. No loops needed — this is the core of APL's array paradigm."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is reduction (/) in APL and how do you use it?"},
+      {"role": "assistant", "content": "Reduction (`/`) inserts a function between all elements of an array — like a fold:\n\n```apl\n+/1 2 3 4 5            ⍝ 15   (sum: 1+2+3+4+5)\n×/1 2 3 4 5            ⍝ 120  (product: 1×2×3×4×5)\n⌈/3 1 4 1 5 9 2 6      ⍝ 9    (maximum)\n⌊/3 1 4 1 5 9 2 6      ⍝ 1    (minimum)\n```\n\n`f/array` means: insert `f` between every adjacent pair of elements and evaluate right to left."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is scan (\\) in APL and how is it different from reduction?"},
+      {"role": "assistant", "content": "Scan (`\\`) is like reduction but keeps all intermediate results (running fold):\n\n```apl\n+\\1 2 3 4 5            ⍝ 1 3 6 10 15   (running sum)\n×\\1 2 3 4 5            ⍝ 1 2 6 24 120  (running product)\n⌈\\3 1 4 1 5 9          ⍝ 3 3 4 4 5 9   (running maximum)\n```\n\n- `+/` gives **one** result (total sum)\n- `+\\` gives an array of **all partial sums**"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you define a function (dfn) in APL?"},
+      {"role": "assistant", "content": "APL uses **dfns** (direct functions) — written in curly braces `{}`:\n\n```apl\ndouble ← {⍵ × 2}           ⍝ ⍵ = right argument\ndouble 5                    ⍝ 10\n\nadd ← {⍺ + ⍵}              ⍝ ⍺ = left argument, ⍵ = right argument\n3 add 4                     ⍝ 7\n```\n\n- `⍵` (omega) — the right argument\n- `⍺` (alpha) — the left argument (for dyadic/two-argument functions)\n- `←` assigns the function to a name"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you write conditionals inside a dfn in APL?"},
+      {"role": "assistant", "content": "Inside a dfn, use `condition: true_result ⋄ false_result`:\n\n```apl\nabs ← {⍵ < 0: -⍵ ⋄ ⍵}     ⍝ if ⍵<0 return -⍵, else return ⍵\nabs ¯7                      ⍝ 7\nabs 5                       ⍝ 5\n```\n\n- `:` separates the guard condition from the result\n- `⋄` separates the true branch from the false branch (else clause)\n- `¯` (high minus) is used for negative number literals: `¯7` = −7"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you write a recursive dfn in APL? Show factorial and Fibonacci."},
+      {"role": "assistant", "content": "Use `∇` inside a dfn to call the function recursively:\n\n```apl\n⍝ Factorial\nfactorial ← {⍵ ≤ 1: 1 ⋄ ⍵ × ∇ ⍵-1}\nfactorial 5                 ⍝ 120\nfactorial¨ 1 2 3 4 5        ⍝ 1 2 6 24 120  (apply to each)\n\n⍝ Fibonacci\nfib ← {⍵ ≤ 1: ⍵ ⋄ (∇ ⍵-1) + ∇ ⍵-2}\nfib 10                      ⍝ 55\n```\n\n- `∇` is the self-reference symbol inside dfns\n- `¨` (each operator) applies a function to each element of an array"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is tacit (point-free) style in APL? Show with the mean function."},
+      {"role": "assistant", "content": "Tacit style defines functions as combinations of other functions without naming the argument:\n\n```apl\nmean ← +÷≢               ⍝ sum ÷ count (a fork)\nmean 1 2 3 4 5            ⍝ 3\n\ndouble ← 2∘×              ⍝ partial application: 2×⍵\ndouble 5                  ⍝ 10\n```\n\n`+÷≢` is a **fork** — when applied to an argument `⍵`, it computes `(+/⍵) ÷ (≢⍵)` (sum divided by count).\n\nForks: `(f g h) ⍵` = `(f ⍵) g (h ⍵)` — both outer functions are applied to ⍵ and the middle function combines the results."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the main APL operators (¨, /, \\, ∘, ⍨)?"},
+      {"role": "assistant", "content": "```apl\n⍝ ¨ (each): apply function to each element\nfactorial¨ 1 2 3 4 5        ⍝ 1 2 6 24 120\n\n⍝ / (reduce): fold with function\n+/1 2 3 4 5                  ⍝ 15\n\n⍝ \\ (scan): running fold\n+\\1 2 3 4 5                  ⍝ 1 3 6 10 15\n\n⍝ ∘ (compose / outer product)\ndouble ← 2∘×                 ⍝ partial application\n∘.×⍨⍳5                       ⍝ outer product: 5×5 multiplication table\n\n⍝ ⍨ (commute/selfie): swap args or apply to self\n2 +⍨ 3                       ⍝ 5  (same as 3+2, args swapped)\n+⍨ 5                         ⍝ 10 (5+5, apply function to itself)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is the atop operator (⍤) and the rank operator in APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ Atop (f⍤g): apply g first, then f to the result\n⌈⍤÷/ 7 3                  ⍝ ceiling of 7÷3 = ⌈2.333... = 3\n\n⍝ Rank operator ⍤n: apply function to rank-n subarrays\n+/⍤1 ⊢ 2 3⍴⍳6            ⍝ sum each row: 6 15\n```\n\n- `f⍤g` means: first apply g, then apply f to the result (function composition)\n- `f⍤n` means: apply f to each rank-n subarray (e.g., `⍤1` = each row, `⍤2` = each matrix)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does compress/select work in APL using a boolean mask?"},
+      {"role": "assistant", "content": "```apl\nv ← 10 20 30 40 50\n1 0 1 0 1/v              ⍝ 10 30 50   (keep where mask is 1)\n(v>25)/v                 ⍝ 30 40 50   (boolean select: keep elements > 25)\n{⍵/⍨⍵>25} v             ⍝ 30 40 50   (same, dfn style using commute ⍨)\n```\n\n`mask/array` keeps elements of array where the corresponding mask value is 1. The mask is typically the result of a comparison."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do take (↑) and drop (↓) work in APL?"},
+      {"role": "assistant", "content": "```apl\n3↑1 2 3 4 5              ⍝ 1 2 3    (take first 3)\n¯2↑1 2 3 4 5             ⍝ 4 5      (take last 2, negative = from end)\n2↓1 2 3 4 5              ⍝ 3 4 5    (drop first 2)\n¯3↓1 2 3 4 5             ⍝ 1 2      (drop last 3)\n```\n\n- Positive number: take/drop from the **left** (beginning)\n- Negative number (`¯`): take/drop from the **right** (end)\n- `↑` takes elements, `↓` drops elements"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do reshape (⍴) and ravel (,) work in APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ Ravel: flatten any array into a vector\n,m                        ⍝ converts matrix m to a flat vector\n\n⍝ Reshape: give an array a new shape\n3 4⍴v                    ⍝ reshape v into a 3×4 matrix (recycles elements if needed)\n```\n\n- `,` (ravel) flattens any array into a 1D vector\n- `shape⍴data` reshapes data; if data is shorter than the new shape, it **recycles** (wraps around)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do rotate and reverse work in APL?"},
+      {"role": "assistant", "content": "```apl\n⌽1 2 3 4 5               ⍝ 5 4 3 2 1    (reverse a vector)\n2⌽1 2 3 4 5              ⍝ 3 4 5 1 2    (rotate left by 2)\n¯1⌽1 2 3 4 5             ⍝ 5 1 2 3 4    (rotate right by 1, negative = right)\n⊖m                        ⍝ flip matrix vertically (reverse rows)\n2⊖m                       ⍝ rotate rows of matrix by 2\n```\n\n- `⌽` rotates/reverses along the **last** axis (columns)\n- `⊖` rotates/reverses along the **first** axis (rows)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you transpose a matrix in APL?"},
+      {"role": "assistant", "content": "```apl\n⍉m                        ⍝ transpose matrix (swap rows and columns)\n```\n\n`⍉` (circle-backslash) transposes the array by reversing the order of its axes. For a 2D matrix, rows become columns and columns become rows.\n\nFor higher-dimensional arrays, `axes⍉array` permutes axes in a specified order."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does sorting work in APL using grade up (⍋) and grade down (⍒)?"},
+      {"role": "assistant", "content": "APL sorts indirectly using **grade** functions that return the indices that would sort the array:\n\n```apl\n⍋3 1 4 1 5 9 2 6         ⍝ 2 4 7 1 3 5 8 6  (indices for ascending sort)\n⍒3 1 4 1 5 9 2 6         ⍝ 6 8 5 3 1 7 4 2  (indices for descending sort)\n\nv ← 3 1 4 1 5 9\nv[⍋v]                    ⍝ 1 1 3 4 5 9  (sort ascending)\nv[⍒v]                    ⍝ 9 5 4 3 1 1  (sort descending)\n```\n\nThe grade gives permutation indices — index the array with them to get sorted order."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do membership (∊) and index-of (⍳) work in APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ ∊ (member of): is each element in the right array?\n3 ∊ 1 2 3 4 5            ⍝ 1           (3 is in the vector)\n1 2 6 ∊ 1 2 3 4 5        ⍝ 1 1 0       (6 is not)\n\n⍝ ⍳ (index of): find the position of each element\n1 2 3 ⍳ 2                ⍝ 2           (2 is at position 2)\n'AEIOU' ⍳ 'HELLO'        ⍝ 6 1 3 3 5   (H not found→6, E→1, L→3, O→5)\n```\n\nWhen the element is not found, `⍳` returns `1 + ≢haystack` (one past the end)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is nesting in APL? How do ⊂ (enclose) and ⊃ (disclose) work?"},
+      {"role": "assistant", "content": "```apl\nnested ← (1 2 3)(4 5)(6)  ⍝ a vector of three sub-arrays\n≡nested                    ⍝ depth: 2  (one level of nesting)\n⊃nested                    ⍝ first item: 1 2 3  (disclose/pick first)\n↑nested                    ⍝ mix: 1 2 3 / 4 5 0 / 6 0 0  (pad with 0)\n```\n\n- `⊂` (enclose) wraps an array into a single nested element (scalar)\n- `⊃` (disclose/first) extracts the first element, or opens a scalar\n- `≡` returns the depth (nesting level) of an array\n- `↑` (mix) converts a nested vector of arrays into a higher-dimensional array, padding as needed"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does APL handle strings (character vectors)?"},
+      {"role": "assistant", "content": "Strings in APL are simply **character vectors** — arrays of characters:\n\n```apl\ns ← 'Hello, World!'\n≢s                         ⍝ 13   (length, ≢ is tally)\ns[1]                       ⍝ 'H'  (first character, 1-indexed)\ns[1 2 3]                   ⍝ 'Hel'\n3↑s                        ⍝ 'Hel'   (take first 3)\n¯6↑s                       ⍝ 'World!' (take last 6)\n⌽s                         ⍝ '!dlroW ,olleH'  (reverse)\n```\n\nAll array operations apply to strings exactly as they do to numeric arrays."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you convert case and search strings in APL?"},
+      {"role": "assistant", "content": "```apl\ns ← 'Hello, World!'\n\n⍝ Case conversion (Dyalog APL)\n1⎕C s                      ⍝ 'HELLO, WORLD!'  (uppercase)\n0⎕C s                      ⍝ 'hello, world!'  (lowercase)\n\n⍝ Search for a character\ns⍳'W'                      ⍝ 8   (position of first 'W')\n\n⍝ Find a pattern (substring)\n'lo' ⍷ s                   ⍝ 0 0 0 1 0 0 ...  (1 at start of match)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you split and join strings in APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ Split on delimiter (Dyalog APL using ⊆)\nwords ← ' '(≠⊆⊢)'Hello World APL'\n⍝ result: 'Hello' 'World' 'APL'  (nested vector of strings)\n\n⍝ Join words back with spaces\n⊃,/' ',¨words              ⍝ 'Hello World APL'\n```\n\n- `(≠⊆⊢)` is a tacit function: split where delimiter differs from the separator\n- `¨` applies `' ',` to each word (prepend space), then `,/` concatenates all, `⊃` opens the result"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are ⍕ (format) and ⍎ (execute) in APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ ⍕ (format): convert value to string\n⍕3.14                      ⍝ '3.14'\n⍕42                        ⍝ '42'\n⍕1 2 3                     ⍝ '1 2 3'\n\n⍝ ⍎ (execute): evaluate a string as APL code\n⍎'1+2'                     ⍝ 3\n⍎'⍳5'                      ⍝ 1 2 3 4 5\n```\n\n- `⍕` is APL's equivalent of `str()` or `toString()`\n- `⍎` is APL's equivalent of `eval()` — execute a string as code. Use with caution."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you compare strings in APL?"},
+      {"role": "assistant", "content": "```apl\n'abc' = 'abc'              ⍝ 1 1 1   (element-wise comparison, returns boolean vector)\n'abc' ≡ 'abc'              ⍝ 1       (match: are entire arrays identical?)\n'abc' ≡ 'abd'              ⍝ 0\n```\n\n- `=` compares element by element, returning a boolean array\n- `≡` (match) tests if two arrays are identical in both structure and content, returning a single 0 or 1"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the APL system variables (⎕IO, ⎕PP, ⎕TS)?"},
+      {"role": "assistant", "content": "```apl\n⎕IO ← 0        ⍝ index origin: 0-indexed (⍳5 gives 0 1 2 3 4)\n⎕IO ← 1        ⍝ 1-indexed, traditional (default)\n⎕PP ← 10       ⍝ print precision: number of significant digits displayed\n⎕PW ← 80       ⍝ print width: max columns before wrapping\n⎕TS            ⍝ timestamp: year month day hour min sec milliseconds\n⎕AN            ⍝ account name (current username)\n```\n\nSystem variables with `⎕` prefix control the APL environment. `⎕IO` is particularly important — changing it from 1 to 0 makes all indexing and `⍳` 0-based."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does I/O work in APL (printing and reading input)?"},
+      {"role": "assistant", "content": "```apl\n⎕ ← 'Print this'          ⍝ print to output with newline\nx ← ⎕                     ⍝ read a value from user input\n\n⍞ ← 'Prompt: '            ⍝ print WITHOUT newline (for prompts)\nx ← ⍞                     ⍝ read input without echoing the input\n```\n\n- `⎕` used on the left of `←` outputs a value\n- `⎕` used on the right of `←` reads evaluated input (APL expression)\n- `⍞` (quote-quad) is the character version — reads raw text, no evaluation"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does file I/O work in Dyalog APL?"},
+      {"role": "assistant", "content": "```apl\n⍝ Simple method: ⎕NGET / ⎕NPUT\n(content encoding newline) ← ⎕NGET 'file.txt' 1\n⎕NPUT 'output.txt' 1 ⊢ content encoding\n\n⍝ Native file tie numbers\ntie ← 'data.txt' ⎕NTIE 0              ⍝ open/tie the file\ndata ← ⎕NREAD tie 80 (⎕NSIZE tie) 0  ⍝ read all bytes\n⎕NUNTIE tie                            ⍝ close/release the file\n```\n\n- `⎕NGET` reads a file in one call (easiest for text)\n- `⎕NTIE` opens a file and returns a tie number (like a file handle)\n- `⎕NREAD` reads from the tied file\n- `⎕NUNTIE` closes it"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What are the APL workspace commands?"},
+      {"role": "assistant", "content": "```apl\n)VARS          ⍝ list all defined variable names\n)FNS           ⍝ list all defined functions\n)SAVE ws       ⍝ save workspace to file named ws\n)LOAD ws       ⍝ load workspace from file named ws\n)CLEAR         ⍝ clear all definitions from workspace\n)OFF           ⍝ exit APL\n```\n\nWorkspace commands start with `)` and are typed at the APL prompt (not inside code). The workspace contains all your defined variables and functions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do namespaces work in Dyalog APL?"},
+      {"role": "assistant", "content": "```apl\nns ← ⎕NS ''              ⍝ create a new empty namespace\nns.x ← 42               ⍝ assign a variable inside the namespace\nns.fn ← {⍵+1}           ⍝ assign a function inside the namespace\nns.fn ns.x               ⍝ 43  (call namespace function with namespace variable)\n```\n\nNamespaces organize code and data, similar to objects or modules in other languages. Members are accessed with dot notation (`ns.member`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does error handling work in APL with :Trap?"},
+      {"role": "assistant", "content": "```apl\n:Trap 0                  ⍝ 0 = catch all errors\n    result ← risky_fn ⍵\n:Case 11                 ⍝ error code 11 = VALUE ERROR\n    result ← 0\n:Else                    ⍝ any other error\n    result ← ¯1\n:EndTrap\n```\n\n- `:Trap n` catches error number n (0 = all errors)\n- `:Case n` handles a specific error code\n- `:Else` handles any other error\n- `:EndTrap` closes the block\n\nCommon error codes: 11 = VALUE ERROR, 4 = INDEX ERROR, 5 = RANK ERROR."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you benchmark and trace APL code?"},
+      {"role": "assistant", "content": "```apl\n]runtime '⍳1000000'      ⍝ benchmark: measure execution time of expression\n]trace fn                 ⍝ execution trace: step through function fn\n```\n\n`]` prefix indicates a **user command** in Dyalog APL (not an APL primitive).\n\n- `]runtime` runs an expression multiple times and reports average time\n- `]trace` enables step-by-step tracing of function execution for debugging"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you compute the sum of integers 1 to N in APL?"},
+      {"role": "assistant", "content": "```apl\n+/⍳100                        ⍝ 5050\n```\n\n- `⍳100` generates 1 2 3 … 100\n- `+/` sums all elements\n\nThis is the classic example showing APL's conciseness — Gauss's formula result in just 5 characters."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you compute factorial in APL as a one-liner?"},
+      {"role": "assistant", "content": "```apl\n×/⍳10                         ⍝ 3628800  (10!)\n```\n\n- `⍳10` generates 1 2 3 … 10\n- `×/` multiplies all elements together (product reduction)\n\nAny factorial n! can be computed as `×/⍳n`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you implement the Sieve of Eratosthenes in APL?"},
+      {"role": "assistant", "content": "```apl\n{(~R∊R∘.×R)/R←1↓⍳⍵}         ⍝ primes up to ⍵\n{(~v∊v∘.×v)/v←1↓⍳⍵} 50      ⍝ primes up to 50: 2 3 5 7 11 13 ...\n```\n\nStep by step:\n1. `1↓⍳⍵` — generate 2 3 4 … ⍵ (drop 1 from ⍳⍵)\n2. `v∘.×v` — outer product: all products v[i]×v[j] (composite numbers)\n3. `v∊...` — boolean: which elements of v are composite?\n4. `~` — negate: mark primes (not composite)\n5. `mask/v` — select only primes\n\nThis is one of APL's most famous one-liners."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is the inner product (+.×) in APL and how is it used for matrix multiplication?"},
+      {"role": "assistant", "content": "```apl\nA +.× B                       ⍝ matrix multiplication (dot product)\nA ∧.= B                       ⍝ row-wise equality test\n```\n\n`f.g` is the **generalized inner product**: multiply pairs with g, then reduce with f.\n\n- `+.×` means: multiply pairs, then sum → standard matrix/dot product\n- `∧.=` means: compare pairs with =, then AND → true if all elements match\n\nThe inner product generalizes beyond just matrix multiplication to any combination of functions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does outer product (∘.) work in APL?"},
+      {"role": "assistant", "content": "```apl\n∘.×⍨⍳5                       ⍝ 5×5 multiplication table\n∘.+⍨⍳5                       ⍝ 5×5 addition table\n```\n\n`∘.f` is the **outer product operator**: apply f to every combination of elements from the left and right arrays.\n\n`∘.×⍨⍳5` is equivalent to `(⍳5) ∘.× (⍳5)` — for each pair (i,j), compute i×j.\n\nResult is always a matrix with shape `(≢left) × (≢right)`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does Conway's Game of Life look as an APL one-liner?"},
+      {"role": "assistant", "content": "```apl\nlife ← {↑1 ⍵∨.∧3 4=+/,¯1 0 1∘.⊖¯1 0 1∘.⌽⊂⍵}\n```\n\nThis single line implements one generation of Conway's Game of Life:\n1. `⊂⍵` — enclose the board\n2. `¯1 0 1∘.⌽` — rotate by −1, 0, +1 horizontally (3 copies)\n3. `¯1 0 1∘.⊖` — rotate by −1, 0, +1 vertically (9 copies total)\n4. `+/,` — sum all 9 neighbor boards (including self)\n5. `3 4=` — cells with 3 or 4 neighbors\n6. `1 ⍵∨.∧` — alive if: was alive and had 3/4 neighbors, OR dead and had exactly 3\n\nThis is one of APL's most famous demonstrations of concise array thinking."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you sort an array in APL?"},
+      {"role": "assistant", "content": "```apl\nsort ← {⍵[⍋⍵]}\nsort 3 1 4 1 5 9 2 6          ⍝ 1 1 2 3 4 5 6 9\n\n⍝ Or inline:\nv ← 3 1 4 1 5 9\nv[⍋v]                         ⍝ 1 1 3 4 5 9  (ascending)\nv[⍒v]                         ⍝ 9 5 4 3 1 1  (descending)\n```\n\n- `⍋` (grade up) returns the permutation of indices that sorts ascending\n- `⍒` (grade down) returns the permutation for descending order\n- Index the array with that permutation to get the sorted result"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you get unique elements (nub) from an array in APL?"},
+      {"role": "assistant", "content": "```apl\n∪3 1 4 1 5 9 2 6              ⍝ 3 1 4 5 9 2 6  (unique elements, first occurrence)\n```\n\n`∪` (union/nub) returns the unique elements in the order they first appear, removing duplicates."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How does base conversion work in APL with ⊥ and ⊤?"},
+      {"role": "assistant", "content": "```apl\n⍝ ⊥ (decode): convert from a base to a number\n10 ⊥ 1 0 1 0 1                ⍝ 21  (binary 10101 → decimal 21)\n\n⍝ ⊤ (encode): convert a number to a base representation\n2 ⊤ 42                        ⍝ 0 0 1 0 1 0 1 0  (42 in binary)\n```\n\n- `base ⊥ digits` — decode digits in given base to a decimal number\n- `base ⊤ number` — encode a number into the given base\n\nThese generalize to mixed radix (e.g., hours/minutes/seconds): `24 60 60 ⊤ seconds`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is the complete APL key symbols summary?"},
+      {"role": "assistant", "content": "```apl\n⍝ Assignment and comments\n←   assignment\n⍝   comment (looks like a lamp)\n⎕   system / output / input\n\n⍝ Array creation and shape\n⍳   iota (range generator)\n⍴   shape / reshape\n\n⍝ Array manipulation\n⌽   rotate / reverse (last axis)\n⊖   flip up/down (first axis)\n⍉   transpose\n⊂   enclose (nest)\n⊃   disclose / first\n∊   member of / enlist\n⍷   find pattern\n↑   take / mix\n↓   drop / split\n\n⍝ Operators\n/   compress / reduce\n\\   expand / scan\n¨   each\n∘   compose / outer product\n⍨   commute / selfie\n⌿   reduce along first axis\n⍤   atop / rank\n\n⍝ Logic\n∧   AND\n∨   OR\n\n⍝ Math\n⌊   floor / minimum\n⌈   ceiling / maximum\n\n⍝ Comparison\n≡   match (deep equal)\n≢   tally (count)\n\n⍝ Sorting\n⍋   grade up (sort indices ascending)\n⍒   grade down (sort indices descending)\n\n⍝ Base conversion\n⊤   encode (to base)\n⊥   decode (from base)\n\n⍝ Inner product\n+.×  matrix multiplication\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is the high minus (¯) in APL and how is it different from negation?"},
+      {"role": "assistant", "content": "```apl\n¯5              ⍝ negative five (literal negative number)\n-5              ⍝ negate 5 (the function minus applied to 5)\n¯3↑1 2 3 4 5   ⍝ take last 3: 3 4 5  (negative in left argument)\n```\n\n`¯` (high minus) is part of a **number literal** — it is not an operator. It is written above the minus sign and means the number itself is negative.\n\n`-` is the **negate function** that changes the sign of a value at runtime.\n\nThis distinction matters: `¯5` is always −5, while `-x` negates whatever x is."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What does tally (≢) do in APL and how is it different from shape (⍴)?"},
+      {"role": "assistant", "content": "```apl\n≢ 1 2 3 4 5          ⍝ 5    (count of elements in first dimension)\n≢ 'Hello'            ⍝ 5    (length of string)\n≢ 2 3⍴⍳6            ⍝ 2    (number of rows)\n\n⍴ 1 2 3 4 5          ⍝ 5    (shape: same as ≢ for a vector)\n⍴ 2 3⍴⍳6            ⍝ 2 3  (shape: returns ALL dimensions)\n```\n\n- `≢` (tally) returns a **single number** — the length of the first dimension\n- `⍴` (shape) returns a **vector** — all dimensions\n\nFor a vector they give the same result. For a matrix: `≢` gives the row count, `⍴` gives `rows cols`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you compute a matrix determinant in APL?"},
+      {"role": "assistant", "content": "```apl\ndet ← {1=≢⍵:⊃⍵ ⋄ +/⍵[1;]×(¯1*1+⍳≢⍵)×∇⍵[1+⍳¯1+≢⍵;]}\n```\n\nThis recursive dfn computes the determinant using cofactor expansion along the first row:\n1. `1=≢⍵: ⊃⍵` — base case: 1×1 matrix, return its only element\n2. `⍵[1;]` — first row elements\n3. `(¯1*1+⍳≢⍵)` — alternating signs +1 −1 +1 −1 …\n4. `∇⍵[1+⍳¯1+≢⍵;]` — recurse on submatrices (rows 2 onward, each column dropped)\n5. `+/` — sum the cofactor products"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "How do you evaluate a polynomial in APL using Horner's method?"},
+      {"role": "assistant", "content": "```apl\npoly ← {⍺+.×∘.(⍵*⊢)⍳1+≢⍺}   ⍝ coefficients ⍺ evaluated at point ⍵\n```\n\nFor polynomial with coefficients `c0 c1 c2 …` evaluated at point x:\n- `⍳1+≢⍺` generates powers 1 2 3 …\n- `⍵*⊢` computes x raised to each power\n- `⍺+.×` takes the inner product of coefficients with powers\n\nThis expresses polynomial evaluation as an array operation without an explicit loop."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert APL programming language tutor. Answer clearly and always include APL code examples with comments."},
+      {"role": "user", "content": "What is the ⎕IO system variable and why does it matter?"},
+      {"role": "assistant", "content": "```apl\n⎕IO ← 1        ⍝ 1-indexed (traditional, default)\n⎕IO ← 0        ⍝ 0-indexed\n```\n\n`⎕IO` (index origin) controls whether APL uses 0-based or 1-based indexing:\n\n- With `⎕IO←1`: `⍳5` gives `1 2 3 4 5`, `v[1]` is the first element\n- With `⎕IO←0`: `⍳5` gives `0 1 2 3 4`, `v[0]` is the first element\n\nThis affects `⍳`, `[]` indexing, `⍳` (index-of), `⍋`, `⍒`, and many other operations. Classic APL used 1-based; some modern code uses 0-based."}
+    ]
+  }
+]

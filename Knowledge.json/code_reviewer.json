@@ -1,0 +1,658 @@
+[
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "A code review is the process of having one or more developers examine someone else's code changes to find issues, share knowledge, and ensure quality before the code is merged."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why are code reviews important?"
+      },
+      {
+        "role": "assistant",
+        "content": "Code reviews catch bugs early, improve code quality and consistency, spread knowledge across the team, and help enforce standards and best practices."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What are the main goals of a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "The main goals are to verify correctness, improve readability and maintainability, catch defects and security issues, and ensure the change fits the project's standards."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a pull request?"
+      },
+      {
+        "role": "assistant",
+        "content": "A pull request is a proposed set of code changes submitted for review and discussion before being merged into the main codebase."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What should a reviewer look for in a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "A reviewer should look at correctness, readability, design, naming, error handling, test coverage, security, performance, and adherence to project conventions."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between a code review and testing?"
+      },
+      {
+        "role": "assistant",
+        "content": "Testing verifies that code behaves correctly at runtime, while a code review is a human inspection of the code's quality, design, and clarity."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Should code reviews focus only on finding bugs?"
+      },
+      {
+        "role": "assistant",
+        "content": "No, beyond bugs a good review also considers readability, design, maintainability, naming, security, and whether the change is the right solution to the problem."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How should you give feedback in a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Feedback should be specific, respectful, and constructive, focusing on the code rather than the person and explaining the reasoning behind suggestions."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should review comments focus on the code and not the person?"
+      },
+      {
+        "role": "assistant",
+        "content": "Focusing on the code keeps feedback objective and non-personal, which reduces defensiveness and keeps the discussion productive and collaborative."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between a blocking comment and a suggestion?"
+      },
+      {
+        "role": "assistant",
+        "content": "A blocking comment identifies an issue that must be addressed before merging, while a suggestion is optional advice the author can choose to apply."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can a reviewer phrase feedback constructively?"
+      },
+      {
+        "role": "assistant",
+        "content": "By asking questions, explaining the reasoning, offering alternatives, and acknowledging good work rather than simply demanding changes."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is it useful to ask questions instead of making demands in reviews?"
+      },
+      {
+        "role": "assistant",
+        "content": "Questions invite discussion, may reveal context the reviewer missed, and feel collaborative rather than authoritative, leading to better outcomes."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Should a reviewer acknowledge good code, not just problems?"
+      },
+      {
+        "role": "assistant",
+        "content": "Yes, pointing out well-written code reinforces good practices, encourages the author, and keeps reviews balanced and positive."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How should you handle disagreements during a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Discuss the trade-offs openly, rely on data or standards where possible, and escalate to a tie-breaker or team convention if no agreement is reached."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between subjective and objective feedback?"
+      },
+      {
+        "role": "assistant",
+        "content": "Objective feedback is based on facts, bugs, or agreed standards, while subjective feedback reflects personal preference and should be clearly marked as optional."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can a reviewer distinguish 'must fix' from 'nice to have'?"
+      },
+      {
+        "role": "assistant",
+        "content": "By labeling comments clearly, for example marking critical issues as blocking and stylistic preferences as optional or nitpicks."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How should an author respond to code review feedback?"
+      },
+      {
+        "role": "assistant",
+        "content": "An author should stay open-minded, address comments thoughtfully, ask for clarification when needed, and avoid taking feedback personally."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What should you do if you disagree with a reviewer's comment?"
+      },
+      {
+        "role": "assistant",
+        "content": "Explain your reasoning respectfully, provide context or evidence, and aim for a shared understanding rather than simply rejecting the feedback."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is it helpful to respond to every review comment?"
+      },
+      {
+        "role": "assistant",
+        "content": "Responding shows the comment was considered, keeps the discussion clear, and signals whether each point was addressed, deferred, or discussed."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What does readability mean in a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Readability means the code is easy to understand at a glance, with clear naming, logical structure, and minimal unnecessary complexity."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should reviewers check naming during a review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Clear, accurate names make code self-explanatory, while misleading or vague names cause confusion and bugs, so naming is a key review concern."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What should a reviewer check about error handling?"
+      },
+      {
+        "role": "assistant",
+        "content": "A reviewer should confirm that errors are handled appropriately, edge cases are covered, failures are not silently ignored, and messages are useful."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should reviewers check for tests in a pull request?"
+      },
+      {
+        "role": "assistant",
+        "content": "Tests verify that the change works and protect against future regressions, so a review should confirm that adequate, meaningful tests are included."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What security concerns should a reviewer watch for?"
+      },
+      {
+        "role": "assistant",
+        "content": "Reviewers should watch for unvalidated input, injection risks, exposed secrets, weak authentication, and improper handling of sensitive data."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How should a reviewer evaluate code performance?"
+      },
+      {
+        "role": "assistant",
+        "content": "A reviewer should look for obvious inefficiencies, unnecessary work, costly operations in loops, and scalability concerns, without over-optimizing prematurely."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the importance of consistency in a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Consistency with the existing codebase and conventions makes code easier to read and maintain, so reviewers should flag deviations from agreed standards."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should reviewers check that a change matches its description?"
+      },
+      {
+        "role": "assistant",
+        "content": "Confirming the change does what its description claims, and nothing unrelated, keeps pull requests focused and the history understandable."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is scope creep in a pull request?"
+      },
+      {
+        "role": "assistant",
+        "content": "Scope creep is when a pull request includes unrelated changes beyond its stated purpose, making it harder to review and increasing the risk of bugs."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why are smaller pull requests easier to review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Smaller pull requests are easier to understand fully, get reviewed faster, have fewer hidden issues, and reduce the chance of overlooked bugs."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How long should a code review take?"
+      },
+      {
+        "role": "assistant",
+        "content": "Reviews should be done promptly to avoid blocking others, but reviewers should not rush; very large changes are better split so each can be reviewed carefully."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a checklist in code reviews?"
+      },
+      {
+        "role": "assistant",
+        "content": "A review checklist is a list of common things to verify, such as tests, naming, error handling, and security, helping reviewers stay thorough and consistent."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between a synchronous and asynchronous code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "A synchronous review happens live, such as pair reviewing together, while an asynchronous review uses comments on a pull request that the author reads later."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is automated code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "Automated code review uses tools like linters and static analyzers to check style, common errors, and standards automatically before or during human review."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How do linters and static analysis help in code reviews?"
+      },
+      {
+        "role": "assistant",
+        "content": "They automatically catch style issues, common mistakes, and potential bugs, freeing human reviewers to focus on design, logic, and intent."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why should formatting be automated rather than reviewed manually?"
+      },
+      {
+        "role": "assistant",
+        "content": "Automating formatting removes subjective style debates from reviews and lets reviewers focus on more meaningful concerns like logic and design."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the benefit of reviewing code in small, frequent increments?"
+      },
+      {
+        "role": "assistant",
+        "content": "Small, frequent reviews keep feedback timely, reduce merge conflicts, and make it easier to catch issues before they compound."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How does code review help knowledge sharing in a team?"
+      },
+      {
+        "role": "assistant",
+        "content": "Reviews expose team members to different parts of the codebase and to each other's techniques, spreading understanding and reducing single points of knowledge."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a nitpick in a code review?"
+      },
+      {
+        "role": "assistant",
+        "content": "A nitpick is a minor, often stylistic comment that is not critical; it is usually marked as optional so it does not block the change."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What should a reviewer do if they do not understand the code?"
+      },
+      {
+        "role": "assistant",
+        "content": "They should ask the author for clarification, since difficulty understanding the code may itself signal a readability problem worth addressing."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can a reviewer avoid being a bottleneck?"
+      },
+      {
+        "role": "assistant",
+        "content": "By reviewing promptly, keeping feedback focused, encouraging smaller pull requests, and sharing review responsibilities across the team."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert code reviewer, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is empathy important in code reviews?"
+      },
+      {
+        "role": "assistant",
+        "content": "Empathy keeps reviews respectful and collaborative, which builds trust, encourages learning, and makes developers more receptive to feedback."
+      }
+    ]
+  }
+]

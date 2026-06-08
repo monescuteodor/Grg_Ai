@@ -1,0 +1,658 @@
+[
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is competitive programming?"
+      },
+      {
+        "role": "assistant",
+        "content": "Competitive programming is a mind sport where participants solve well-defined algorithmic problems under time and resource constraints, usually judged automatically for correctness and efficiency."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What skills does competitive programming develop?"
+      },
+      {
+        "role": "assistant",
+        "content": "It develops problem-solving, algorithmic thinking, knowledge of data structures, fast and accurate coding, and the ability to analyze time and space complexity."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a time limit in a competitive programming problem?"
+      },
+      {
+        "role": "assistant",
+        "content": "A time limit is the maximum allowed running time for a solution; exceeding it usually results in a Time Limit Exceeded verdict regardless of correctness."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What does 'Time Limit Exceeded' mean?"
+      },
+      {
+        "role": "assistant",
+        "content": "It means the solution did not finish within the allowed time, usually because its algorithm is too slow for the input size."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is choosing the right algorithm crucial in competitive programming?"
+      },
+      {
+        "role": "assistant",
+        "content": "Because problems set strict time limits, an algorithm with the right complexity is often required to pass, while a slower correct approach will time out."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How do you estimate if an algorithm is fast enough?"
+      },
+      {
+        "role": "assistant",
+        "content": "Estimate the number of operations from the input size and complexity, then compare against a rough budget such as around 10^8 simple operations per second."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the importance of reading constraints in a problem?"
+      },
+      {
+        "role": "assistant",
+        "content": "Constraints reveal the expected complexity; for example a large input rules out quadratic solutions and hints at the intended efficient approach."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the two-pointer technique?"
+      },
+      {
+        "role": "assistant",
+        "content": "The two-pointer technique uses two indices moving through a sequence to solve problems efficiently, often reducing a nested loop to linear time."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the sliding window technique?"
+      },
+      {
+        "role": "assistant",
+        "content": "The sliding window technique maintains a contiguous range over a sequence and updates it incrementally, efficiently solving subarray or substring problems."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is binary search on the answer?"
+      },
+      {
+        "role": "assistant",
+        "content": "Binary search on the answer searches over the range of possible answers, using a feasibility check to find the optimal value when the property is monotonic."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is prefix sum and why is it useful?"
+      },
+      {
+        "role": "assistant",
+        "content": "A prefix sum precomputes cumulative sums so that the sum of any range can be found in constant time, speeding up many range query problems."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between a greedy and a dynamic programming approach?"
+      },
+      {
+        "role": "assistant",
+        "content": "Greedy makes a locally optimal choice at each step, while dynamic programming explores overlapping subproblems and combines their stored results for a global optimum."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is memoization?"
+      },
+      {
+        "role": "assistant",
+        "content": "Memoization stores the results of expensive recursive calls so repeated calls with the same inputs return instantly instead of recomputing."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is bitmasking in competitive programming?"
+      },
+      {
+        "role": "assistant",
+        "content": "Bitmasking uses the bits of an integer to represent a set or state compactly, enabling fast operations and dynamic programming over subsets."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the divide and conquer strategy?"
+      },
+      {
+        "role": "assistant",
+        "content": "Divide and conquer splits a problem into smaller independent subproblems, solves them recursively, and combines their results, as in merge sort."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a heap?"
+      },
+      {
+        "role": "assistant",
+        "content": "A heap is a tree-based data structure that keeps the smallest or largest element accessible at the root, supporting efficient insertion and extraction."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a priority queue?"
+      },
+      {
+        "role": "assistant",
+        "content": "A priority queue is an abstract data type that serves elements by priority rather than insertion order, commonly implemented with a heap."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a binary indexed tree (Fenwick tree)?"
+      },
+      {
+        "role": "assistant",
+        "content": "A Fenwick tree, or binary indexed tree, supports efficient prefix-sum queries and point updates, both in logarithmic time."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a segment tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "A segment tree is a tree structure that supports range queries and updates, such as range sums or minimums, in logarithmic time."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between a Fenwick tree and a segment tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "A Fenwick tree is simpler and more memory-efficient for prefix-style queries, while a segment tree is more flexible and supports a wider range of operations."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is lazy propagation in a segment tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "Lazy propagation defers range updates by storing pending changes at nodes and applying them only when needed, enabling efficient range updates."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a disjoint set union (union-find)?"
+      },
+      {
+        "role": "assistant",
+        "content": "Disjoint set union, or union-find, tracks elements partitioned into disjoint groups and supports near-constant-time union and find operations."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What optimizations make union-find efficient?"
+      },
+      {
+        "role": "assistant",
+        "content": "Path compression flattens the structure during find, and union by rank or size keeps trees shallow, giving nearly constant amortized time."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a trie?"
+      },
+      {
+        "role": "assistant",
+        "content": "A trie is a tree data structure that stores strings by their characters along paths, enabling efficient prefix searches and lookups."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a balanced binary search tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "A balanced binary search tree keeps its height small as elements are inserted and removed, guaranteeing logarithmic-time operations."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a self-balancing tree, such as an AVL or red-black tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "A self-balancing tree automatically restructures itself on insertions and deletions to keep its height low and operations efficient."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a sparse table?"
+      },
+      {
+        "role": "assistant",
+        "content": "A sparse table precomputes answers for ranges of power-of-two lengths, allowing certain immutable range queries like minimum to be answered in constant time."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a monotonic stack?"
+      },
+      {
+        "role": "assistant",
+        "content": "A monotonic stack keeps its elements in sorted order and is used to efficiently find the next greater or smaller element in a sequence."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a deque and where is it useful?"
+      },
+      {
+        "role": "assistant",
+        "content": "A deque is a double-ended queue allowing insertion and removal at both ends, useful in sliding window maximum and similar problems."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a hash map and why is it useful in contests?"
+      },
+      {
+        "role": "assistant",
+        "content": "A hash map stores key-value pairs with average constant-time access, useful for counting, lookups, and caching during competitive problems."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a graph traversal?"
+      },
+      {
+        "role": "assistant",
+        "content": "A graph traversal systematically visits the vertices of a graph, with breadth-first search and depth-first search being the two fundamental methods."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is Dijkstra's algorithm?"
+      },
+      {
+        "role": "assistant",
+        "content": "Dijkstra's algorithm finds the shortest paths from a source vertex to all others in a graph with non-negative edge weights, using a priority queue."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is the Bellman-Ford algorithm?"
+      },
+      {
+        "role": "assistant",
+        "content": "The Bellman-Ford algorithm computes shortest paths from a source and can handle negative edge weights, also detecting negative cycles."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is a minimum spanning tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "A minimum spanning tree connects all vertices of a weighted graph with the minimum total edge weight and no cycles."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What algorithms find a minimum spanning tree?"
+      },
+      {
+        "role": "assistant",
+        "content": "Kruskal's algorithm and Prim's algorithm both find a minimum spanning tree, using union-find and a priority queue respectively."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is topological sorting?"
+      },
+      {
+        "role": "assistant",
+        "content": "Topological sorting orders the vertices of a directed acyclic graph so that every edge points from an earlier vertex to a later one."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What is Floyd-Warshall used for?"
+      },
+      {
+        "role": "assistant",
+        "content": "Floyd-Warshall computes the shortest paths between all pairs of vertices in a graph, working even with negative edges but no negative cycles."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is handling edge cases important in competitive programming?"
+      },
+      {
+        "role": "assistant",
+        "content": "Many wrong-answer verdicts come from missed edge cases such as empty input, maximum sizes, or boundary values, so they must be considered carefully."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "What causes integer overflow and how do you avoid it?"
+      },
+      {
+        "role": "assistant",
+        "content": "Overflow happens when a value exceeds the range of its data type; it is avoided by using larger types like 64-bit integers when sums or products can be large."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "Why is fast input and output sometimes necessary?"
+      },
+      {
+        "role": "assistant",
+        "content": "For very large inputs, slow reading and printing can cause time limit issues, so faster input/output methods are used to stay within the limit."
+      }
+    ]
+  },
+  {
+    "conversations": [
+      {
+        "role": "system",
+        "content": "You are an expert in competitive programming and advanced data structures, you are here to help others."
+      },
+      {
+        "role": "user",
+        "content": "How can you debug a failing competitive solution efficiently?"
+      },
+      {
+        "role": "assistant",
+        "content": "Test against small handcrafted cases and edge cases, check constraints and overflow, and compare against a simple brute-force solution to find discrepancies."
+      }
+    ]
+  }
+]

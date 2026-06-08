@@ -1,0 +1,282 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What is Clojure and what is it used for?"},
+      {"role": "assistant", "content": "Clojure is a modern, dynamic, functional **Lisp dialect on the JVM** (Java Virtual Machine).\n\nKey characteristics:\n- **Immutability by default** — all core data structures are persistent and immutable\n- **Functional programming** — first-class functions, higher-order functions, composition\n- **Concurrency** — built-in Software Transactional Memory (STM), atoms, agents, and channels\n- **Lisp syntax** — code is data (homoiconicity), powerful macro system\n- **ClojureScript** — compiles to JavaScript for front-end development\n\nUsed in: data science, web development, distributed systems, stream processing.\n\nTools: **Leiningen** or **deps.edn/tools.deps** (build), **CIDER** (Emacs IDE), **Calva** (VS Code), **Clojure CLI**."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "Write a Hello World program in Clojure and show how to run it."},
+      {"role": "assistant", "content": "```clojure\n;; hello.clj\n(ns hello.core)\n\n(defn -main []\n  (println \"Hello, World!\")\n  (println (str \"Hello, \" \"Clojure!\")))\n```\n\nRun with Leiningen:\n```bash\nlein new app hello   # create a new project\ncd hello\nlein run             # run the project\n```\n\nInteractive REPL:\n```bash\nclj        # Clojure CLI\nlein repl  # Leiningen REPL\n```\n\nIn Clojure, `println` prints with a newline. `str` concatenates strings. `-main` is the conventional entry point for applications."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does Clojure syntax work? What is a form?"},
+      {"role": "assistant", "content": "In Clojure, **everything is a form (expression)**. Function calls use prefix notation: `(function-name arg1 arg2 ...)`\n\n```clojure\n(+ 1 2)         ;; 3\n(- 10 3)        ;; 7\n(* 4 5)         ;; 20\n(/ 10 2)        ;; 5\n(/ 10 3)        ;; 10/3 (ratio — exact fraction, not float!)\n```\n\nThis is Lisp syntax — no operator precedence rules needed because every expression has explicit parentheses. The operator is always the first element, arguments follow.\n\n`;; ` starts a comment in Clojure (single `;` also works, `;;` is conventional for full-line comments)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are the arithmetic functions in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(+ 1 2)         ;; 3\n(- 10 3)        ;; 7\n(* 4 5)         ;; 20\n(/ 10 2)        ;; 5\n(quot 10 3)     ;; 3 (integer division, truncates toward zero)\n(rem 10 3)      ;; 1 (remainder, same sign as dividend)\n(mod 10 3)      ;; 1 (modulo, same sign as divisor)\n(inc 5)         ;; 6\n(dec 5)         ;; 4\n(max 3 7 2)     ;; 7\n(min 3 7 2)     ;; 2\n(abs -5)        ;; 5\n(Math/sqrt 16)  ;; 4.0\n(Math/pow 2 10) ;; 1024.0\n```\n\nNote: `(/ 10 3)` returns `10/3` as an exact ratio, not `3.333...`. Use `(/ 10.0 3)` to get a float."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do booleans and comparisons work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Boolean operations\n(and true false)   ;; false\n(or true false)    ;; true\n(not true)         ;; false\n\n;; Comparisons\n(= 1 1)            ;; true   (value equality)\n(not= 1 2)         ;; true\n(< 1 2 3)          ;; true   (chained: 1 < 2 < 3)\n(>= 3 3)           ;; true\n(> 5 3 1)          ;; true   (chained: 5 > 3 > 1)\n\n;; Different equality operators\n(= 1 1)            ;; true  (value equality)\n(== 1 1.0)         ;; true  (numeric equality — ignores type)\n(identical? \"a\" \"a\")  ;; reference equality (true for interned values)\n```\n\nIn Clojure, `and` and `or` return the actual value (not just true/false):\n```clojure\n(and 1 2 3)   ;; 3  (returns last truthy value)\n(or nil false 42)  ;; 42 (returns first truthy value)\n```\n\n`nil` and `false` are the only falsy values — everything else is truthy."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are keywords and symbols in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Keywords — identifiers prefixed with :\n:hello         ;; keyword\n:name\n:user/name     ;; namespaced keyword\n\n;; Symbols — unquoted identifiers that evaluate to their bound value\n;; Quoted symbols — prevent evaluation\n'hello         ;; the symbol itself, not its value\n'some-symbol\n```\n\n**Keywords** are the most common — they are self-evaluating (they evaluate to themselves) and are commonly used as map keys:\n```clojure\n(def m {:name \"Alice\" :age 30})\n(:name m)   ;; \"Alice\"  (keyword is a function that looks itself up in a map)\n```\n\nKeywords vs strings as map keys:\n- `:name` — idiomatic for known, fixed keys\n- `\"name\"` — use for dynamic or user-supplied keys\n\nConversion:\n```clojure\n(name :hello)      ;; \"hello\"  (keyword → string)\n(keyword \"hello\")  ;; :hello   (string → keyword)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do you define vars with def in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; def — bind a value to a name at the namespace level\n(def name \"Alice\")\n(def max-count 100)\n(def pi Math/PI)\n\n;; Access the value\n(println name)       ;; Alice\n(println (* pi 2))   ;; 6.283...\n```\n\n- `def` creates a **var** — a named reference at the namespace level\n- Vars are not variables in the mutable sense — they hold a value that rarely changes\n- For local bindings within a function, use `let` instead\n- Naming convention: use `kebab-case` (hyphens, not underscores)\n- Constants by convention use ALL-CAPS or descriptive names"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are the type predicate functions in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(integer? 42)    ;; true\n(float? 3.14)    ;; true\n(string? \"hi\")   ;; true\n(keyword? :ok)   ;; true\n(symbol? 'x)     ;; true\n(nil? nil)       ;; true\n(boolean? true)  ;; true\n(fn? println)    ;; true\n(seq? [1 2 3])   ;; false  (it's a vector, not a seq)\n(vector? [1 2])  ;; true\n(map? {:a 1})    ;; true\n(set? #{1 2})    ;; true\n(coll? [1 2])    ;; true  (any collection)\n```\n\nCoercions:\n```clojure\n(str 42)           ;; \"42\"\n(int 3.7)          ;; 3\n(double 5)         ;; 5.0\n(name :hello)      ;; \"hello\"\n(keyword \"hello\")  ;; :hello\n(Integer/parseInt \"42\")  ;; 42\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do vectors work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(def v [1 2 3 4 5])\n\n;; Access\n(count v)        ;; 5\n(first v)        ;; 1\n(last v)         ;; 5\n(rest v)         ;; (2 3 4 5) — returns a lazy seq\n(nth v 2)        ;; 3\n(get v 2)        ;; 3\n(v 2)            ;; 3  (vector is a function! index is the argument)\n\n;; Update (returns NEW vector — immutable!)\n(conj v 6)       ;; [1 2 3 4 5 6]  (append to end)\n(assoc v 2 99)   ;; [1 2 99 4 5]   (replace index 2)\n(subvec v 1 4)   ;; [2 3 4]        (slice, exclusive end)\n(pop v)          ;; [1 2 3 4]      (remove last)\n(peek v)         ;; 5              (look at last)\n```\n\nVectors are **persistent** — `conj` and `assoc` return new vectors. The original `v` is unchanged. This is guaranteed by Clojure's immutable data structures."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do lists work in Clojure and how are they different from vectors?"},
+      {"role": "assistant", "content": "```clojure\n(def lst '(1 2 3 4 5))   ;; quote prevents evaluation\n\n(first lst)     ;; 1\n(rest lst)      ;; (2 3 4 5)\n(conj lst 0)    ;; (0 1 2 3 4 5) — prepends to FRONT!\n```\n\n| | Vector `[]` | List `'()` |\n|---|---|---|\n| `conj` adds to | **end** | **front** |\n| Indexed access | O(log n) | O(n) |\n| Best for | data, most use cases | function args, code |\n| Literal syntax | `[1 2 3]` | `'(1 2 3)` |\n\nIn Clojure, **vectors are preferred** for most data storage. Lists are used primarily for code (they are the natural form of Clojure expressions) and when you need efficient prepend.\n\nThe quote `'` before `(1 2 3)` prevents Clojure from trying to call `1` as a function."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do maps work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(def m {:name \"Alice\" :age 30 :city \"NYC\"})\n\n;; Access\n(:name m)                    ;; \"Alice\"  (keyword as function)\n(get m :name)                ;; \"Alice\"\n(get m :missing \"default\")   ;; \"default\"  (with fallback)\n(m :age)                     ;; 30  (map as function)\n\n;; Update (returns new map)\n(assoc m :email \"alice@x.com\")  ;; add/update key\n(dissoc m :age)                 ;; remove key\n(update m :age inc)             ;; apply function to value\n\n;; Query\n(contains? m :name)    ;; true\n(keys m)               ;; (:name :age :city)\n(vals m)               ;; (\"Alice\" 30 \"NYC\")\n(count m)              ;; 3\n\n;; Merge\n(merge m {:score 90})                         ;; add/overwrite keys\n(merge-with + {:a 1 :b 2} {:a 3 :b 4})       ;; {:a 4 :b 6}\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do you access and update nested data structures in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(def data {:user {:name \"Alice\" :scores [90 85 92]}})\n\n;; get-in — access nested value with a path\n(get-in data [:user :name])         ;; \"Alice\"\n(get-in data [:user :scores 0])     ;; 90\n(get-in data [:missing :key] \"default\")  ;; \"default\"\n\n;; assoc-in — set nested value\n(assoc-in data [:user :age] 30)\n;; {:user {:name \"Alice\" :scores [90 85 92] :age 30}}\n\n;; update-in — apply function to nested value\n(update-in data [:user :scores] conj 95)\n;; {:user {:name \"Alice\" :scores [90 85 92 95]}}\n\n(update-in data [:user :name] clojure.string/upper-case)\n;; {:user {:name \"ALICE\" :scores [90 85 92]}}\n```\n\nAll of these return **new data structures** — the original `data` is unchanged. Clojure's persistent data structures share structure efficiently, so this is fast despite appearing to copy."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do sets work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(def s #{1 2 3 4 5})\n\n;; Test membership\n(contains? s 3)       ;; true\n(s 3)                 ;; 3   (set as function — returns the element or nil)\n(s 99)                ;; nil\n\n;; Update\n(conj s 6)            ;; #{1 2 3 4 5 6}\n(disj s 3)            ;; #{1 2 4 5}  (disjoin = remove)\n\n;; Set operations\n(require '[clojure.set :as set])\n\n(set/union #{1 2 3} #{3 4 5})         ;; #{1 2 3 4 5}\n(set/intersection #{1 2 3} #{2 3 4})  ;; #{2 3}\n(set/difference #{1 2 3} #{2 3 4})    ;; #{1}\n(set/subset? #{1 2} #{1 2 3})         ;; true\n```\n\nSets automatically deduplicate: `#{1 2 2 3}` is an error (duplicate literal). Use `(set [1 2 2 3])` → `#{1 2 3}` to create a set from a collection with duplicates."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What is the sequence abstraction in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; seq converts anything to a sequence\n(seq [1 2 3])        ;; (1 2 3)       (vector → seq)\n(seq {:a 1 :b 2})    ;; ([:a 1] [:b 2])  (map → seq of pairs)\n(seq \"hello\")        ;; (\\h \\e \\l \\l \\o) (string → seq of chars)\n(seq nil)            ;; nil           (empty → nil)\n```\n\nThe **sequence abstraction** is the key to Clojure's composability — functions like `map`, `filter`, `reduce` work on ANY collection (vectors, lists, maps, sets, strings, lazy sequences) because they all implement `seq`.\n\nFunctions that produce sequences return **lazy seqs** — they compute elements only when needed:\n```clojure\n(take 5 (range))   ;; (0 1 2 3 4) — range is infinite but lazy!\n(take 3 (repeat \"hi\"))  ;; (\"hi\" \"hi\" \"hi\")\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does if/when/cond control flow work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; if — exactly 2 branches\n(if (> 3 2)\n  \"yes\"        ;; then branch\n  \"no\")        ;; else branch  → \"yes\"\n\n;; when — 1 branch (no else), allows multiple body forms\n(when (> 3 2)\n  (println \"yes\")\n  42)          ;; prints \"yes\", returns 42\n               ;; returns nil if condition is false\n\n(when-not false\n  \"executed\")  ;; \"executed\"  (when condition is false)\n\n;; cond — multi-way branch\n(defn classify [n]\n  (cond\n    (< n 0)   \"negative\"\n    (= n 0)   \"zero\"\n    (< n 10)  \"small\"\n    :else     \"large\"))    ;; :else is always truthy, acts as default\n```\n\n- `if` in Clojure is an expression — it returns a value\n- Use `when` when you only have a \"then\" branch (or need multiple side effects)\n- `:else` at the end of `cond` is the catch-all (any truthy value works, but `:else` is idiomatic)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does case work in Clojure and how is it different from cond?"},
+      {"role": "assistant", "content": "```clojure\n;; case — switch on a value (uses equality, compile-time dispatch)\n(case day\n  \"Monday\"                  \"Start of week\"\n  (\"Saturday\" \"Sunday\")     \"Weekend\"        ;; list = multiple values for same branch\n  \"Other\")                                    ;; default (no test expression)\n\n;; cond — arbitrary boolean test per branch\n(cond\n  (= day \"Monday\")          \"Start of week\"\n  (contains? #{\"Saturday\" \"Sunday\"} day) \"Weekend\"\n  :else                     \"Other\")\n```\n\nKey differences:\n- `case` — tests against **constant values** only, O(1) dispatch (like a hash table)\n- `cond` — tests can be **any expression**, evaluated top to bottom\n- `case` does not evaluate test values; `cond` evaluates each test\n- Use `case` when switching on a known finite set of values; `cond` for complex conditions"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does let work in Clojure for local bindings?"},
+      {"role": "assistant", "content": "```clojure\n;; let — create local bindings\n(let [x 10\n      y 20\n      z (+ x y)]   ;; can reference earlier bindings\n  (* z 2))          ;; 60  (last expression is the return value)\n\n;; let with more complex expressions\n(let [name \"Alice\"\n      upper (clojure.string/upper-case name)\n      greeting (str \"Hello, \" upper \"!\")]\n  (println greeting)\n  greeting)   ;; \"Hello, ALICE!\"\n```\n\n- Bindings are evaluated **top to bottom** — each can reference previously defined ones\n- `let` returns the value of the **last expression** in its body\n- Variables in `let` are **immutable** — you cannot rebind them\n- `let` is the primary way to give names to intermediate values in Clojure (no mutable local variables)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do loop and recur work in Clojure for tail recursion?"},
+      {"role": "assistant", "content": "```clojure\n;; loop/recur — explicit tail recursion (no stack overflow)\n(loop [n 1, acc 1]\n  (if (> n 10)\n    acc                        ;; base case: return accumulator\n    (recur (inc n) (* acc n)))) ;; tail call: update bindings, jump back\n;; Result: factorial of 10 = 3628800\n```\n\n- `loop` establishes binding names with initial values\n- `recur` jumps back to the `loop` point with new values (no stack frame consumed)\n- `recur` must be in **tail position** (last expression in its branch)\n- This is Clojure's solution to not having mutable loop variables\n\nEquivalent with a named function:\n```clojure\n(defn factorial [n]\n  (loop [i n, acc 1]\n    (if (<= i 1)\n      acc\n      (recur (dec i) (* acc i)))))\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do doseq and dotimes work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; doseq — iterate for side effects\n(doseq [item [1 2 3 4 5]]\n  (println item))     ;; prints 1 2 3 4 5, returns nil\n\n;; doseq with multiple bindings (nested loops)\n(doseq [x (range 3) y (range 3)]\n  (println [x y]))    ;; prints [0 0] [0 1] [0 2] [1 0] ... [2 2]\n\n;; dotimes — repeat N times with index\n(dotimes [i 5]\n  (println i))        ;; prints 0 1 2 3 4\n```\n\n- `doseq` is for **side effects only** — it always returns `nil`\n- Use `map` when you want to transform a collection and keep the results\n- `doseq` with multiple bindings creates a **Cartesian product** (all combinations)\n- `dotimes` is a simpler version when you just need a counter"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do you define functions with defn in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Basic function definition\n(defn greet\n  \"Greet someone (this is the docstring)\"\n  [name]\n  (str \"Hello, \" name \"!\"))\n\n(greet \"Alice\")   ;; \"Hello, Alice!\"\n\n;; Multiple arities (different param counts)\n(defn greet\n  ([name] (greet name \"Hello\"))           ;; 1-arg: use default greeting\n  ([name greeting] (str greeting \", \" name \"!\")))  ;; 2-arg: use provided greeting\n\n(greet \"Alice\")          ;; \"Hello, Alice!\"\n(greet \"Alice\" \"Hi\")     ;; \"Hi, Alice!\"\n\n;; Variadic (rest args with &)\n(defn sum-all [& nums]\n  (reduce + nums))\n\n(sum-all 1 2 3 4 5)   ;; 15\n(sum-all)             ;; 0\n```\n\n- The docstring is optional but strongly recommended\n- Multiple arities allow optional parameters in an idiomatic way\n- `& rest` collects remaining arguments into a sequence"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does destructuring work in Clojure function parameters?"},
+      {"role": "assistant", "content": "**Sequential destructuring** (vectors):\n```clojure\n(defn describe [[first & rest]]\n  (str \"Head: \" first \", Rest: \" rest))\n\n(describe [1 2 3 4])   ;; \"Head: 1, Rest: (2 3 4)\"\n```\n\n**Map destructuring** (maps):\n```clojure\n(defn info [{:keys [name age]}]\n  (str name \" is \" age))\n\n(info {:name \"Alice\" :age 30})  ;; \"Alice is 30\"\n\n;; With defaults and aliases\n(defn info [{:keys [name age]\n             :or   {age 0}\n             :as   person}]\n  (str name \" (\" age \"): \" person))\n```\n\n**In let bindings too:**\n```clojure\n(let [[a b c] [1 2 3]\n      {:keys [x y]} {:x 10 :y 20}]\n  (+ a x))   ;; 11\n```\n\nDestructuring works in `let`, `defn` parameters, `loop`, `doseq`, and `for` — anywhere bindings are established."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do anonymous functions work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Full form\n(fn [x] (* x x))\n\n;; Shorthand #() — % = first arg, %2 = second, %& = rest\n#(* % %)           ;; square: one arg\n#(* %1 %2)         ;; multiply: two args\n#(apply + %&)      ;; sum all args\n\n;; Used inline\n(map (fn [x] (* x x)) [1 2 3 4 5])  ;; (1 4 9 16 25)\n(map #(* % %) [1 2 3 4 5])           ;; same, shorter\n\n;; Assigned to a var\n(def square #(* % %))\n(square 5)   ;; 25\n```\n\nThe `#()` shorthand is great for simple one-liners. Use `fn` for multi-line or when you need named parameters for clarity.\n\nCannot nest `#()` shorthand — use `fn` for nested anonymous functions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are the core higher-order functions in Clojure? Show map, filter, reduce, remove."},
+      {"role": "assistant", "content": "```clojure\n;; map — apply function to each element\n(map #(* % 2) [1 2 3 4 5])          ;; (2 4 6 8 10)\n(map str [1 2 3])                    ;; (\"1\" \"2\" \"3\")\n\n;; filter — keep elements where predicate is true\n(filter even? [1 2 3 4 5 6])         ;; (2 4 6)\n(filter #(> % 3) [1 2 3 4 5])        ;; (4 5)\n\n;; remove — keep elements where predicate is false (complement of filter)\n(remove odd? [1 2 3 4 5 6])          ;; (2 4 6)\n\n;; reduce — fold collection to a single value\n(reduce + 0 [1 2 3 4 5])             ;; 15\n(reduce * 1 [1 2 3 4 5])             ;; 120\n(reduce conj [] [1 2 3])             ;; [1 2 3]\n\n;; reduce-kv — reduce over a map\n(reduce-kv (fn [m k v] (assoc m k (* v 2))) {} {:a 1 :b 2})\n;; {:a 2, :b 4}\n```\n\nAll these return **lazy sequences** (except `reduce`). They compose naturally with threading macros."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do apply, comp, and partial work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; apply — call a function with a sequence as its argument list\n(apply + [1 2 3 4 5])     ;; 15  (same as (+ 1 2 3 4 5))\n(apply str [\"a\" \"b\" \"c\"]) ;; \"abc\"\n(apply max [3 1 4 1 5 9]) ;; 9\n\n;; partial — create a function with some arguments pre-filled\n(def double (partial * 2))\n(double 5)    ;; 10\n(double 21)   ;; 42\n\n(def add5 (partial + 5))\n(add5 3)      ;; 8\n\n;; comp — compose functions (right to left)\n(def inc-then-double (comp double inc))\n(inc-then-double 5)   ;; (5+1)*2 = 12  (inc applied first, then double)\n\n(def process (comp str inc #(* % 2)))\n(process 3)   ;; \"7\"  (3*2=6, 6+1=7, str=\"7\")\n```\n\n`comp` applies functions from **right to left** — the rightmost function is applied first. This matches mathematical function composition: `(f ∘ g)(x) = f(g(x))`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are the core sequence functions in Clojure (range, repeat, take, drop, partition)?"},
+      {"role": "assistant", "content": "```clojure\n;; Creating sequences\n(range 5)           ;; (0 1 2 3 4)\n(range 1 11)        ;; (1 2 3 4 5 6 7 8 9 10)\n(range 0 10 2)      ;; (0 2 4 6 8)  step=2\n(repeat 5 \"hi\")     ;; (\"hi\" \"hi\" \"hi\" \"hi\" \"hi\")\n(repeat \"hi\")       ;; infinite lazy seq!\n(cycle [1 2 3])     ;; (1 2 3 1 2 3 ...) infinite\n(iterate inc 0)     ;; (0 1 2 3 ...) infinite\n(take 5 (iterate #(* % 2) 1))  ;; (1 2 4 8 16)\n\n;; Slicing\n(take 5 [1 2 3 4 5 6 7 8 9])    ;; (1 2 3 4 5)\n(drop 3 [1 2 3 4 5])             ;; (4 5)\n(take-while #(< % 5) [1 2 3 4 5 6])  ;; (1 2 3 4)\n(drop-while odd? [1 3 5 6 7 8])       ;; (6 7 8)\n\n;; Partitioning\n(partition 3 [1 2 3 4 5 6 7 8 9])    ;; ((1 2 3)(4 5 6)(7 8 9))\n(partition-all 3 [1 2 3 4 5])         ;; ((1 2 3)(4 5))  includes remainder\n(partition-by even? [1 3 5 2 4 6 1])  ;; ((1 3 5)(2 4 6)(1))\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are group-by, frequencies, distinct, flatten, interleave, interpose, and zipmap?"},
+      {"role": "assistant", "content": "```clojure\n;; group-by — group elements by a function\n(group-by even? [1 2 3 4 5 6])        ;; {false (1 3 5), true (2 4 6)}\n(group-by :city [{:name \"Alice\" :city \"NYC\"} {:name \"Bob\" :city \"LA\"}])\n;; {\"NYC\" [{:name \"Alice\"...}], \"LA\" [{:name \"Bob\"...}]}\n\n;; frequencies — count occurrences\n(frequencies [1 1 2 3 3 3])           ;; {1 2, 2 1, 3 3}\n(frequencies \"hello\")                  ;; {\\h 1, \\e 1, \\l 2, \\o 1}\n\n;; distinct — remove duplicates (preserving order)\n(distinct [1 2 2 3 3 4])              ;; (1 2 3 4)\n\n;; flatten — deep flatten nested collections\n(flatten [[1 2] [3 [4 5]]])           ;; (1 2 3 4 5)\n\n;; interleave — alternate elements from two sequences\n(interleave [1 2 3] [:a :b :c])       ;; (1 :a 2 :b 3 :c)\n\n;; interpose — insert separator between elements\n(interpose \", \" [\"a\" \"b\" \"c\"])        ;; (\"a\" \", \" \"b\" \", \" \"c\")\n(apply str (interpose \", \" [\"a\" \"b\" \"c\"]))  ;; \"a, b, c\"\n\n;; zipmap — pair two sequences into a map\n(zipmap [:a :b :c] [1 2 3])           ;; {:a 1, :b 2, :c 3}\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are the string functions in Clojure (clojure.string namespace)?"},
+      {"role": "assistant", "content": "```clojure\n(require '[clojure.string :as str])\n\n(str/upper-case \"hello\")              ;; \"HELLO\"\n(str/lower-case \"HELLO\")              ;; \"hello\"\n(str/trim \"  hello  \")                ;; \"hello\"\n(str/trim-newline \"hello\\n\")          ;; \"hello\"\n(str/replace \"hello\" \"l\" \"L\")         ;; \"heLLo\"\n(str/replace \"hello\" #\"l+\" \"L\")       ;; \"heLo\"  (regex)\n(str/includes? \"hello\" \"ell\")         ;; true\n(str/starts-with? \"hello\" \"he\")       ;; true\n(str/ends-with? \"hello\" \"lo\")         ;; true\n(str/split \"a,b,c\" #\",\")              ;; [\"a\" \"b\" \"c\"]\n(str/join \", \" [\"a\" \"b\" \"c\"])         ;; \"a, b, c\"\n(str/blank? \"  \")                     ;; true\n(str/capitalize \"hello world\")        ;; \"Hello world\"\n```\n\nBuilt-in `str` (without namespace) concatenates:\n```clojure\n(str \"hello\" \" \" \"world\")   ;; \"hello world\"\n(str 1 2 3)                  ;; \"123\"\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are transducers in Clojure and how do they work?"},
+      {"role": "assistant", "content": "Transducers are **composable, reusable transformations** that are independent of the data source:\n\n```clojure\n;; Define a transducer — composed with comp, not applied yet\n(def xf (comp (filter even?) (map #(* % 2))))\n\n;; Apply with transduce (reduces with transformation)\n(transduce xf + (range 10))     ;; 40\n;; equivalent to: (reduce + (map #(* % 2) (filter even? (range 10))))\n\n;; Apply with into (collects results into a collection)\n(into [] xf (range 10))          ;; [4 8 12 16]\n(into #{} xf (range 10))         ;; #{4 8 12 16}\n```\n\n**Why transducers?**\n- With `(filter even? (map ...))` — creates intermediate lazy sequences\n- With transducers — no intermediate collections, processes in one pass\n- Same transformation works on vectors, channels, streams, anything\n- Significant performance improvement for large data"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do atoms work in Clojure for managing state?"},
+      {"role": "assistant", "content": "```clojure\n;; atom — synchronous, uncoordinated mutable reference\n(def counter (atom 0))\n\n@counter                           ;; 0  (deref with @)\n(deref counter)                    ;; 0  (same as @counter)\n\n(swap! counter inc)                ;; apply inc, return new value: 1\n(swap! counter + 5)                ;; apply +5: 6\n(reset! counter 0)                 ;; set to specific value: 0\n\n;; compare-and-set! — conditional update (optimistic locking)\n(compare-and-set! counter 0 1)    ;; true if current value was 0, sets to 1\n```\n\n- `swap!` applies a function atomically — **thread-safe** even with concurrent access\n- If two threads call `swap!` simultaneously, one retries automatically\n- `reset!` sets directly without reading the old value\n- Atoms are for **independent, uncoordinated** state changes\n- Use `deref` / `@` to read the current value"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does Software Transactional Memory (STM) work in Clojure with refs and dosync?"},
+      {"role": "assistant", "content": "```clojure\n;; refs — synchronous, coordinated mutable references (STM)\n(def balance (ref 1000))\n(def savings (ref 500))\n\n;; dosync — run a transaction atomically\n(dosync\n  (alter balance - 100)  ;; balance = 900\n  (alter savings + 100)) ;; savings = 600\n;; BOTH changes happen atomically, or NEITHER does\n\n@balance   ;; 900\n@savings   ;; 600\n```\n\n**When to use refs vs atoms:**\n- **Atom** — one piece of state that changes independently\n- **Ref** — multiple pieces of state that must change together (like a bank transfer)\n\n`dosync` implements **optimistic concurrency**:\n1. Runs the transaction\n2. If another transaction modified the same refs, retries automatically\n3. When no conflicts, commits atomically\n\nThis is Clojure's **STM** — no locks needed, no deadlocks possible."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do agents work in Clojure for asynchronous state management?"},
+      {"role": "assistant", "content": "```clojure\n;; agent — asynchronous, uncoordinated mutable reference\n(def agent-val (agent 0))\n\n;; send — dispatch to thread pool (CPU-bound work)\n(send agent-val inc)\n(send agent-val + 5)\n\n;; send-off — dispatch to unbounded thread pool (I/O-bound, blocking work)\n(send-off agent-val #(do (Thread/sleep 100) (inc %)))\n\n;; await — block until all pending actions complete\n(await agent-val)\n@agent-val   ;; read the value\n```\n\n**Agent guarantees:**\n- Actions are applied **in order** — no concurrent updates to the same agent\n- Actions run in separate threads — caller does not block\n- If an action throws, the agent enters an error state (check with `agent-error`)\n\nComparison:\n- **Atom** → synchronous, caller waits\n- **Agent** → asynchronous, caller returns immediately\n- **Ref** → coordinated with other refs via STM"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do futures and promises work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; future — run computation in background thread\n(def f (future (Thread/sleep 100) 42))\n(realized? f)   ;; false (still running)\n@f              ;; 42  (blocks until complete)\n(realized? f)   ;; true\n\n;; promise — placeholder for a value delivered later\n(def p (promise))\n\n;; In another thread:\n(future (Thread/sleep 100) (deliver p 42))\n\n;; In main thread:\n@p         ;; blocks until deliver is called: 42\n```\n\n**Difference:**\n- `future` — runs a computation, value available when done\n- `promise` — empty container, filled by `deliver` from any thread\n\nCommon pattern — parallel computation:\n```clojure\n(let [f1 (future (expensive-computation-1))\n      f2 (future (expensive-computation-2))]\n  (+ @f1 @f2))   ;; both run in parallel, wait for both\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does core.async work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n(require '[clojure.core.async :as async :refer [chan go <! >! <!! >!! close!]])\n\n;; Create a buffered channel\n(def ch (chan 10))\n\n;; go block — lightweight goroutine (non-blocking)\n(go\n  (>! ch 1)    ;; put value (non-blocking inside go)\n  (>! ch 2)\n  (>! ch 3)\n  (close! ch)) ;; signal no more values\n\n;; Receive in a go loop\n(go-loop []\n  (when-let [val (<! ch)]   ;; returns nil when channel is closed\n    (println val)\n    (recur)))\n\n;; Blocking operations (outside go blocks, on real threads)\n(>!! ch 42)     ;; blocking put\n(<!! ch)        ;; blocking take\n\n;; Pipeline — parallel transformation\n(def in  (chan 10))\n(def out (chan 10))\n(async/pipeline 4 out (map #(* % 2)) in)  ;; 4 parallel workers\n```\n\ncore.async implements **CSP (Communicating Sequential Processes)** — like Go channels. `go` blocks are lightweight and can have thousands without threads."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do namespaces work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Namespace definition at top of file\n(ns my.app.core\n  (:require [clojure.string :as str]           ;; alias\n            [clojure.set :refer [union intersection]]  ;; import specific vars\n            [clojure.java.io :as io])\n  (:import [java.util Date]                    ;; Java classes\n           [java.io File]))\n\n;; Using required namespaces\n(str/upper-case \"hello\")    ;; via alias\n(union #{1 2} #{2 3})       ;; via refer (no alias needed)\n(io/file \"test.txt\")\n\n;; Using imported Java classes\n(Date.)        ;; new Date()\n(File. \"/tmp\") ;; new File(\"/tmp\")\n```\n\n- `(:require ...)` — load another Clojure namespace\n- `(:import ...)` — import Java classes\n- `:as alias` — give a namespace a short name\n- `:refer [fn1 fn2]` — bring specific vars into current namespace\n- `:refer :all` — bring everything (avoid in production code)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How does Java interop work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; Create objects (ClassName. with dot)\n(Date.)                       ;; new Date()\n(StringBuilder.)              ;; new StringBuilder()\n(java.util.ArrayList.)        ;; new ArrayList()\n\n;; Call instance methods (. operator)\n(.toUpperCase \"hello\")        ;; \"HELLO\"\n(.length \"hello\")             ;; 5\n(.substring \"hello\" 1 3)      ;; \"el\"\n\n;; Chain methods (.. operator)\n(.. \"hello\" toUpperCase (substring 0 3))  ;; \"HEL\"\n\n;; Static methods\n(Math/sqrt 16.0)              ;; 4.0\n(System/currentTimeMillis)    ;; current time in ms\n(Integer/parseInt \"42\")       ;; 42\n\n;; Access fields\n(.-width (java.awt.Dimension. 800 600))   ;; 800\n\n;; instanceof check\n(instance? String \"hello\")    ;; true\n(instance? Number 42)          ;; true\n\n;; Type hints (avoid reflection, improve performance)\n(defn fast-str [^String s]\n  (.toUpperCase s))\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do macros work in Clojure? Show defmacro with quote and unquote."},
+      {"role": "assistant", "content": "```clojure\n;; defmacro — write code that generates code at compile time\n(defmacro when2 [test & body]\n  `(if ~test (do ~@body)))\n;; `  = syntax-quote (like quote but allows ~ and ~@)\n;; ~  = unquote (evaluate this expression)\n;; ~@ = unquote-splice (splice a sequence)\n\n(when2 (> 5 3)\n  (println \"yes\")\n  42)   ;; expands to: (if (> 5 3) (do (println \"yes\") 42))\n\n;; Quote (') — prevent evaluation\n'(+ 1 2)          ;; the LIST (+ 1 2), not the number 3\n\n;; Syntax-quote (`) — prevent evaluation, but allow ~ inside\n(let [x 42]\n  `(the answer is ~x))   ;; (the answer is 42)\n```\n\nMacros are called with **unevaluated forms** — they manipulate code as data. This is possible because Clojure code is made of Clojure data structures (lists, vectors, maps)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do the threading macros -> and ->> work in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; -> (thread-first) — inserts result as FIRST argument of next form\n(-> {:name \"alice\"}\n    (assoc :age 30)\n    (update :name clojure.string/upper-case))\n;; Expands to:\n;; (update (assoc {:name \"alice\"} :age 30) :name clojure.string/upper-case)\n;; Result: {:name \"ALICE\", :age 30}\n\n;; ->> (thread-last) — inserts result as LAST argument of next form\n(->> [1 2 3 4 5]\n     (filter even?)\n     (map #(* % 2))\n     (reduce +))\n;; Expands to: (reduce + (map #(* % 2) (filter even? [1 2 3 4 5])))\n;; Result: 12\n```\n\n- Use `->` for map/object transformations (first arg is the subject)\n- Use `->>` for sequence transformations (`map`, `filter`, `reduce` take the collection last)\n\nThreading macros eliminate deeply nested parentheses and make data flow read left-to-right / top-to-bottom."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What are as->, some->, and other threading macro variants in Clojure?"},
+      {"role": "assistant", "content": "```clojure\n;; as-> — thread with named placeholder (flexible position)\n(as-> \"hello world\" s\n  (clojure.string/split s #\" \")\n  (map clojure.string/upper-case s)\n  (clojure.string/join \", \" s))\n;; \"HELLO, WORLD\"\n;; Use when the position changes between steps\n\n;; some-> — short-circuit on nil (like ?. in other languages)\n(some-> {:name \"Alice\" :address {:city \"NYC\"}}\n        :address\n        :city\n        clojure.string/upper-case)\n;; \"NYC\"\n\n(some-> nil\n        :address\n        :city)\n;; nil  (stops at first nil, doesn't throw NullPointerException)\n\n;; some->> — same but threads as last argument\n(some->> [1 2 3]\n         (filter even?)\n         first)\n;; 2\n```\n\n`some->` is invaluable for safely navigating potentially-nil data without nested `when` checks."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "How do you write tests in Clojure with clojure.test?"},
+      {"role": "assistant", "content": "```clojure\n(require '[clojure.test :refer :all])\n\n;; deftest — define a test\n(deftest test-add\n  (is (= 3 (+ 1 2)))           ;; assertion: passes if form is truthy\n  (is (not= 4 (+ 1 2)))\n  (is (= [2 4 6] (map #(* % 2) [1 2 3]))))\n\n;; testing — group related assertions with a message\n(deftest test-math\n  (testing \"addition\"\n    (is (= 3 (+ 1 2)))\n    (is (= 0 (+ 0 0))))\n  (testing \"multiplication\"\n    (is (= 6 (* 2 3)))))\n\n;; Run tests\n(run-tests)   ;; run all tests in current namespace\n```\n\nWith Leiningen:\n```bash\nlein test   ;; run all tests in the project\n```\n\nCommon assertions:\n- `(is (= expected actual))` — equality\n- `(is (thrown? ExceptionType (form)))` — expects an exception\n- `(is (= ...) \"message\")` — with failure message"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Clojure programming language tutor. Answer clearly and always include working Clojure code examples with comments."},
+      {"role": "user", "content": "What is the do form in Clojure and when do you use it?"},
+      {"role": "assistant", "content": "```clojure\n;; do — sequence multiple expressions, return value of last\n(do\n  (println \"first\")\n  (println \"second\")\n  42)    ;; returns 42, println returns nil\n```\n\n`do` is used when you need to:\n1. Execute multiple side effects where only one expression is expected\n2. Group side effects followed by a return value\n\nCommon use inside `if` when the then-branch needs multiple forms:\n```clojure\n(if condition\n  (do\n    (println \"logging...\")\n    (update-database!)\n    :success)\n  :failure)\n```\n\nNote: `when` and `when-not` already have an implicit `do` — their body can have multiple forms without explicit `do`."}
+    ]
+  }
+]

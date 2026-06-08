@@ -1,0 +1,121 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "What is Lean and what is it used for?"},
+      {"role": "assistant", "content": "Lean is a functional programming language and interactive theorem prover developed at Microsoft Research by Leonardo de Moura. Lean 4 (2021) is a complete rewrite targeting both theorem proving and general systems programming. It is used in formal mathematics (Mathlib), verified software, and research.\n\nTools used with Lean:\n- **lean** — the CLI compiler/interpreter\n- **lake** — the build tool (like Cargo for Rust)\n- **VS Code with Lean extension** — the recommended IDE experience"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "Write a Hello World program in Lean 4 and show how to run it."},
+      {"role": "assistant", "content": "```lean\n-- hello.lean\ndef main : IO Unit := do\n  IO.println \"Hello, World!\"\n  IO.println \"Hello, Lean!\"\n```\n\nRun directly:\n```bash\nlean --run hello.lean\n```\n\nOr with a Lake project:\n```bash\nlake new myproject    # create project\nlake build            # build project\nlake exe myapp        # run executable\n```\n\nProject config (`lakefile.lean`):\n```lean\nimport Lake\nopen Lake DSL\n\npackage «myproject» where\n  name := \"myproject\"\n\nlean_lib «Myproject» where\n  -- library settings\n\n@[default_target]\nlean_exe «myproject» where\n  root := `Main\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "What are the basic types in Lean 4 and how do you write literals and arithmetic?"},
+      {"role": "assistant", "content": "Basic types in Lean 4:\n\n```lean\n#check Nat     -- ℕ (natural numbers: 0, 1, 2, ...)\n#check Int     -- ℤ (integers: ..., -1, 0, 1, ...)\n#check Float   -- 64-bit IEEE float\n#check Bool    -- true | false\n#check Char    -- Unicode character\n#check String  -- UTF-8 string\n#check Unit    -- () the unit type\n#check Empty   -- uninhabited type\n```\n\nLiterals and type ascription:\n```lean\n#eval (42 : Nat)\n#eval (-10 : Int)\n#eval (3.14 : Float)\n#eval true\n#eval 'A'\n#eval \"Hello\"\n#eval ()\n\n-- Type inference\ndef a := 42      -- inferred as Nat\ndef b := -10     -- inferred as Int\ndef c := 3.14    -- inferred as Float\ndef s := \"hello\" -- String\n```\n\nArithmetic:\n```lean\n#eval 3 + 4         -- 7\n#eval 10 - 3        -- 7 (Nat: saturates at 0)\n#eval (3 : Int) - 10  -- -7\n#eval 3 * 4         -- 12\n#eval 10 / 3        -- 3 (integer division for Nat)\n#eval 10 % 3        -- 1\n#eval 2 ^ 8         -- 256\n```\n\nBooleans and comparisons:\n```lean\n#eval true && false   -- false\n#eval true || false   -- true\n#eval !true           -- false\n#eval (3 == 3)        -- true\n#eval (3 != 4)        -- true\n#eval (3 < 5)         -- true\n#eval (3 ≤ 3)         -- true  (Unicode or <=)\n```\n\nStrings:\n```lean\n#eval String.length \"Hello\"             -- 5\n#eval \"Hello\" ++ \" \" ++ \"World\"         -- \"Hello World\"\n#eval String.toUpper \"hello\"            -- \"HELLO\"\n#eval String.startsWith \"hello\" \"hel\"  -- true\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do you define functions in Lean 4, including implicit arguments and lambdas?"},
+      {"role": "assistant", "content": "```lean\n-- Basic functions\ndef double (n : Nat) : Nat := n * 2\n\ndef add (a b : Nat) : Nat := a + b\n\n-- Implicit arguments (inferred by the type checker)\ndef identity {α : Type} (x : α) : α := x\n\n-- Multiple type variables\ndef compose {α β γ : Type} (f : β → γ) (g : α → β) (x : α) : γ :=\n  f (g x)\n```\n\nLambda expressions:\n```lean\ndef double' : Nat → Nat := fun n => n * 2\ndef add' := fun (a b : Nat) => a + b\ndef triple := (· * 3)   -- dot notation shorthand\n```\n\nDo notation for IO:\n```lean\ndef main : IO Unit := do\n  let n ← IO.getStdin >>= fun h => do\n    let line ← h.getLine\n    return line.trim.toNat!\n  IO.println s!\"You entered: {n}\"\n  IO.println s!\"Double: {double n}\"\n```\n\n- Curly braces `{α : Type}` mark implicit arguments — Lean infers them from context\n- `fun` introduces a lambda\n- `(· * 3)` is shorthand for `fun x => x * 3`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How does pattern matching work in Lean 4?"},
+      {"role": "assistant", "content": "Pattern matching in Lean 4 can be done in function definitions directly or with a `match` expression:\n\n```lean\n-- Pattern matching in function definition\ndef isZero : Nat → Bool\n  | 0     => true\n  | _ + 1 => false\n\ndef factorial : Nat → Nat\n  | 0     => 1\n  | n + 1 => (n + 1) * factorial n\n\ndef fib : Nat → Nat\n  | 0     => 0\n  | 1     => 1\n  | n + 2 => fib (n + 1) + fib n\n```\n\nMatching on structures:\n```lean\nstructure Point where\n  x : Float\n  y : Float\n\n-- Pattern match on structure fields\ndef getX : Point → Float\n  | ⟨x, _⟩ => x\n  -- or: | p => p.x\n```\n\nMatch expression:\n```lean\ndef classify (n : Int) : String :=\n  match n.compare 0 with\n  | .lt => \"negative\"\n  | .eq => \"zero\"\n  | .gt => \"positive\"\n```\n\n- `_` is the wildcard pattern (matches anything, binding nothing)\n- `.lt`, `.eq`, `.gt` are dot-notation constructors of the `Ordering` type\n- Anonymous constructor syntax `⟨x, _⟩` matches structure fields positionally"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "Show me how to work with Lists in Lean 4."},
+      {"role": "assistant", "content": "```lean\n#eval [1, 2, 3, 4, 5]\n#eval ([] : List Nat)\n\n-- Core operations\n#eval List.length [1, 2, 3]          -- 3\n#eval List.head? [1, 2, 3]           -- some 1\n#eval List.tail [1, 2, 3]            -- [2, 3]\n#eval List.append [1, 2] [3, 4]      -- [1, 2, 3, 4]\n#eval [1, 2] ++ [3, 4]               -- same\n#eval List.reverse [1, 2, 3]         -- [3, 2, 1]\n#eval List.zip [1, 2, 3] ['a', 'b', 'c']\n\n-- Higher-order functions\n#eval List.map (· * 2) [1, 2, 3]           -- [2, 4, 6]\n#eval List.filter (· > 2) [1, 2, 3, 4]    -- [3, 4]\n#eval List.foldl (· + ·) 0 [1, 2, 3, 4, 5]  -- 15\n#eval List.sum [1, 2, 3, 4, 5]             -- 15\n\n-- Cons notation\n#eval 1 :: 2 :: 3 :: []   -- [1, 2, 3]\n```\n\n- `List.head?` returns `Option α` (safe — returns `none` on empty list)\n- `::` is the cons operator, building lists from head and tail\n- `foldl` accumulates from the left: `foldl f z [a,b,c] = f (f (f z a) b) c`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do Option and Result (Except) types work in Lean 4?"},
+      {"role": "assistant", "content": "**Option** represents a value that may or may not be present:\n\n```lean\ndef safeDiv (a b : Nat) : Option Nat :=\n  if b == 0 then none else some (a / b)\n\n#eval safeDiv 10 2   -- some 5\n#eval safeDiv 10 0   -- none\n\n-- Pattern match on Option\ndef printDiv (a b : Nat) : String :=\n  match safeDiv a b with\n  | none   => \"Division by zero\"\n  | some r => s!\"Result: {r}\"\n\n-- Option combinators\n#eval (some 5).map (· * 2)            -- some 10\n#eval (none : Option Nat).map (· * 2) -- none\n#eval (some 5).bind (safeDiv 10)      -- some 2\n#eval (some 5).getD 0                 -- 5\n#eval (none : Option Nat).getD 0      -- 0\n```\n\n**Except** (Result) carries an error message on failure:\n\n```lean\ndef parseNat (s : String) : Except String Nat :=\n  match s.toNat? with\n  | none   => .error s!\"Not a number: {s}\"\n  | some n => .ok n\n```\n\n- `Option` is for \"might be missing\" — no error info needed\n- `Except` is for \"might fail with a reason\" — carries an error value\n- `.map`, `.bind`, `.getD` are monadic combinators for chaining Option computations"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do you define algebraic data types (inductive types) in Lean 4?"},
+      {"role": "assistant", "content": "Algebraic data types are defined with `inductive`:\n\n```lean\ninductive Shape where\n  | circle    : Float → Shape\n  | rectangle : Float → Float → Shape\n  | triangle  : Float → Float → Float → Shape\n\ndef area : Shape → Float\n  | .circle r        => Float.pi * r * r\n  | .rectangle w h   => w * h\n  | .triangle a b c  =>\n      let s := (a + b + c) / 2\n      Float.sqrt (s * (s - a) * (s - b) * (s - c))\n```\n\nMutual recursion:\n```lean\nmutual\n  def isEven : Nat → Bool\n    | 0     => true\n    | n + 1 => isOdd n\n\n  def isOdd : Nat → Bool\n    | 0     => false\n    | n + 1 => isEven n\nend\n```\n\n- Each constructor is prefixed with `|` and names what shape of data it holds\n- Dot notation `.circle` is shorthand for `Shape.circle`\n- Mutually recursive definitions must be wrapped in a `mutual ... end` block\n- Pattern matching on inductive types must be exhaustive"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "What is the Curry-Howard correspondence in Lean and how do you write basic proofs with tactics?"},
+      {"role": "assistant", "content": "In Lean, **propositions are types** and **proofs are values** — this is the Curry-Howard correspondence.\n\n```lean\n-- A simple theorem proved with the omega tactic\ntheorem add_comm (a b : Nat) : a + b = b + a := by\n  omega  -- omega solves linear arithmetic automatically\n```\n\nCommon tactic proofs:\n```lean\n-- Proving conjunction (∧)\ntheorem example1 (p q : Prop) (hp : p) (hq : q) : p ∧ q := by\n  constructor      -- split goal into two subgoals\n  · exact hp       -- prove p\n  · exact hq       -- prove q\n\n-- Destructuring hypothesis\ntheorem example2 (p q : Prop) (h : p ∧ q) : q ∧ p := by\n  obtain ⟨hp, hq⟩ := h\n  exact ⟨hq, hp⟩\n```\n\nKey tactics:\n- `rfl` — proves `a = a` (reflexivity)\n- `exact` — supply an exact proof term\n- `apply` — apply a lemma, leaving its hypotheses as subgoals\n- `intro` — introduce a hypothesis into context\n- `cases` / `induction` — case analysis or proof by induction\n- `simp` — simplify using known lemmas\n- `omega` — linear arithmetic over Nat/Int\n- `linarith` — linear arithmetic with real/int inequalities\n- `ring` — prove ring identities\n- `norm_num` — evaluate numeric expressions\n\nQuick examples:\n```lean\nexample : 1 + 1 = 2 := by rfl\nexample : 2 + 2 = 4 := by norm_num\nexample (n : Nat) : n + 0 = n := by simp\nexample (a b c : Int) : (a + b) * c = a * c + b * c := by ring\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "Show me how to prove a theorem by induction in Lean 4."},
+      {"role": "assistant", "content": "```lean\ntheorem sum_formula (n : Nat) : 2 * (List.range (n + 1)).sum = n * (n + 1) := by\n  induction n with\n  | zero      => simp\n  | succ n ih => simp [List.sum_range_succ]; linarith\n```\n\nThe `induction` tactic generates two goals:\n- `zero` — base case, prove the statement for `n = 0`\n- `succ n ih` — inductive step, where `ih` is the induction hypothesis for `n`, and you prove it for `n + 1`\n\nTerm-mode proof of a simpler fact:\n```lean\ntheorem and_intro (p q : Prop) (hp : p) (hq : q) : p ∧ q :=\n  And.intro hp hq\n\ntheorem and_elim_left (p q : Prop) (h : p ∧ q) : p :=\n  h.left\n\ntheorem modus_ponens (p q : Prop) (h1 : p → q) (h2 : p) : q :=\n  h1 h2\n```\n\n- Term-mode proofs look like regular function definitions; you construct the proof value directly\n- `And.intro`, `h.left`, `h.right` are the introduction and elimination rules for conjunction\n- `linarith` closes goals that follow from linear arithmetic over the hypotheses"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do type classes work in Lean 4? Show me how to define and use one."},
+      {"role": "assistant", "content": "Type classes let you define overloaded behavior for different types:\n\n```lean\n-- Define a type class\nclass Printable (α : Type) where\n  toString : α → String\n\n-- Instances\ninstance : Printable Nat where\n  toString := Nat.repr\n\ninstance : Printable Bool where\n  toString | true => \"true\" | false => \"false\"\n\n-- Function that works for any Printable type\ndef print [Printable α] (x : α) : IO Unit :=\n  IO.println (Printable.toString x)\n```\n\nCustom `Ord` instance:\n```lean\nstructure Pair where\n  fst : Nat\n  snd : Nat\n\ninstance : Ord Pair where\n  compare p q :=\n    match compare p.fst q.fst with\n    | .eq => compare p.snd q.snd\n    | ord => ord\n```\n\nDeriving common instances automatically:\n```lean\nstructure Color where\n  r : Nat\n  g : Nat\n  b : Nat\nderiving Repr, BEq, Hashable\n\ndef red : Color := ⟨255, 0, 0⟩\n#eval red   -- Color.mk 255 0 0\n```\n\nStandard type classes:\n- `BEq` — `==`, `!=`\n- `Ord` — `compare`, `<`, `<=`, `>`, `>=`\n- `Repr` — debug display\n- `ToString` — human-readable display\n- `Inhabited` — `default` value\n- `Hashable` — `hash`\n- `Functor` — `map`\n- `Monad` — `bind`, `pure`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do Functor and Monad work in Lean 4? Show the do notation."},
+      {"role": "assistant", "content": "```lean\n-- Functor: map over a container\n#eval List.map (· + 1) [1, 2, 3]   -- [2, 3, 4]\n#eval (some 5).map (· * 2)          -- some 10\n```\n\nMonadic do notation with `Option`:\n```lean\ndef example : Option Nat := do\n  let x ← some 5\n  let y ← some 10\n  return x + y\n-- result: some 15\n-- if any ← returns none, the whole computation is none\n```\n\nIO monad:\n```lean\ndef readAndDouble : IO Unit := do\n  let line ← (← IO.getStdin).getLine\n  let n := line.trim.toNat!\n  IO.println s!\"Double: {n * 2}\"\n```\n\n- `do` notation desugars into `bind` (`>>=`) calls\n- `let x ← action` binds the result of a monadic action\n- `let x := expr` is a pure let binding (no monad unwrapping)\n- `return v` wraps `v` in the monad (`pure v`)\n- For `Option`, a `none` at any `←` short-circuits the whole block to `none`\n- For `IO`, `←` sequences effects in order"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "What are dependent types in Lean 4? Show examples with Fin, Sigma types, and subtypes."},
+      {"role": "assistant", "content": "In Lean, **types can depend on values** — this is the foundation of dependent types.\n\n**Fin n** — natural numbers strictly less than n:\n```lean\n-- Fin n = {k : Nat // k < n}\n#eval (⟨3, by norm_num⟩ : Fin 5)   -- ⟨3, ...⟩\n```\n\n**Sigma types** — dependent pairs where the second type depends on the first value:\n```lean\ndef nonzero_example : Σ (n : Nat), n ≠ 0 :=\n  ⟨5, by norm_num⟩\n```\n\n**Subtypes** — a type refined by a predicate:\n```lean\ndef Positive := {n : Nat // 0 < n}\n\ndef pos5 : Positive := ⟨5, by norm_num⟩\n#eval pos5.val   -- 5\n```\n\n**Safe indexing** — statically proven in-bounds access:\n```lean\ndef safeIndex (n : Nat) (xs : List α) (h : n < xs.length) : α :=\n  xs.get ⟨n, h⟩\n\nexample : (safeIndex 1 [10, 20, 30] (by norm_num)) = 20 := by rfl\n```\n\n**Proofs as program arguments** — encode preconditions in the type:\n```lean\ndef safeDivide (a : Nat) (b : Nat) (h : b ≠ 0) : Nat :=\n  a / b\n-- caller must prove b ≠ 0 at the call site\n```\n\n- `{n : Nat // P n}` is the subtype of `Nat` satisfying predicate `P`\n- `Σ x, T x` is the sigma type: a pair of a value `x` and a term of type `T x`\n- `by norm_num` (or any tactic) can produce the required proof inline"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "What is universe polymorphism in Lean 4 and why does it matter?"},
+      {"role": "assistant", "content": "Lean has a hierarchy of type universes: `Type 0`, `Type 1`, `Type 2`, ... (also written `Type`, `Type 1`, etc.) and `Prop`.\n\n- `Nat : Type 0` — ordinary data types live in `Type 0`\n- `Type 0 : Type 1` — the type of types lives one level up\n- This prevents paradoxes like Russell's paradox\n\n**Universe polymorphism** lets a definition work at any universe level:\n\n```lean\ndef myId.{u} {α : Type u} (x : α) : α := x\n\n-- Works for Type 0:\n#eval myId 42\n\n-- Also works for Type 1, Type 2, etc.\n-- e.g. myId (List Nat) is valid since List Nat : Type 0\n```\n\n- `.{u}` declares a universe variable\n- `Type u` is the universe at level `u`\n- Most user code doesn't need to think about this — Lean infers universe levels automatically\n- It becomes relevant when writing generic library code or working with Mathlib's abstract algebra hierarchy"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How do you use Mathlib in Lean 4 and what does it provide?"},
+      {"role": "assistant", "content": "Mathlib is the main mathematical library for Lean 4, maintained by the community. Add it to your project:\n\n```lean\n-- lakefile.lean\nrequire mathlib from git \"https://github.com/leanprover-community/mathlib4\"\n```\n\nThen import what you need:\n```lean\nimport Mathlib\n-- or selectively:\n-- import Mathlib.Data.Nat.Prime\n-- import Mathlib.Algebra.Group.Basic\n```\n\nNumber theory example:\n```lean\n-- example (p : Nat) (hp : Nat.Prime p) : 2 ≤ p := hp.two_le\n-- example : Nat.Prime 17 := by decide\n```\n\nAbstract algebra:\n```lean\n-- variable {G : Type*} [Group G]\n-- theorem mul_self_inv (g : G) : g * g⁻¹ = 1 := mul_inv_cancel g\n```\n\nAnalysis:\n```lean\n-- #check Real.sin_sq_add_cos_sq  -- sin²x + cos²x = 1\n```\n\nAdditional automation tactics available with Mathlib:\n- `aesop` — automated proof search\n- `decide` / `native_decide` — decide propositions computationally\n- `positivity` — prove positivity of expressions\n- `gcongr` — congruence lemmas\n\n```lean\nexample : (0 : Int) ≤ 2^10 := by positivity\nexample : 2 + 3 = 5 := by decide\nexample : Nat.Prime 97 := by decide\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How does IO, file reading, and exception handling work in Lean 4?"},
+      {"role": "assistant", "content": "```lean\ndef main : IO Unit := do\n  -- Command-line arguments\n  let args ← IO.getArgs\n  if args.isEmpty then\n    IO.println \"No arguments\"\n  else\n    for arg in args do\n      IO.println s!\"Arg: {arg}\"\n\n  -- File I/O\n  let contents ← IO.FS.readFile \"data.txt\"\n  IO.println contents\n\n  -- Exception handling\n  try\n    let n := \"abc\".toNat!\n    IO.println n\n  catch e =>\n    IO.eprintln s!\"Error: {e}\"\n```\n\nKey IO operations:\n- `IO.println` — print to stdout with newline\n- `IO.eprintln` — print to stderr\n- `IO.getArgs` — get command-line arguments as `List String`\n- `IO.FS.readFile` — read entire file as `String`\n- `IO.FS.writeFile` — write a `String` to a file\n- `try ... catch e => ...` — catch any IO exception\n- `IO.getStdin` — get the standard input handle\n\nString interpolation:\n```lean\nlet name := \"Lean\"\nIO.println s!\"Hello, {name}!\"\n-- s!\"...\" is the string interpolation syntax\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Lean 4 programming language and theorem proving tutor. Answer clearly and always include code examples from the Lean reference."},
+      {"role": "user", "content": "How does metaprogramming and macros work in Lean 4?"},
+      {"role": "assistant", "content": "Lean 4 has first-class support for macros and metaprogramming — you can extend the language's syntax and tactics:\n\n```lean\n-- Define a custom tactic macro\nmacro \"swap\" a:ident b:ident : tactic => `(tactic|\n  (have tmp := $a; replace $a := $b; replace $b := tmp))\n```\n\nThis macro can now be used inside `by` blocks to swap two hypothesis values.\n\nReflection (querying the Lean environment at elaboration time):\n```lean\n#eval (open Lean in do\n  let env ← getEnv\n  return env.allImportedModuleNames.size)\n```\n\nKey metaprogramming concepts:\n- `macro` — define new syntax that expands to existing syntax\n- `` `(tactic| ...) `` — quote a tactic block\n- `$a` inside a quote — splice in the value of a metavariable\n- `getEnv` — access the current Lean environment\n- `Lean.Elab` — the elaboration monad for more advanced macros\n- `Lean.Meta` — the meta monad for unification and type inference\n\nLean 4's macro system is hygienic and operates at elaboration time, making it much more powerful than traditional macro systems while still being safe."}
+    ]
+  }
+]

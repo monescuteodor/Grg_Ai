@@ -1,0 +1,534 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is Big-O notation and what does it describe?"},
+      {"role": "assistant", "content": "Big-O describes the **upper bound** of time or space growth as input size n grows. It tells you how an algorithm scales, not the exact runtime.\n\nIt focuses on the dominant term and ignores constants."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the common Big-O complexities from fastest to slowest?"},
+      {"role": "assistant", "content": "From fastest to slowest:\n- O(1)      — Constant. Array index, hash table lookup.\n- O(log n)  — Logarithmic. Binary search, balanced BST operations.\n- O(n)      — Linear. Linear search, single loop.\n- O(n log n)— Linearithmic. Merge sort, heap sort, fast sort.\n- O(n²)     — Quadratic. Bubble/insertion/selection sort, nested loops.\n- O(n³)     — Cubic. Naive matrix multiplication.\n- O(2ⁿ)     — Exponential. Brute-force subsets, naive Fibonacci.\n- O(n!)     — Factorial. Brute-force permutations, TSP brute force."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the rules for simplifying Big-O expressions?"},
+      {"role": "assistant", "content": "- **Drop constants**: O(2n) = O(n)\n- **Drop lower-order terms**: O(n² + n) = O(n²)\n- **Best vs Worst vs Average case**: Big-O usually refers to the worst case unless stated otherwise."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is space complexity and what does 'in-place' mean?"},
+      {"role": "assistant", "content": "**Space complexity**: the extra memory used by the algorithm, not counting the input itself.\n\n**In-place algorithm**: uses O(1) extra space — it works directly on the input without allocating significant additional memory.\n\nExample: insertion sort is in-place because it only uses a constant amount of extra variables regardless of input size."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is amortized analysis? Give an example."},
+      {"role": "assistant", "content": "Amortized analysis gives the **average cost per operation over a sequence of operations**, even if individual operations vary in cost.\n\nExample: dynamic array append is O(1) amortized.\n- Most appends just place an element → O(1)\n- Occasionally the array is full and must resize (copy all elements) → O(n)\n- But resizing doubles capacity each time, so it happens rarely enough that the average cost per append is still O(1)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the time complexities of operations on a static array?"},
+      {"role": "assistant", "content": "Static array: fixed-size contiguous memory block.\n- **Access by index**: O(1)\n- **Search (unsorted)**: O(n)\n- **Insert/delete at end**: O(1)\n- **Insert/delete at arbitrary position**: O(n) — must shift all elements after the position"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does a dynamic array work and what is its amortized complexity?"},
+      {"role": "assistant", "content": "A dynamic array (ArrayList, vector) resizes when full — typically **doubles its capacity**.\n\n- **Amortized append**: O(1) — doubling means resizing is rare enough to average out\n- **Random access**: O(1) — still backed by contiguous memory\n\nThe doubling strategy ensures total copy work across all appends is O(n) for n appends."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the time complexities of common string operations?"},
+      {"role": "assistant", "content": "- **Concatenation of n strings of length k**: O(n²k) naively — each concatenation copies the growing string. Use StringBuilder or join for O(nk).\n- **Substring**: O(k) where k = substring length\n- **Comparison**: O(min(len1, len2))"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the two-pointer technique and when do you use it?"},
+      {"role": "assistant", "content": "The two-pointer technique uses two indices moving toward each other or in the same direction to solve problems in O(n) instead of O(n²).\n\nExample: finding a pair that sums to a target in a **sorted** array.\n- Start with left = 0, right = n − 1\n- If sum < target: move left pointer right\n- If sum > target: move right pointer left\n- If sum == target: found it\n\nThis avoids checking every pair (O(n²)) by using the sorted order to eliminate candidates."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the sliding window technique?"},
+      {"role": "assistant", "content": "The sliding window maintains a window of fixed or variable size over an array, sliding it one step at a time.\n\nExample: maximum sum subarray of size k\n- Compute sum of first k elements\n- Slide right: add the new right element, subtract the old left element\n- Track the maximum sum seen\n\nThis gives O(n) instead of O(nk) for recomputing each window from scratch."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are prefix sums and how do they enable O(1) range queries?"},
+      {"role": "assistant", "content": "Prefix sums precompute cumulative sums so any range sum query is O(1) after O(n) preprocessing.\n\nprefix[i] = a[0] + a[1] + … + a[i]\n\nRange sum query:\nsum(l, r) = prefix[r] − prefix[l − 1]\n\nThis avoids summing the range every time (O(n) per query) and is especially useful when many queries are needed on the same array."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the differences between singly linked, doubly linked, and circular linked lists?"},
+      {"role": "assistant", "content": "- **Singly linked list**: each node holds data + pointer to next node. Head pointer starts the list.\n- **Doubly linked list**: each node holds data + next + prev. Allows O(1) deletion if the node reference is already known.\n- **Circular linked list**: the last node points back to the head instead of null."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the time complexities of operations on a linked list?"},
+      {"role": "assistant", "content": "- **Access by index**: O(n) — must traverse from head\n- **Insert/delete at head**: O(1)\n- **Insert/delete at tail**: O(1) if a tail pointer is maintained; O(n) otherwise\n- **Insert/delete at arbitrary position**: O(n) to find the position, O(1) to rewire the pointers"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does Floyd's fast/slow pointer algorithm work for cycle detection?"},
+      {"role": "assistant", "content": "Floyd's algorithm (also called the tortoise and hare) uses two pointers:\n- **Fast pointer**: moves 2 steps per iteration\n- **Slow pointer**: moves 1 step per iteration\n\nIf they ever meet, there is a cycle. If the fast pointer reaches null, there is no cycle.\n\nThis also finds the **middle of a linked list**: when fast reaches the end, slow is at the middle."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How do you reverse a linked list?"},
+      {"role": "assistant", "content": "Iterate through the list keeping three pointers: prev, curr, next.\n\n```\nprev = null\ncurr = head\nwhile curr != null:\n    next = curr.next   # save next\n    curr.next = prev   # reverse pointer\n    prev = curr        # advance prev\n    curr = next        # advance curr\nreturn prev            # new head\n```\n\nTime: O(n). Space: O(1)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a stack? What are its operations and uses?"},
+      {"role": "assistant", "content": "A stack is a LIFO (Last In First Out) data structure.\n\nOperations (all O(1)):\n- **push(x)**: add to top\n- **pop()**: remove from top\n- **peek() / top()**: view top without removing\n\nImplemented with: array, dynamic array, or linked list.\n\nUses: function call stack, undo/redo, expression parsing, DFS iteratively, balanced parentheses checking."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a queue? What are its operations and uses?"},
+      {"role": "assistant", "content": "A queue is a FIFO (First In First Out) data structure.\n\nOperations (all O(1)):\n- **enqueue(x)**: add to back\n- **dequeue()**: remove from front\n\nImplemented with: circular array (ring buffer), or linked list with head + tail pointers.\n\nUses: BFS, task scheduling, print queues, streaming data."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a deque and a priority queue?"},
+      {"role": "assistant", "content": "**Deque (double-ended queue)**: insert/delete at both ends. O(1) for all four operations (front-insert, front-delete, back-insert, back-delete).\n\n**Priority Queue (Min/Max Heap)**:\n- insert(x): O(log n)\n- extractMin / extractMax: O(log n)\n- peek (view min/max): O(1)\n\nUses: Dijkstra's algorithm, A*, scheduling, heap sort, top-K elements."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a monotonic stack and what is it used for?"},
+      {"role": "assistant", "content": "A monotonic stack is a stack that maintains its elements in sorted order (either always increasing or always decreasing).\n\nWhen pushing a new element, pop all elements that violate the monotonic property before pushing.\n\nUsed for: **\"next greater element\"** problems — for each element in an array, find the first element to its right that is greater. Runs in O(n) since each element is pushed and popped at most once."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does a hash table work and what are its time complexities?"},
+      {"role": "assistant", "content": "A hash table maps keys to values using a hash function.\n\n- **Average case**: O(1) for insert, delete, search\n- **Worst case**: O(n) — when many keys collide (rare with a good hash function)\n\nThe hash function converts a key to an array index. A good hash function is deterministic, distributes uniformly, and is fast to compute."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the two main collision resolution strategies in hash tables?"},
+      {"role": "assistant", "content": "**Chaining**: each slot holds a linked list of all entries that hash to the same index. Simple and handles high load well.\n\n**Open addressing**: when a collision occurs, probe for the next available slot.\n- Linear probing: check i+1, i+2, …\n- Quadratic probing: check i+1², i+2², …\n- Double hashing: use a second hash function for the probe step"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is load factor in a hash table and why does it matter?"},
+      {"role": "assistant", "content": "Load factor α = n / m (number of items / number of slots).\n\nPerformance degrades as α approaches 1 because more slots are occupied, leading to more collisions.\n\nWhen α exceeds a threshold (typically 0.7), the table is **rehashed**: a new larger table is allocated and all entries are reinserted. This keeps operations close to O(1)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are common applications of hash tables?"},
+      {"role": "assistant", "content": "- Counting frequencies of elements\n- Detecting duplicates\n- Caching / memoization (storing previously computed results)\n- Implementing sets (hash set: stores only keys, O(1) membership test)\n- Symbol tables in compilers\n- Database indexing"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a Binary Search Tree (BST) and what are its time complexities?"},
+      {"role": "assistant", "content": "A Binary Search Tree satisfies: for every node, all values in the left subtree < node < all values in the right subtree.\n\nOperations — O(h) where h = height of the tree:\n- **Balanced BST**: h = O(log n) → O(log n) operations\n- **Skewed BST** (like a linked list): h = O(n) → O(n) operations\n\nSo balance is critical for BST performance."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the four tree traversal orders and when is each used?"},
+      {"role": "assistant", "content": "- **Inorder (L → Root → R)**: visits nodes in sorted order for a BST.\n- **Preorder (Root → L → R)**: used to copy or serialize a tree.\n- **Postorder (L → R → Root)**: used to delete a tree or evaluate expression trees.\n- **Level-order (BFS)**: processes nodes level by level using a queue. Used to find shortest path in trees."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are balanced BSTs and what guarantees do they provide?"},
+      {"role": "assistant", "content": "Balanced BSTs guarantee O(log n) for search, insert, and delete by maintaining a bounded height.\n\n- **AVL tree**: height difference between left and right subtrees ≤ 1 at every node. Rotations rebalance after insert/delete.\n- **Red-Black tree**: used in most language standard library maps/sets (e.g. Java TreeMap, C++ std::map). Looser balance than AVL, fewer rotations.\n- **B-tree / B+-tree**: used in databases and file systems. Many keys per node, optimized for disk reads."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How is a binary heap structured and stored?"},
+      {"role": "assistant", "content": "A binary heap is a **complete binary tree** satisfying the heap property:\n- **Min-heap**: parent ≤ children. Root is the minimum.\n- **Max-heap**: parent ≥ children. Root is the maximum.\n\nStored as an array (no pointers needed):\n- Parent of node i: (i − 1) / 2\n- Left child of i: 2i + 1\n- Right child of i: 2i + 2\n\nBuilding a heap from an unsorted array (heapify): O(n)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a Trie (prefix tree) and what is it used for?"},
+      {"role": "assistant", "content": "A Trie is a tree where each node represents a character; paths from the root to a node spell a prefix (or full word).\n\nOperations — O(m) where m = word length:\n- Insert\n- Search\n- Delete\n\nUses: autocomplete, spell checking, IP routing, dictionary lookups.\n\nAdvantage over a hash map: tries can find all words with a given prefix efficiently."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are segment trees and Fenwick trees used for?"},
+      {"role": "assistant", "content": "Both support **range queries and point updates** in O(log n):\n\n**Segment tree**: supports range sum, range min, range max queries AND range updates (with lazy propagation). More general but more complex.\n\n**Fenwick tree (Binary Indexed Tree / BIT)**: simpler structure specifically for **prefix sum queries and point updates**. Less code, same O(log n) complexity."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a graph and how can it be represented in memory?"},
+      {"role": "assistant", "content": "A graph G = (V, E) has vertices V and edges E.\n\nTypes:\n- **Directed (digraph)**: edges have direction\n- **Undirected**: edges have no direction\n- **Weighted**: edges have costs/weights\n- **Sparse**: E ≈ V. **Dense**: E ≈ V²\n\nRepresentations:\n- **Adjacency list**: array of lists. Space O(V + E). Efficient for sparse graphs.\n- **Adjacency matrix**: V × V grid. Space O(V²). O(1) edge lookup. Efficient for dense graphs."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does BFS (Breadth-First Search) work and what is it used for?"},
+      {"role": "assistant", "content": "BFS explores a graph level by level using a **queue**.\n\n- **Time**: O(V + E)\n- **Space**: O(V)\n\nAlgorithm:\n1. Enqueue the starting vertex, mark as visited\n2. Dequeue a vertex, process it\n3. Enqueue all unvisited neighbors\n4. Repeat until queue is empty\n\nUses:\n- Finds **shortest path in unweighted graphs** (fewest edges)\n- Cycle detection\n- Connectivity check\n- Bipartiteness check"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does DFS (Depth-First Search) work and what is it used for?"},
+      {"role": "assistant", "content": "DFS explores a graph by going as deep as possible before backtracking. Uses a **stack** (or recursion).\n\n- **Time**: O(V + E)\n- **Space**: O(V)\n\nAlgorithm (recursive):\n1. Mark current vertex as visited\n2. Recursively visit all unvisited neighbors\n\nUses:\n- Topological sort\n- Cycle detection\n- Finding connected components\n- Maze solving"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is topological sort and when can it be applied?"},
+      {"role": "assistant", "content": "Topological sort gives a linear ordering of vertices in a **DAG** (Directed Acyclic Graph) such that for every directed edge u → v, u comes before v in the ordering.\n\nOnly possible on DAGs — graphs with cycles have no valid topological order.\n\nAlgorithms:\n- **Kahn's algorithm (BFS)**: repeatedly remove vertices with in-degree 0\n- **DFS with finishing times**: push vertex to result after all neighbors are visited\n\nUses: task scheduling, build dependency resolution, course prerequisites."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the shortest path algorithms and when do you use each?"},
+      {"role": "assistant", "content": "- **Dijkstra's**: single-source shortest paths, **non-negative weights only**. O((V + E) log V) with a priority queue.\n- **Bellman-Ford**: single-source, handles **negative weights**, detects **negative cycles**. O(VE).\n- **Floyd-Warshall**: **all-pairs** shortest paths. O(V³). Dynamic programming approach.\n- **A\\***: heuristic search. Uses f(n) = g(n) + h(n). Optimal with an admissible heuristic. Used in pathfinding (games, GPS)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a Minimum Spanning Tree (MST) and what algorithms find it?"},
+      {"role": "assistant", "content": "A Minimum Spanning Tree is a spanning tree (connects all vertices, no cycles) with the **minimum total edge weight**.\n\n**Kruskal's algorithm**:\n- Sort all edges by weight\n- Add edge if it doesn't create a cycle (check with Union-Find)\n- Time: O(E log E)\n\n**Prim's algorithm**:\n- Start from one vertex, greedily add the cheapest edge connecting the tree to a new vertex\n- Use a priority queue\n- Time: O((V + E) log V)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is Union-Find (Disjoint Set Union) and what are its operations?"},
+      {"role": "assistant", "content": "Union-Find tracks which elements belong to the same set.\n\nOperations:\n- **find(x)**: returns the root of x's set. With **path compression**, nearly O(1).\n- **union(x, y)**: merges the sets containing x and y. With **union by rank**, keeps trees shallow.\n\nWith both optimizations: nearly O(1) amortized (inverse Ackermann function α(n)).\n\nUses: Kruskal's MST, cycle detection in undirected graphs, network connectivity problems."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are bubble sort, selection sort, and insertion sort?"},
+      {"role": "assistant", "content": "**Bubble sort**: repeatedly swap adjacent out-of-order elements until sorted.\n- Time: O(n²) | Space: O(1) | Stable\n\n**Selection sort**: find the minimum, place it at the front, repeat for the rest.\n- Time: O(n²) | Space: O(1) | Not stable\n\n**Insertion sort**: insert each element into its correct position in the already-sorted prefix.\n- Time: O(n²) worst, O(n) best (already sorted) | Space: O(1) | Stable\n- Fast for **small arrays** or **nearly sorted** data"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does merge sort work and what are its properties?"},
+      {"role": "assistant", "content": "Merge sort: divide the array in half, sort each half recursively, then merge the two sorted halves.\n\n- **Time**: O(n log n) always (best, average, worst)\n- **Space**: O(n) — needs auxiliary array for merging\n- **Stable**: yes\n\nPreferred for **linked lists** (no random access needed) and when stability matters.\n\nRecurrence: T(n) = 2T(n/2) + O(n) → O(n log n) by Master Theorem."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does quicksort work and what are its properties?"},
+      {"role": "assistant", "content": "Quicksort: pick a pivot, partition the array so elements < pivot are left and > pivot are right, then recurse on both sides.\n\n- **Time**: O(n log n) average, O(n²) worst case (bad pivot choice)\n- **Space**: O(log n) for recursion stack\n- **Stable**: no\n\nFast in practice due to **cache efficiency** (operates in-place on contiguous memory).\n\n**Randomized pivot** (pick pivot randomly) avoids worst-case behavior against adversarial input."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does heap sort work and what are its properties?"},
+      {"role": "assistant", "content": "Heap sort: build a max-heap from the array, then repeatedly extract the maximum and place it at the end.\n\n- **Time**: O(n log n) always (best, average, worst)\n- **Space**: O(1) — in-place\n- **Stable**: no\n\nBuilding the heap takes O(n). Each of n extractions takes O(log n) → total O(n log n)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is Timsort and where is it used?"},
+      {"role": "assistant", "content": "Timsort is a hybrid sorting algorithm combining **merge sort** and **insertion sort**.\n\n- **Time**: O(n log n) worst case, O(n) best case (already sorted)\n- **Stable**: yes\n\nIt identifies already-sorted runs in the data and merges them efficiently.\n\nUsed in: **Python** (built-in sort), **Java** (Arrays.sort for objects). It is the de facto standard for general-purpose sorting."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the non-comparison sorting algorithms and when can they beat O(n log n)?"},
+      {"role": "assistant", "content": "Non-comparison sorts exploit the structure of the data and can beat the O(n log n) lower bound for comparison sorts:\n\n**Counting sort**: count occurrences of each value, reconstruct sorted array.\n- Time: O(n + k) where k = range of values. Stable.\n\n**Radix sort**: sort digit by digit (least significant to most), using counting sort at each digit.\n- Time: O(d(n + k)) where d = number of digits.\n\n**Bucket sort**: distribute elements into buckets, sort each bucket, concatenate.\n- Time: O(n + k) average. Good for **uniformly distributed** data.\n\nAll require specific input properties (bounded range, integers, uniform distribution)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What does 'stable' mean in sorting and why does it matter?"},
+      {"role": "assistant", "content": "A **stable sort** preserves the relative order of elements that compare as equal.\n\nExample: sorting [{name: Alice, age: 30}, {name: Bob, age: 30}] by age — a stable sort guarantees Alice stays before Bob.\n\nWhy it matters: when sorting objects by **multiple keys** (sort by age, then by name), you sort by the secondary key first (stably), then by the primary key. Stability ensures the secondary order is preserved within ties.\n\nStable sorts: merge sort, insertion sort, counting sort, Timsort, bubble sort.\nNot stable: quicksort, heap sort, selection sort."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is recursion and what are its key requirements?"},
+      {"role": "assistant", "content": "Recursion is when a function calls itself to solve a smaller version of the same problem.\n\nTwo requirements:\n1. **Base case**: a condition where the function returns without recursing (stops infinite calls)\n2. **Progress**: each recursive call must move toward the base case\n\nCall stack depth is O(depth). Very deep recursion can cause a **stack overflow**. Solutions: convert to iteration, or use tail-call optimization (TCO) if the language supports it."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the difference between memoization and tabulation in dynamic programming?"},
+      {"role": "assistant", "content": "**Memoization (top-down DP)**:\n- Start with the recursive solution\n- Cache results of subproblems so they are computed only once\n- Natural to write — just add a cache (dictionary/array) to the recursive function\n- Only computes subproblems that are actually needed\n\n**Tabulation (bottom-up DP)**:\n- Fill a table iteratively starting from the base cases\n- No recursion — avoids call stack overhead\n- Often more space-efficient (can overwrite old values)\n- Requires knowing the order in which to fill the table"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the steps to solve a dynamic programming problem?"},
+      {"role": "assistant", "content": "1. **Identify overlapping subproblems** — does the brute-force solution recompute the same sub-answers?\n2. **Define state** — what parameters uniquely describe a subproblem?\n3. **Write the recurrence relation** — how does the solution to a state depend on smaller states?\n4. **Determine base cases** — what are the smallest subproblems with known answers?\n5. **Implement** — with memoization (top-down) or a table (bottom-up)\n6. **Optimize space** — if only the last few rows of the table are needed, reduce space accordingly"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the Fibonacci DP solution and why is it better than naive recursion?"},
+      {"role": "assistant", "content": "**Naive recursion**: fib(n) = fib(n−1) + fib(n−2)\n- Time: O(2ⁿ) — exponential, recomputes fib(k) exponentially many times\n\n**With memoization**:\n- Cache fib(k) the first time it is computed\n- Time: O(n) — each value computed exactly once\n\n**Bottom-up tabulation**:\n```\ndp[0] = 0, dp[1] = 1\nfor i in 2..n:\n    dp[i] = dp[i-1] + dp[i-2]\n```\n- Time: O(n), Space: O(n) (or O(1) keeping only last two values)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does the 0/1 Knapsack DP work?"},
+      {"role": "assistant", "content": "Given items with weights and values, maximize total value within a weight limit W.\nEach item can be taken (1) or left (0) — cannot take fractions.\n\nState: dp[i][w] = max value using the first i items with weight limit w\n\nRecurrence:\n- If we skip item i: dp[i][w] = dp[i−1][w]\n- If we take item i (only if weight[i] ≤ w): dp[i][w] = value[i] + dp[i−1][w − weight[i]]\n- dp[i][w] = max of both choices\n\nBase case: dp[0][w] = 0 (no items → no value)\n\nTime: O(n · W), Space: O(n · W) — or O(W) with space optimization."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does the Longest Common Subsequence (LCS) DP work?"},
+      {"role": "assistant", "content": "Find the longest sequence of characters present in both strings (not necessarily contiguous).\n\nState: dp[i][j] = LCS length of s1[0..i−1] and s2[0..j−1]\n\nRecurrence:\n- If s1[i−1] == s2[j−1]: dp[i][j] = dp[i−1][j−1] + 1\n- Otherwise: dp[i][j] = max(dp[i−1][j], dp[i][j−1])\n\nBase case: dp[i][0] = 0 and dp[0][j] = 0\n\nTime: O(m · n), Space: O(m · n)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does the Edit Distance (Levenshtein) DP work?"},
+      {"role": "assistant", "content": "Find the minimum number of insert, delete, or replace operations to transform string s1 into s2.\n\nState: dp[i][j] = min cost to transform s1[0..i] into s2[0..j]\n\nRecurrence:\n- If s1[i−1] == s2[j−1]: dp[i][j] = dp[i−1][j−1] (no operation needed)\n- Otherwise: dp[i][j] = 1 + min(\n    dp[i−1][j],    // delete from s1\n    dp[i][j−1],    // insert into s1\n    dp[i−1][j−1]   // replace\n  )\n\nBase cases: dp[i][0] = i (delete all of s1), dp[0][j] = j (insert all of s2)\n\nTime: O(m · n)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does the Coin Change DP work?"},
+      {"role": "assistant", "content": "Find the minimum number of coins to make a given amount. Coins can be reused (unbounded knapsack).\n\nState: dp[amount] = min coins to make that amount\n\nRecurrence:\ndp[a] = min(dp[a − coin] + 1) for each coin where coin ≤ a\n\nBase case: dp[0] = 0\nInitialize: dp[a] = infinity for a > 0\n\nTime: O(amount · number_of_coins)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the greedy algorithm paradigm and when does it work?"},
+      {"role": "assistant", "content": "A greedy algorithm makes the **locally optimal choice** at each step, hoping it leads to a globally optimal solution.\n\nIt works correctly when the problem has:\n1. **Greedy choice property**: a locally optimal choice is always part of some globally optimal solution\n2. **Optimal substructure**: the optimal solution contains optimal solutions to subproblems\n\nWhen greedy doesn't work: 0/1 Knapsack — taking the highest value-per-weight item first can miss better combinations."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are classic examples of greedy algorithms?"},
+      {"role": "assistant", "content": "- **Activity selection**: choose maximum non-overlapping activities. Sort by end time, always pick the next activity that starts after the current one ends.\n- **Huffman encoding**: build optimal prefix-free code for compression. Use a min-heap of character frequencies.\n- **Fractional knapsack**: take fractions of items sorted by value/weight ratio (unlike 0/1 knapsack, greedy works here).\n- **Dijkstra's shortest path**: always extend the shortest known path.\n- **Prim's and Kruskal's MST**: greedily add cheapest edges.\n- **Interval scheduling / task scheduling with deadlines**"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is Divide and Conquer and what is the Master Theorem?"},
+      {"role": "assistant", "content": "Divide and Conquer: split the problem into subproblems, solve recursively, combine results.\n\nRecurrence: T(n) = aT(n/b) + O(nᵈ)\n\n**Master Theorem**:\n- If d > log_b(a): T(n) = O(nᵈ) — combining dominates\n- If d = log_b(a): T(n) = O(nᵈ log n) — equal work at each level\n- If d < log_b(a): T(n) = O(n^(log_b a)) — subproblems dominate"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "Give examples of divide and conquer algorithms and their complexities."},
+      {"role": "assistant", "content": "- **Merge sort**: T(n) = 2T(n/2) + O(n) → O(n log n)\n- **Binary search**: T(n) = T(n/2) + O(1) → O(log n)\n- **Karatsuba multiplication**: O(n^1.585) vs naive O(n²)\n- **Strassen matrix multiply**: O(n^2.807) vs naive O(n³)\n- **Closest pair of points**: O(n log n)\n- **Fast Fourier Transform (FFT)**: O(n log n) — used for polynomial multiplication and signal processing"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does linear search work and when should you use it?"},
+      {"role": "assistant", "content": "Linear search checks every element one by one until the target is found or the array ends.\n\n- **Time**: O(n)\n- Works on **unsorted** data\n- No preprocessing needed\n\nUse when the array is small, unsorted, or searched only once. For repeated searches on large data, prefer binary search (requires sorted array) or a hash table."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "How does binary search work? Show the template."},
+      {"role": "assistant", "content": "Binary search requires a **sorted array**. It repeatedly halves the search space.\n\n```\nlo, hi = 0, n - 1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if arr[mid] == target:\n        return mid\n    elif arr[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nreturn -1  # not found\n```\n\n- **Time**: O(log n)\n- **Space**: O(1)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is 'binary search on the answer' and when do you use it?"},
+      {"role": "assistant", "content": "Instead of searching in an array, binary search on the **answer space** — the range of possible answers.\n\nUse when:\n- The answer is a number in a range [lo, hi]\n- You can write a function `feasible(x)` that checks if answer x is achievable\n- feasible is monotonic: if x works, then all values above (or below) it also work\n\nExample: find the minimum capacity to ship all packages in D days.\n- Binary search on capacity from max(weights) to sum(weights)\n- Check if a given capacity can ship everything in ≤ D days"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are interpolation search, exponential search, and ternary search?"},
+      {"role": "assistant", "content": "- **Interpolation search**: for uniformly distributed sorted data, estimates where the target is (like finding a name in a phone book). O(log log n) average.\n\n- **Exponential search**: find the range [1, 2, 4, 8, …] where the target lies, then binary search within that range. O(log n). Useful for **unbounded/infinite arrays**.\n\n- **Ternary search**: find the maximum or minimum of a **unimodal function** (one that first increases then decreases). O(log n)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the main string matching algorithms and their complexities?"},
+      {"role": "assistant", "content": "- **Naive**: check every position in the text. O(nm) where n = text length, m = pattern length.\n- **KMP (Knuth-Morris-Pratt)**: uses a prefix (failure) function to skip redundant comparisons. O(n + m).\n- **Rabin-Karp**: rolling hash — recompute hash in O(1) per shift. O(n + m) average, O(nm) worst. Good for multiple patterns.\n- **Boyer-Moore**: skip ahead using bad character and good suffix rules. O(n/m) best case. Most practical for large alphabets.\n- **Z-algorithm**: builds Z-array where Z[i] = length of longest substring starting at i that matches a prefix of the string. O(n + m)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the Aho-Corasick algorithm?"},
+      {"role": "assistant", "content": "Aho-Corasick is a **multi-pattern string search** algorithm.\n\n1. Build a trie of all patterns\n2. Add **failure links** (similar to KMP's failure function) connecting each trie node to the longest proper suffix that is also a prefix of some pattern\n3. Search the text in one pass, following failure links on mismatches\n\n- **Time**: O(n + m + matches) where n = text length, m = total pattern length\n- Used in: network intrusion detection, antivirus scanning, search engines"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is Manacher's algorithm?"},
+      {"role": "assistant", "content": "Manacher's algorithm finds the **longest palindromic substring** in O(n) time.\n\nNaive approach: expand around each center → O(n²)\nManacher's: reuse previously computed palindrome information to avoid redundant expansions → O(n)\n\nHandles both odd-length and even-length palindromes by inserting separator characters between each character."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is string hashing (polynomial rolling hash) used for?"},
+      {"role": "assistant", "content": "String hashing computes a hash value for each prefix in O(n) preprocessing, enabling O(1) hash comparison of any substring.\n\nPolynomial rolling hash: hash(s) = s[0]·pⁿ⁻¹ + s[1]·pⁿ⁻² + … + s[n−1] (mod M)\n\nUses:\n- O(1) substring equality checks (after O(n) preprocessing)\n- Rabin-Karp string matching\n- Detecting duplicate substrings\n- Comparing substrings in O(1) instead of O(k)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the basic bit operations and what do they do?"},
+      {"role": "assistant", "content": "- **AND (&)**: 1 only if both bits are 1\n- **OR (|)**: 1 if at least one bit is 1\n- **XOR (^)**: 1 if bits differ (0 if same)\n- **NOT (~)**: flips all bits\n- **Left shift (<<)**: shifts bits left, equivalent to multiplying by 2\n- **Right shift (>>)**: shifts bits right, equivalent to dividing by 2"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What are the most useful bit manipulation tricks?"},
+      {"role": "assistant", "content": "- **Check if bit i is set**: x & (1 << i)\n- **Set bit i**: x | (1 << i)\n- **Clear bit i**: x & ~(1 << i)\n- **Toggle bit i**: x ^ (1 << i)\n- **Check if power of 2**: x > 0 && (x & (x − 1)) == 0\n- **Get lowest set bit**: x & (−x)\n- **Clear lowest set bit**: x & (x − 1)\n- **Count set bits (popcount)**: Brian Kernighan's algorithm — repeatedly clear lowest set bit, count iterations → O(number of set bits)\n- **Find single non-duplicate**: XOR all elements; duplicates cancel (a ^ a = 0), leaving the unique element"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is bitmask DP and what is it used for?"},
+      {"role": "assistant", "content": "Bitmask DP represents subsets of n elements as integers (bit i = 1 means element i is included). There are 2ⁿ possible subsets.\n\nUsed when:\n- n is small (typically ≤ 20)\n- You need to track which elements have been visited/used\n\nClassic example: **Traveling Salesman Problem (TSP)**\n- State: dp[mask][v] = min cost to visit all cities in mask, ending at city v\n- Time: O(2ⁿ · n²)\n- Much better than O(n!) brute force"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a segment tree with lazy propagation?"},
+      {"role": "assistant", "content": "A segment tree with lazy propagation supports **range updates AND range queries** in O(log n).\n\n**Lazy propagation**: instead of immediately applying an update to all nodes in a range, store the pending update in the node and propagate it down only when needed.\n\nThis reduces range updates from O(n) to O(log n), while still allowing O(log n) queries.\n\nExample use: add 5 to all elements in range [l, r], then query sum of range [a, b]."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a sparse table and when should you use it?"},
+      {"role": "assistant", "content": "A sparse table supports **immutable range minimum/maximum queries** in O(1) after O(n log n) preprocessing.\n\nIt works by precomputing answers for all ranges whose length is a power of 2, then combining two overlapping precomputed ranges to answer any query.\n\nUse when:\n- The array does not change (immutable)\n- You need very fast range min/max queries (O(1) vs O(log n) for segment tree)\n\nNot suitable for range updates."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is an LRU Cache and how is it implemented efficiently?"},
+      {"role": "assistant", "content": "An LRU (Least Recently Used) cache evicts the least recently accessed item when the cache is full.\n\n**Implementation**: doubly linked list + hash map\n- **Hash map**: maps key → node in the linked list. Gives O(1) access to any node.\n- **Doubly linked list**: maintains access order. Most recently used at head, least recently used at tail.\n\nAll operations — get, put, evict — are O(1):\n- **get(key)**: find node in hash map, move it to head (mark as recently used), return value\n- **put(key, value)**: insert at head; if cache full, remove tail node and its hash map entry"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a Bloom filter?"},
+      {"role": "assistant", "content": "A Bloom filter is a probabilistic data structure for **membership testing**.\n\n- **No false negatives**: if the filter says an element is NOT in the set, it definitely isn't.\n- **Small false positive rate**: it may say an element IS in the set when it isn't.\n- **Space efficient**: uses a bit array of size m with k hash functions.\n- **Operations**: O(k) = O(1) for both insert and membership test.\n\nUses: web caches (avoid hitting disk for definitely-absent keys), databases, network routers, spell checkers.\n\nElements cannot be deleted from a standard Bloom filter."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a skip list?"},
+      {"role": "assistant", "content": "A skip list is a probabilistic data structure that provides O(log n) expected time for search, insert, and delete — an alternative to balanced BSTs.\n\nStructure: a linked list with multiple levels. Higher levels skip over more elements (like an express lane).\n\nSearch: start at the highest level, move right until you overshoot, then drop down one level and repeat.\n\nAdvantages over BSTs:\n- Simpler to implement\n- Easy to make concurrent (lock-free versions exist)\n- Used in: Redis sorted sets, LevelDB"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is a Rope data structure?"},
+      {"role": "assistant", "content": "A Rope is a binary tree used to efficiently store and manipulate **long strings**.\n\nEach leaf holds a short substring; internal nodes store the total length of their left subtree.\n\n- **Insert/delete/concatenate**: O(log n)\n- **Index access**: O(log n)\n\nCompared to a flat string (array), ropes avoid expensive copying for large string operations.\n\nUsed in: text editors (like Vim and Emacs internals) where large files need efficient insertions and deletions."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "Summarize the algorithm design paradigms and when to use each."},
+      {"role": "assistant", "content": "| Paradigm | When to use | Key insight |\n|---|---|---|\n| **Brute force** | Small n, no better algorithm known | Try all possibilities |\n| **Greedy** | Optimal substructure + greedy choice property | Local optimal → global optimal |\n| **Divide & Conquer** | Problem splits cleanly, combining is cheap | Split, recurse, merge |\n| **Dynamic Programming** | Overlapping subproblems + optimal substructure | Cache and reuse subproblem results |\n| **Backtracking** | Constraint satisfaction, exploring a tree of choices | Try → fail → undo |\n| **Branch & Bound** | Optimization with pruning | Prune suboptimal branches early |\n| **Randomized** | Hard worst cases exist | Add randomness to avoid adversarial input |\n| **Approximation** | NP-hard problems | Find a good-enough solution in polynomial time |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the suffix array and suffix automaton?"},
+      {"role": "assistant", "content": "**Suffix array**: a sorted array of all suffixes of a string.\n- Build in O(n log n)\n- Enables O(m log n) pattern search (binary search among sorted suffixes)\n- More space-efficient than a suffix trie\n\n**Suffix automaton**: a compact directed acyclic graph representing all substrings of a string.\n- O(n) construction time and space\n- Supports: substring search, counting distinct substrings, longest common substring\n- Most powerful general-purpose string structure"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is the Longest Increasing Subsequence (LIS) problem and how do you solve it?"},
+      {"role": "assistant", "content": "Find the length of the longest subsequence of an array where elements are strictly increasing.\n\n**O(n²) DP solution**:\n- dp[i] = length of LIS ending at index i\n- dp[i] = max(dp[j] + 1) for all j < i where arr[j] < arr[i]\n- Base: dp[i] = 1 (each element alone)\n\n**O(n log n) solution** (patience sorting):\n- Maintain a list of the smallest tail elements of all increasing subsequences of each length\n- For each element, binary search to find where it can extend or replace\n- Length of this list at the end = LIS length"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert computer science tutor specializing in algorithms and data structures. Answer clearly and show all details."},
+      {"role": "user", "content": "What is matrix chain multiplication DP?"},
+      {"role": "assistant", "content": "Given a sequence of matrices, find the optimal order of multiplications to minimize the total number of scalar multiplications.\n\nMultiplying an (a×b) matrix by a (b×c) matrix costs a·b·c operations.\n\nState: dp[i][j] = minimum cost to multiply matrices i through j\n\nRecurrence:\ndp[i][j] = min over all split points k of:\n    dp[i][k] + dp[k+1][j] + rows[i] · cols[k] · cols[j]\n\nBase case: dp[i][i] = 0 (single matrix, no multiplication needed)\n\nTime: O(n³)"}
+    ]
+  }
+]

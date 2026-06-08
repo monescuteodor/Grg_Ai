@@ -1,0 +1,177 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the main number systems in mathematics and how do they relate to each other?"},
+      {"role": "assistant", "content": "The number systems form a hierarchy, each extending the previous:\n\n```\nℕ Natural numbers:   0, 1, 2, 3, ...\nℤ Integers:          ..., -2, -1, 0, 1, 2, ...\nℚ Rationals:         p/q where p,q ∈ ℤ, q ≠ 0\nℝ Reals:             includes irrationals (√2, π, e)\nℂ Complex:           a + bi where i² = -1\n```\n\nOrder of containment: **ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ**\n\n- Every natural number is an integer, every integer is rational (e.g. 3 = 3/1), every rational is real\n- Irrational numbers like √2 and π are real but cannot be expressed as p/q\n- Complex numbers add solutions to equations like x² = -1, which have no real solution\n- The complex numbers are algebraically closed — every polynomial has a root in ℂ (Fundamental Theorem of Algebra)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the rules for exponents and logarithms?"},
+      {"role": "assistant", "content": "**Exponent rules:**\n```\naⁿ · aᵐ = aⁿ⁺ᵐ       product rule\naⁿ / aᵐ = aⁿ⁻ᵐ       quotient rule\n(aⁿ)ᵐ  = aⁿᵐ         power rule\n(ab)ⁿ  = aⁿbⁿ        distribute over product\na⁰     = 1  (a ≠ 0)\na⁻ⁿ    = 1/aⁿ\naˣ     = e^(x ln a)  general base via e\n```\n\n**Logarithm rules:**\n```\nlog_b(xy)  = log_b(x) + log_b(y)\nlog_b(x/y) = log_b(x) - log_b(y)\nlog_b(xⁿ)  = n · log_b(x)\nlog_b(x)   = log(x)/log(b)   change of base\nlog_b(bˣ)  = x\nb^(log_b x) = x\nln(e) = 1,  ln(1) = 0,  e ≈ 2.71828\n```\n\n**Worked example — simplify log₂(32):**\nlog₂(32) = log₂(2⁵) = 5\n\n**Change of base — compute log₃(81) using ln:**\nlog₃(81) = ln(81)/ln(3) = ln(3⁴)/ln(3) = 4\n\n- Logs and exponents are inverses: log_b(bˣ) = x and b^(log_b x) = x\n- The natural log ln uses base e and appears throughout calculus and analysis"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain the quadratic formula, the discriminant, and Vieta's formulas."},
+      {"role": "assistant", "content": "For the equation **ax² + bx + c = 0**, the solutions are:\n\n```\nx = (-b ± √(b²-4ac)) / (2a)\n```\n\n**The discriminant Δ = b² - 4ac** tells you the nature of the roots:\n\n| Δ | Roots |\n|---|---|\n| Δ > 0 | Two distinct real roots |\n| Δ = 0 | One repeated real root |\n| Δ < 0 | Two complex conjugate roots |\n\n**Worked example:** x² - 5x + 6 = 0\n- Δ = 25 - 24 = 1 > 0 → two real roots\n- x = (5 ± 1)/2 → x = 3 or x = 2\n\n**Vieta's formulas** relate roots x₁, x₂ directly to coefficients without solving:\n```\nx₁ + x₂ = -b/a     (sum of roots)\nx₁ · x₂ = c/a      (product of roots)\n```\n\nFor the example above: x₁ + x₂ = 5/1 = 5 ✓ and x₁ · x₂ = 6/1 = 6 ✓\n\nVieta's formulas are useful for quickly checking solutions and for problems where you need the sum or product of roots without finding the roots themselves."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the key factoring identities and sum formulas for sequences?"},
+      {"role": "assistant", "content": "**Factoring identities:**\n```\na² - b²       = (a+b)(a-b)          difference of squares\na² + 2ab + b² = (a+b)²              perfect square trinomial\na³ - b³       = (a-b)(a²+ab+b²)     difference of cubes\na³ + b³       = (a+b)(a²-ab+b²)     sum of cubes\n```\n\n**Common sequences:**\n```\nArithmetic:  a, a+d, a+2d, ...     Sₙ = n(2a+(n-1)d)/2\nGeometric:   a, ar, ar², ...       Sₙ = a(1-rⁿ)/(1-r)\n                                    S∞ = a/(1-r)  for |r| < 1\nHarmonic:    1, 1/2, 1/3, ...      Hₙ ≈ ln(n) + γ\n```\n\n**Closed-form sum formulas:**\n```\nΣₖ₌₁ⁿ k   = n(n+1)/2\nΣₖ₌₁ⁿ k²  = n(n+1)(2n+1)/6\nΣₖ₌₁ⁿ k³  = [n(n+1)/2]²\nΣₖ₌₀ⁿ rᵏ  = (1-rⁿ⁺¹)/(1-r)  for r ≠ 1\n```\n\n**Example:** Sum of first 100 integers = 100·101/2 = 5050 (famously computed by Gauss as a child)\n\n**Example:** Geometric series 1 + 1/2 + 1/4 + ... = 1/(1-1/2) = 2"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the basic derivative rules in calculus?"},
+      {"role": "assistant", "content": "**Notation:** f'(x), dy/dx, d/dx[f(x)], or Df all mean the same thing.\n\n**Basic derivatives:**\n```\nd/dx[c]       = 0           constant rule\nd/dx[xⁿ]     = nxⁿ⁻¹       power rule\nd/dx[eˣ]     = eˣ\nd/dx[aˣ]     = aˣ ln(a)\nd/dx[ln x]   = 1/x\nd/dx[sin x]  = cos x\nd/dx[cos x]  = -sin x\nd/dx[tan x]  = sec² x\nd/dx[arcsin x] = 1/√(1-x²)\nd/dx[arctan x] = 1/(1+x²)\n```\n\n**Combination rules:**\n```\n(f±g)'  = f' ± g'           linearity\n(cf)'   = cf'               constant multiple\n(fg)'   = f'g + fg'         product rule\n(f/g)'  = (f'g - fg')/g²    quotient rule\n(f∘g)'  = f'(g(x))·g'(x)   chain rule\n```\n\n**Worked example — chain rule:** d/dx[sin(x²)]\n- Outer function: sin(u), derivative: cos(u)\n- Inner function: u = x², derivative: 2x\n- Result: cos(x²) · 2x\n\n**Worked example — product rule:** d/dx[x²·eˣ]\n- f = x², f' = 2x; g = eˣ, g' = eˣ\n- Result: 2x·eˣ + x²·eˣ = eˣ(2x + x²)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain integration — the common integrals, integration by parts, and the Fundamental Theorem of Calculus."},
+      {"role": "assistant", "content": "**Common integrals:**\n```\n∫xⁿ dx        = xⁿ⁺¹/(n+1) + C    (n ≠ -1)\n∫1/x dx       = ln|x| + C\n∫eˣ dx        = eˣ + C\n∫sin x dx     = -cos x + C\n∫cos x dx     = sin x + C\n∫tan x dx     = -ln|cos x| + C\n∫sec² x dx    = tan x + C\n∫1/√(1-x²) dx = arcsin x + C\n∫1/(1+x²) dx  = arctan x + C\n```\n\n**Integration by parts:**\n```\n∫u dv = uv - ∫v du\n```\nChoose u using LIATE priority: **L**og, **I**nverse trig, **A**lgebraic, **T**rig, **E**xponential.\n\nExample: ∫x·eˣ dx — let u = x, dv = eˣ dx → du = dx, v = eˣ\nResult: x·eˣ - ∫eˣ dx = x·eˣ - eˣ + C = eˣ(x-1) + C\n\n**Substitution:** when integrand has the form f(g(x))·g'(x), let u = g(x).\nExample: ∫2x·cos(x²) dx — let u = x², du = 2x dx → ∫cos(u) du = sin(u) + C = sin(x²) + C\n\n**Fundamental Theorem of Calculus:**\n```\nPart 1: d/dx[∫ₐˣ f(t)dt] = f(x)\nPart 2: ∫ₐᵇ f(x)dx = F(b) - F(a)  where F' = f\n```\n\nPart 2 means: to evaluate a definite integral, find the antiderivative and subtract at the endpoints. Example: ∫₀² x² dx = [x³/3]₀² = 8/3 - 0 = 8/3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are L'Hôpital's rule and the Taylor/Maclaurin series?"},
+      {"role": "assistant", "content": "**L'Hôpital's rule:** when a limit gives an indeterminate form 0/0 or ∞/∞:\n```\nlim f(x)/g(x) = lim f'(x)/g'(x)\n```\n\nExample: lim(x→0) sin(x)/x = lim cos(x)/1 = 1\n\n**Important limits to know:**\n```\nlim(x→0) sin(x)/x      = 1\nlim(x→0) (1-cos x)/x²  = 1/2\nlim(x→∞) (1 + 1/x)ˣ   = e\nlim(x→0) (1+x)^(1/x)  = e\nlim(x→∞) xⁿ/eˣ        = 0   (exponential beats any polynomial)\n```\n\n**Taylor/Maclaurin series** — represent functions as infinite polynomials around x = 0:\n```\neˣ      = 1 + x + x²/2! + x³/3! + ...       (all x)\nsin x   = x - x³/6 + x⁵/120 - ...           (all x)\ncos x   = 1 - x²/2 + x⁴/24 - ...            (all x)\nln(1+x) = x - x²/2 + x³/3 - ...             |x| < 1\n1/(1-x) = 1 + x + x² + x³ + ...             |x| < 1\n(1+x)ⁿ  = Σ C(n,k)xᵏ                         Binomial theorem\n```\n\n**Use case:** approximation. For small x, sin(x) ≈ x and cos(x) ≈ 1 - x²/2 — widely used in physics and engineering."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain vectors — dot product, cross product, and projection."},
+      {"role": "assistant", "content": "A **vector** v = (v₁, v₂, ..., vₙ) has both magnitude and direction.\n\n**Magnitude (Euclidean norm):**\n```\n‖v‖ = √(v₁² + v₂² + ... + vₙ²)\n```\n\n**Unit vector** (same direction, length 1): v̂ = v/‖v‖\n\n**Dot product** (scalar result):\n```\nu·v = Σ uᵢvᵢ = ‖u‖‖v‖ cos θ\n```\n- If u·v = 0, the vectors are perpendicular (orthogonal)\n- Useful for finding angles between vectors\n\n**Cross product** (3D only, vector result):\n```\nu×v = (u₂v₃-u₃v₂, u₃v₁-u₁v₃, u₁v₂-u₂v₁)\n‖u×v‖ = ‖u‖‖v‖ sin θ\n```\n- Result is perpendicular to both u and v\n- Magnitude equals the area of the parallelogram spanned by u and v\n\n**Projection of u onto v:**\n```\nproj_v(u) = (u·v / v·v) · v\n```\n\n**Worked example:** u = (3, 4), v = (1, 0)\n- u·v = 3, ‖v‖² = 1 → proj_v(u) = 3·(1,0) = (3, 0)\n- This is the \"shadow\" of u onto the x-axis, as expected"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "How do matrices work? Cover multiplication, determinants, and inverses."},
+      {"role": "assistant", "content": "A matrix A is **m×n** (m rows, n columns).\n\n**Matrix multiplication** (A: m×n times B: n×p gives C: m×p):\n```\n(AB)ᵢⱼ = Σₖ AᵢₖBₖⱼ\n```\nNote: AB ≠ BA in general — matrix multiplication is not commutative.\n\n**Transpose and inverse properties:**\n```\n(AB)ᵀ = BᵀAᵀ\n(AB)⁻¹ = B⁻¹A⁻¹\n(Aᵀ)⁻¹ = (A⁻¹)ᵀ\n```\n\n**Determinant:**\n```\n2×2: det[[a,b],[c,d]] = ad - bc\n3×3: expand along any row/column (cofactor expansion)\n```\n\n**Inverse:** A⁻¹ exists if and only if det(A) ≠ 0. For 2×2:\n```\n[[a,b],[c,d]]⁻¹ = (1/(ad-bc)) · [[d,-b],[-c,a]]\n```\n\n**Worked example:**\nA = [[2,1],[5,3]] → det = 6-5 = 1\nA⁻¹ = [[3,-1],[-5,2]]\nVerify: A·A⁻¹ = [[2·3+1·(-5), 2·(-1)+1·2],[5·3+3·(-5), 5·(-1)+3·2]] = [[1,0],[0,1]] ✓"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are eigenvalues and eigenvectors? How are they found and what are they used for?"},
+      {"role": "assistant", "content": "An **eigenvector** v (nonzero) of matrix A with **eigenvalue** λ satisfies:\n```\nAv = λv\n```\nIntuitively: multiplying by A only scales v, it doesn't change its direction.\n\n**Finding eigenvalues** — solve the characteristic equation:\n```\ndet(A - λI) = 0\n```\n\n**Finding eigenvectors** — for each eigenvalue λ, solve (A - λI)v = 0.\n\n**Worked example:** A = [[3,1],[0,2]]\n\nCharacteristic polynomial: det([[3-λ, 1],[0, 2-λ]]) = (3-λ)(2-λ) = 0\nEigenvalues: λ₁ = 3, λ₂ = 2\n\nFor λ₁ = 3: (A - 3I)v = [[0,1],[0,-1]]v = 0 → v₁ = (1, 0)\nFor λ₂ = 2: (A - 2I)v = [[1,1],[0,0]]v = 0 → v₂ = (1, -1)\n\n**Diagonalization:** if A has n linearly independent eigenvectors:\n```\nA = PDP⁻¹\nD = diagonal matrix of eigenvalues\nP = matrix of eigenvectors as columns\n```\n\n**Applications:** principal component analysis (PCA), Google's PageRank, solving systems of differential equations, quantum mechanics (energy levels), stability analysis."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "How do you solve systems of linear equations? What methods exist?"},
+      {"role": "assistant", "content": "A system Ax = b has three possible outcomes: no solution (inconsistent), exactly one solution (unique), or infinitely many solutions (dependent).\n\n**Gaussian elimination** — row-reduce the augmented matrix [A|b]:\n\nAllowed row operations:\n1. Swap two rows\n2. Scale a row by a nonzero constant\n3. Add a multiple of one row to another\n\nExample: solve x + y = 3, 2x + y = 4\n```\n[1 1 | 3]  →  [1 1 | 3]  →  [1 0 | 1]\n[2 1 | 4]     [0 -1| -2]    [0 1 | 2]\n```\nSolution: x = 1, y = 2\n\n**Comparison of methods:**\n\n| Method | Complexity | Best for |\n|---|---|---|\n| Gaussian elimination | O(n³) | General dense systems |\n| Cramer's rule | O(n³) with det | Small systems, theory |\n| LU decomposition | O(n³) once, O(n²) per b | Multiple right-hand sides |\n| Jacobi / Gauss-Seidel | iterative | Large sparse systems |\n\n**Vector space concepts:**\n- **Rank(A):** dimension of the column space (= row space)\n- **Null space:** {x : Ax = 0}\n- **Rank-Nullity theorem:** Rank + Nullity = n (number of columns)\n- **Basis:** a linearly independent spanning set; Gram-Schmidt orthogonalizes one"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain probability basics: addition rule, conditional probability, independence, and Bayes' theorem."},
+      {"role": "assistant", "content": "**Core axioms:** sample space Ω, events A, B ⊆ Ω\n```\nP(Ω) = 1,  P(∅) = 0,  0 ≤ P(A) ≤ 1\n```\n\n**Key rules:**\n```\nP(A∪B) = P(A) + P(B) - P(A∩B)    addition rule\nP(Aᶜ) = 1 - P(A)                  complement rule\nP(A|B) = P(A∩B)/P(B)             conditional probability\nP(A∩B) = P(A|B)·P(B)             multiplication rule\n```\n\n**Independence:** A and B are independent when:\n```\nP(A∩B) = P(A)·P(B)\n```\nEquivalently: P(A|B) = P(A) — knowing B doesn't change the probability of A.\n\n**Bayes' theorem** — reverse conditional probability:\n```\nP(A|B) = P(B|A)·P(A) / P(B)\n       = P(B|A)·P(A) / [P(B|A)·P(A) + P(B|Aᶜ)·P(Aᶜ)]\n```\n\n**Classic example (medical test):** Disease prevalence 1%, test is 99% accurate.\n- P(Disease) = 0.01, P(Positive | Disease) = 0.99, P(Positive | No disease) = 0.01\n- P(Disease | Positive) = (0.99·0.01) / (0.99·0.01 + 0.01·0.99) = 0.5\n\nCounter-intuitively, a positive test only means 50% chance of disease — because the disease is rare. This is why Bayes' theorem is critical in medical statistics."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are random variables, expected value, variance, and the main probability distributions?"},
+      {"role": "assistant", "content": "**Random variables:**\n- **Discrete:** takes countable values; described by PMF P(X=k)\n- **Continuous:** takes real values; described by density f(x) with ∫f(x)dx = 1\n\n**Expected value and variance:**\n```\nE[X] = Σk·P(X=k)  or  ∫x·f(x)dx\nVar(X) = E[X²] - (E[X])²\nSD(X) = √Var(X)\n\nE[aX+b] = aE[X]+b\nVar(aX+b) = a²Var(X)\nE[X+Y] = E[X]+E[Y]           (always)\nVar(X+Y) = Var(X)+Var(Y)     (if independent)\n```\n\n**Common distributions:**\n\n| Distribution | PMF/PDF | Mean | Variance |\n|---|---|---|---|\n| Bernoulli(p) | P(X=1)=p | p | p(1-p) |\n| Binomial(n,p) | C(n,k)pᵏ(1-p)ⁿ⁻ᵏ | np | np(1-p) |\n| Poisson(λ) | e⁻ᵏλᵏ/k! | λ | λ |\n| Geometric(p) | (1-p)ᵏ⁻¹p | 1/p | — |\n| Normal N(μ,σ²) | (1/σ√2π)exp(-(x-μ)²/2σ²) | μ | σ² |\n| Exponential(λ) | λe⁻ᵏˣ | 1/λ | 1/λ² |\n\n**Normal distribution:** standardize with Z = (X-μ)/σ ~ N(0,1)\n- 68% of data within 1σ of mean\n- 95% within 2σ\n- 99.7% within 3σ\n\n**Covariance and correlation:**\n```\nCov(X,Y) = E[XY] - E[X]E[Y]\nρ = Cov(X,Y)/(σₓσᵧ)    where -1 ≤ ρ ≤ 1\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the Central Limit Theorem, hypothesis testing, and confidence intervals?"},
+      {"role": "assistant", "content": "**Central Limit Theorem (CLT):** for large n, the sample mean X̄ is approximately normal regardless of the original distribution:\n```\nX̄ ~ N(μ, σ²/n)\n```\nThis is why the normal distribution appears everywhere in statistics.\n\n**Law of Large Numbers:** X̄ → μ as n → ∞ (sample mean converges to true mean)\n\n**Confidence interval:** an interval that contains the true parameter with probability 1-α:\n```\nestimate ± (critical value) × (standard error)\n```\nA 95% CI means: if we repeated the experiment many times, 95% of such intervals would contain the true parameter.\n\n**Hypothesis testing:**\n- H₀ (null hypothesis): the default claim to test against\n- H₁ (alternative): what we want to evidence\n- **p-value:** probability of observing data at least as extreme as ours, given H₀ is true\n- **Decision:** reject H₀ if p-value < α (significance level, typically 0.05)\n\n**Error types:**\n\n| | H₀ True | H₀ False |\n|---|---|---|\n| Reject H₀ | Type I error (α) — false positive | Correct |\n| Fail to reject | Correct | Type II error (β) — false negative |\n\n**Power = 1 - β** — probability of correctly detecting a real effect\n\nCommon tests: t-test (means), chi-squared (categorical), ANOVA (multiple groups), regression (relationships)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain propositional logic and set theory laws."},
+      {"role": "assistant", "content": "**Propositional logic connectives:**\n```\n¬p     not p\np∧q    p and q\np∨q    p or q\np→q    p implies q (if p then q)\np↔q    p if and only if q\n```\n\n**Key logical laws:**\n```\nDouble negation:  ¬¬p ≡ p\nDe Morgan:        ¬(p∧q) ≡ ¬p∨¬q\n                  ¬(p∨q) ≡ ¬p∧¬q\nContrapositive:   (p→q) ≡ (¬q→¬p)\nImplication:      (p→q) ≡ (¬p∨q)\nBiconditional:    (p↔q) ≡ (p→q)∧(q→p)\n```\n\nTautologies (always true): p∨¬p, p→p\nContradictions (always false): p∧¬p\n\n**Set theory operations:**\n```\nA∪B    union (in A or B)\nA∩B    intersection (in both)\nA\\B    difference (in A but not B)\nAᶜ     complement (not in A)\nA×B    Cartesian product {(a,b): a∈A, b∈B}\nP(A)   power set — all subsets of A; |P(A)| = 2^|A|\n```\n\n**Set laws:**\n```\nCommutative:   A∪B = B∪A\nAssociative:   A∪(B∪C) = (A∪B)∪C\nDistributive:  A∩(B∪C) = (A∩B)∪(A∩C)\nDe Morgan:     (A∪B)ᶜ = Aᶜ∩Bᶜ\n```\n\nNote the parallel between logical De Morgan's laws (¬, ∧, ∨) and set De Morgan's laws (ᶜ, ∩, ∪) — the same algebraic structure appears in both."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain combinatorics: permutations, combinations, inclusion-exclusion, and the pigeonhole principle."},
+      {"role": "assistant", "content": "**Permutations** (ordered arrangements):\n```\nP(n,r) = n!/(n-r)!   r items chosen from n in order\nn!                    all permutations of n distinct items\n```\n\n**Combinations** (unordered selections):\n```\nC(n,r) = n! / (r!(n-r)!)   \"n choose r\"\n```\n\n**Binomial theorem:**\n```\n(a+b)ⁿ = Σ C(n,k) aᵏbⁿ⁻ᵏ\n```\n\n**Stars and bars** — distribute n identical items into k distinct bins:\n```\nC(n+k-1, k-1)\n```\nExample: 5 identical candies into 3 bags = C(7,2) = 21 ways\n\n**Inclusion-exclusion principle:**\n```\n|A∪B|   = |A|+|B| - |A∩B|\n|A∪B∪C| = |A|+|B|+|C| - |A∩B| - |A∩C| - |B∩C| + |A∩B∩C|\n```\n\n**Pigeonhole principle:** if n+1 items are placed into n bins, at least one bin contains 2 or more items.\n\nExample: In a group of 13 people, at least 2 share a birth month (13 people, 12 months)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the key concepts in graph theory?"},
+      {"role": "assistant", "content": "A **graph** G = (V, E) consists of vertices (nodes) and edges (connections).\n\n**Basics:**\n```\nDegree of vertex: number of edges incident to it\nHandshaking lemma: Σ deg(v) = 2|E|  (every edge contributes 2)\n```\n\n**Types of graphs and structures:**\n```\nPath:     sequence of distinct vertices, no repeated edges\nCycle:    path that starts and ends at the same vertex\nTree:     connected, acyclic graph; always |E| = |V| - 1\nSpanning tree: tree using all vertices of the graph\n```\n\n**Planar graphs** (can be drawn without edge crossings):\n```\nEuler's formula: V - E + F = 2  (F includes outer face)\nCorollary: E ≤ 3V - 6 for planar graphs\n```\n\n**Special paths:**\n```\nEulerian path:    visits every edge exactly once\n  Condition: exactly 0 or 2 vertices of odd degree\nHamiltonian path: visits every vertex exactly once\n  Condition: NP-complete to decide in general\n```\n\n**Graph coloring:**\n- Assign colors to vertices so no two adjacent vertices share a color\n- χ(G) = chromatic number: minimum colors needed\n- **4-color theorem:** every planar graph can be colored with 4 colors\n\n**Applications:** network routing, social networks, scheduling, circuit design, compilers (register allocation), Google Maps (shortest paths via Dijkstra/A*)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain divisibility, GCD, the Euclidean algorithm, and prime numbers."},
+      {"role": "assistant", "content": "**Divisibility:** a | b means a divides b, i.e. b = ka for some integer k.\n\n```\ngcd(a,b): greatest common divisor\nlcm(a,b) = a·b / gcd(a,b)\n```\n\n**Euclidean algorithm** — efficient GCD computation:\n```\ngcd(a,b) = gcd(b, a mod b),  gcd(a,0) = a\n\nExample: gcd(48, 18)\n= gcd(18, 12)\n= gcd(12, 6)\n= gcd(6, 0) = 6\n```\n\n**Extended Euclidean algorithm:** finds integers x, y such that ax + by = gcd(a,b). Used to compute modular inverses.\n\n**Fundamental theorem of arithmetic:** every integer > 1 has a unique factorization into primes.\n\n**Primes:**\n- Sieve of Eratosthenes: finds all primes up to n in O(n log log n)\n- There are infinitely many primes (Euclid's proof by contradiction)\n- Prime counting function: π(n) ≈ n/ln(n) (Prime Number Theorem)\n- **Goldbach's conjecture:** every even n > 2 is sum of two primes — unproven\n- **Twin prime conjecture:** infinitely many pairs (p, p+2) — unproven\n\n**Primality testing:**\n\n| Method | Complexity | Notes |\n|---|---|---|\n| Trial division | O(√n) | Simple, slow for large n |\n| Fermat test | fast | Not sufficient (Carmichael numbers fool it) |\n| Miller-Rabin | O(k log²n) | Probabilistic, widely used |\n| AKS | O(log⁶n) | Deterministic polynomial time |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "How does modular arithmetic work? Explain Fermat's little theorem, Euler's theorem, and the Chinese Remainder Theorem."},
+      {"role": "assistant", "content": "**Modular arithmetic:** a ≡ b (mod m) means m divides (a - b).\n\n```\n(a+b) mod m = ((a mod m) + (b mod m)) mod m\n(a·b) mod m = ((a mod m) · (b mod m)) mod m\n```\n\n**Modular inverse:** a⁻¹ mod m satisfies a·x ≡ 1 (mod m).\n- Exists if and only if gcd(a, m) = 1\n- Find via extended Euclidean algorithm or Fermat's little theorem\n\n**Fermat's little theorem:** for prime p and gcd(a,p) = 1:\n```\naᵖ⁻¹ ≡ 1 (mod p)\n```\nSo a⁻¹ ≡ aᵖ⁻² (mod p) — gives the modular inverse when p is prime.\n\n**Euler's theorem** (generalization to non-prime moduli):\n```\naᵠ⁽ᵐ⁾ ≡ 1 (mod m),  for gcd(a,m) = 1\nφ(m) = count of k ≤ m with gcd(k,m) = 1  (Euler's totient)\n```\nFor prime p: φ(p) = p-1, recovering Fermat's theorem.\n\n**Chinese Remainder Theorem:** a system of congruences x ≡ aᵢ (mod mᵢ) with pairwise coprime moduli has a unique solution modulo the product m₁·m₂·...·mₖ.\n\nExample: x ≡ 2 (mod 3) and x ≡ 3 (mod 5) → unique solution x ≡ 8 (mod 15)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "How does the RSA encryption algorithm work mathematically?"},
+      {"role": "assistant", "content": "RSA is a public-key cryptosystem whose security rests on the difficulty of factoring large integers.\n\n**Key generation:**\n```\n1. Choose two large primes p and q\n2. Compute n = p·q\n3. Compute φ(n) = (p-1)(q-1)  (Euler's totient)\n4. Choose e coprime to φ(n)  (public exponent, often 65537)\n5. Compute d = e⁻¹ mod φ(n)  (private exponent via extended Euclidean)\n\nPublic key:  (n, e)\nPrivate key: (n, d)\n```\n\n**Encryption and decryption:**\n```\nEncrypt: c = mᵉ mod n\nDecrypt: m = cᵈ mod n\n```\n\n**Why it works:** by Euler's theorem, m^φ(n) ≡ 1 (mod n), so:\nc^d = (m^e)^d = m^(ed) = m^(1 + k·φ(n)) = m · (m^φ(n))^k ≡ m (mod n)\n\n**Small example:** p=5, q=11 → n=55, φ(n)=40\nChoose e=3, d=27 (since 3·27=81=2·40+1 ≡ 1 mod 40)\nEncrypt m=2: c = 2³ mod 55 = 8\nDecrypt: 8²⁷ mod 55 = 2 ✓\n\nIn practice, p and q are 1024+ bit primes, making n a 2048+ bit number that cannot be factored in any reasonable time."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain complex numbers — polar form, Euler's formula, and De Moivre's theorem."},
+      {"role": "assistant", "content": "A **complex number** z = a + bi where i² = -1:\n```\nRe(z) = a  (real part)\nIm(z) = b  (imaginary part)\nz̄ = a - bi  (complex conjugate)\n|z| = √(a²+b²)  (modulus/magnitude)\narg(z) = arctan(b/a)  (argument/phase angle)\n```\n\n**Arithmetic:**\n```\n(a+bi)+(c+di) = (a+c)+(b+d)i\n(a+bi)(c+di) = (ac-bd)+(ad+bc)i\n(a+bi)/(c+di) = (a+bi)(c-di)/|c+di|²\n```\n\n**Polar form:** z = r·e^(iθ) = r(cos θ + i sin θ)\nwhere r = |z| and θ = arg(z)\n\n**Euler's formula:**\n```\ne^(iθ) = cos θ + i sin θ\n```\n\n**Euler's identity** (considered the most beautiful equation in mathematics):\n```\ne^(iπ) + 1 = 0\n```\nIt connects the five most fundamental constants: e, i, π, 1, 0.\n\n**De Moivre's theorem:** for integer n:\n```\n(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)\n```\n\n**nth roots of unity:** the n solutions to zⁿ = 1 are:\n```\ne^(2πik/n)  for k = 0, 1, ..., n-1\n```\nThey are evenly spaced on the unit circle in the complex plane — the foundation of the Discrete Fourier Transform."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the Fourier Transform, Laplace Transform, and Z-Transform, and when is each used?"},
+      {"role": "assistant", "content": "**Fourier Transform** — decomposes a signal into frequencies:\n```\nF(ω) = ∫ f(t)e^(-iωt) dt           (forward transform)\nf(t) = (1/2π) ∫ F(ω)e^(iωt) dω     (inverse transform)\n```\n\nKey properties:\n```\nLinearity:        F(af+bg) = aF(f) + bF(g)\nTime shift:       F(f(t-t₀)) = e^(-iωt₀)·F(ω)\nConvolution:      F(f*g) = F(f)·F(g)\nParseval's:       ∫|f(t)|²dt = (1/2π)∫|F(ω)|²dω\n```\n\nDiscrete version (DFT): Xₖ = Σ xₙ e^(-2πikn/N)\nFFT algorithm computes DFT in O(N log N) instead of O(N²).\n\n**Laplace Transform** — generalizes Fourier, handles unstable/transient signals:\n```\nL{f(t)} = F(s) = ∫₀^∞ f(t)e^(-st) dt\n\nL{1}       = 1/s\nL{t}       = 1/s²\nL{eᵃᵗ}    = 1/(s-a)\nL{sin ωt}  = ω/(s²+ω²)\nL{cos ωt}  = s/(s²+ω²)\nL{f'(t)}   = sF(s) - f(0)\n```\n\n**Z-Transform** — discrete-time analog of Laplace:\n```\nX(z) = Σ x[n]·z⁻ⁿ\n```\n\n**When to use each:**\n\n| Transform | Domain | Primary use |\n|---|---|---|\n| Fourier | Continuous, time→frequency | Signal analysis, spectral analysis |\n| DFT/FFT | Discrete, time→frequency | Digital signal processing, audio |\n| Laplace | Continuous, complex s-domain | Solving ODEs, control systems |\n| Z-Transform | Discrete, complex z-domain | Digital filters, DSP system design |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "How do you solve ordinary differential equations (ODEs)?"},
+      {"role": "assistant", "content": "An ODE relates a function y(x) to its derivatives. The **order** is the highest derivative present.\n\n**First-order linear:** y' + P(x)y = Q(x)\n```\nIntegrating factor: μ = e^∫P(x)dx\nSolution: y = (1/μ) ∫ μQ(x) dx\n```\n\n**Separable:** y' = f(x)g(y)\n```\nSeparate variables: dy/g(y) = f(x)dx\nIntegrate both sides\n```\nExample: y' = xy → dy/y = x dx → ln|y| = x²/2 + C → y = Ae^(x²/2)\n\n**Second-order linear with constant coefficients:** ay'' + by' + cy = 0\nSolve the characteristic equation ar² + br + c = 0:\n\n| Roots | General solution |\n|---|---|\n| r₁ ≠ r₂ real | y = C₁e^(r₁x) + C₂e^(r₂x) |\n| r = α ± βi complex | y = e^(αx)(C₁cos βx + C₂sin βx) |\n| r₁ = r₂ = r repeated | y = (C₁ + C₂x)e^(rx) |\n\n**Example:** y'' - 5y' + 6y = 0\nCharacteristic: r² - 5r + 6 = (r-2)(r-3) = 0 → r = 2, 3\nSolution: y = C₁e^(2x) + C₂e^(3x)\n\n**Numerical methods:**\n- Euler's method: yₙ₊₁ = yₙ + h·f(xₙ, yₙ) — simple but inaccurate\n- Runge-Kutta 4 (RK4) — much more accurate, standard in practice"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "What are the main optimization methods in mathematics?"},
+      {"role": "assistant", "content": "**Unconstrained optimization:**\n```\nNecessary condition (stationary point): ∇f = 0\nSufficient condition: Hessian H positive definite → local minimum\n```\n\n**Gradient descent** — iteratively move against the gradient:\n```\nxₙ₊₁ = xₙ - α∇f(xₙ)\n```\nα is the learning rate. Slow but simple — the backbone of machine learning training.\n\n**Newton's method** — uses curvature for faster convergence:\n```\nxₙ₊₁ = xₙ - H⁻¹∇f(xₙ)\n```\nQuadratic convergence near the solution, but requires computing the Hessian matrix H.\n\n**Constrained optimization — Lagrange multipliers:**\nMinimize f(x) subject to g(x) = 0:\n```\n∇f = λ∇g  at the optimum\nForm Lagrangian: L(x,λ) = f(x) - λg(x)\nSolve: ∇L = 0\n```\n\n**Linear programming:**\nMinimize cᵀx subject to Ax ≤ b, x ≥ 0\n- Simplex method: polynomial on average, exponential worst-case\n- Interior point methods: O(n³) guaranteed polynomial\n\n**Convex optimization:**\n```\nConvex function: f(λx+(1-λ)y) ≤ λf(x)+(1-λ)f(y)\n```\n- Any local minimum is a global minimum — very powerful property\n- KKT conditions: necessary and sufficient for convex problems with constraints\n\n**Key insight:** most machine learning reduces to solving an optimization problem. Gradient descent is the universal solver; convexity guarantees tractability."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert mathematics tutor. Answer clearly, explain concepts intuitively, and always include formulas and worked examples."},
+      {"role": "user", "content": "Explain information theory: entropy, cross-entropy, KL divergence, and Shannon's channel capacity."},
+      {"role": "assistant", "content": "**Entropy** — measures the average information (surprise) in a distribution:\n```\nH(X) = -Σ p(x) log₂ p(x)   (in bits)\n```\n- H(X) = 0 when X is deterministic (no surprise)\n- H(X) = log₂n when X is uniform over n outcomes (maximum uncertainty)\n\nExample: fair coin — H = -(0.5 log₂ 0.5 + 0.5 log₂ 0.5) = 1 bit\n\n**Cross-entropy** — average bits needed to encode distribution p using code optimized for q:\n```\nH(p,q) = -Σ p(x) log₂ q(x)\n```\nUsed as a loss function in machine learning classification.\n\n**KL divergence** — measures how different distribution q is from p:\n```\nDₖₗ(p‖q) = Σ p(x) log(p(x)/q(x)) ≥ 0\n```\n- DKL = 0 if and only if p = q\n- Not symmetric: DKL(p‖q) ≠ DKL(q‖p) in general\n- Cross-entropy = entropy + KL divergence: H(p,q) = H(p) + DKL(p‖q)\n\n**Mutual information** — how much knowing Y tells you about X:\n```\nI(X;Y) = H(X) - H(X|Y) = H(Y) - H(Y|X)\n```\n\n**Shannon's channel capacity theorem:**\n```\nC = B log₂(1 + S/N)\n```\nwhere B = bandwidth (Hz) and S/N = signal-to-noise ratio.\nThis is the theoretical maximum data rate over a noisy channel — no coding scheme can exceed it.\n\n**Application:** these concepts are foundational to data compression (Huffman coding, ZIP), error correction codes, and the loss functions used in training neural networks."}
+    ]
+  }
+]

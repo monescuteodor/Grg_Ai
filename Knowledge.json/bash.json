@@ -1,0 +1,338 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is Bash and what is it used for?"},
+      {"role": "assistant", "content": "Bash (Bourne Again SHell) is the default shell on most Linux and macOS systems. It is both a **command interpreter** (you type commands interactively) and a **scripting language** (you write scripts to automate tasks).\n\nBash scripts are used to:\n- Automate repetitive tasks\n- Manage files and directories\n- Glue programs together with pipes and redirection\n- Automate system administration tasks"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is the shebang line in a Bash script and what should you use?"},
+      {"role": "assistant", "content": "The shebang line is the first line of a script that tells the OS which interpreter to use:\n\n```bash\n#!/usr/bin/env bash   # portable — finds bash wherever it is installed\n#!/bin/bash           # absolute path — only works if bash is at /bin/bash\n```\n\n`#!/usr/bin/env bash` is preferred because it works on systems where bash is installed in a non-standard location (e.g. macOS with Homebrew bash at `/usr/local/bin/bash`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "Write a Hello World script in Bash and show how to run it."},
+      {"role": "assistant", "content": "```bash\n#!/usr/bin/env bash\necho \"Hello, World!\"\nprintf \"Hello, %s!\\n\" \"Bash\"\n```\n\nRun it:\n```bash\nbash hello.sh              # run with bash directly\nchmod +x hello.sh          # make executable\n./hello.sh                 # run as executable\n```\n\n- `echo` adds a newline automatically\n- `printf` gives C-style formatting control"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are the Bash script best practices? What does 'set -euo pipefail' do?"},
+      {"role": "assistant", "content": "```bash\n#!/usr/bin/env bash\nset -euo pipefail   # three critical safety options\nIFS=$'\\n\\t'         # safer word splitting (don't split on spaces)\n\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\n```\n\n`set -euo pipefail` means:\n- `-e` — **exit immediately** if any command fails (non-zero exit code)\n- `-u` — **error on undefined variables** (instead of silently using empty string)\n- `-o pipefail` — **pipe fails** if any command in a pipe fails (not just the last)\n\n`IFS=$'\\n\\t'` prevents word splitting on spaces, which avoids bugs with filenames containing spaces."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you assign and access variables in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Assignment — NO spaces around =\nname=\"Alice\"\nage=30\nreadonly PI=3.14159    # constant (cannot be reassigned)\n\n# Access with $\necho \"$name\"\necho \"${name}\"          # preferred inside strings — avoids ambiguity\n\n# Unset a variable\nunset name\n```\n\nCommon mistake:\n```bash\nname = \"Alice\"   # WRONG — space around = is a syntax error\nname=\"Alice\"     # CORRECT\n```\n\n`${name}` is preferred over `$name` when the variable is adjacent to other characters:\n```bash\necho \"${name}s\"   # correct: appends 's' to name\necho \"$names\"     # wrong: looks for variable called 'names'\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are the Bash special variables like $0, $1, $@, $#, $??"},
+      {"role": "assistant", "content": "```bash\n$0   # name of the script itself\n$1   # first argument\n$2   # second argument\n$3   # third argument (and so on)\n$@   # all arguments as separate words (use in for loops)\n$*   # all arguments as a single string\n$#   # number of arguments\n$?   # exit status of the last command (0=success, non-zero=error)\n$$   # PID of the current shell\n$!   # PID of the last background command\n$_   # last argument of the previous command\n```\n\nExample:\n```bash\n#!/usr/bin/env bash\necho \"Script: $0\"\necho \"First arg: $1\"\necho \"All args: $@\"\necho \"Arg count: $#\"\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are common environment variables in Bash?"},
+      {"role": "assistant", "content": "```bash\n$HOME     # current user's home directory: /home/alice\n$PATH     # colon-separated list of directories searched for commands\n$USER     # current username\n$SHELL    # path to current shell: /bin/bash\n$PWD      # current working directory (updated by cd)\n$OLDPWD   # previous working directory (use with cd -)\n```\n\nExample:\n```bash\necho \"Running as: $USER\"\necho \"Home directory: $HOME\"\necho \"Current directory: $PWD\"\ncd /tmp\ncd -          # go back to previous directory using $OLDPWD\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do default values and parameter expansion work in Bash?"},
+      {"role": "assistant", "content": "```bash\nname=\"${1:-World}\"            # use \"World\" if $1 is unset OR empty\nname=\"${1:=World}\"            # assign AND use \"World\" if $1 is unset\nname=\"${1:?'Name required'}\"  # print error and exit if $1 is unset\nname=\"${1:+'set'}\"            # use \"set\" if $1 IS set (otherwise empty)\n```\n\nMnemonic:\n- `:-` = default (use this if unset)\n- `:=` = default + assign\n- `:?` = error if unset\n- `:+` = alternate (use this if SET)\n\nExample:\n```bash\n#!/usr/bin/env bash\ngreeting=\"${1:-Hello}\"\ntarget=\"${2:-World}\"\necho \"$greeting, $target!\"\n```\n```bash\n./script.sh              # Hello, World!\n./script.sh Hi           # Hi, World!\n./script.sh Hi Alice     # Hi, Alice!\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are the string operations available in Bash parameter expansion?"},
+      {"role": "assistant", "content": "```bash\ns=\"Hello, World!\"\n\necho \"${#s}\"           # length: 13\necho \"${s:0:5}\"        # substring from index 0, length 5: \"Hello\"\necho \"${s: -6}\"        # from end, 6 chars: \"orld!\"\necho \"${s/World/Bash}\" # replace FIRST match: \"Hello, Bash!\"\necho \"${s//l/L}\"       # replace ALL matches: \"HeLLo, WorLd!\"\necho \"${s^^}\"          # uppercase: \"HELLO, WORLD!\"\necho \"${s,,}\"          # lowercase: \"hello, world!\"\necho \"${s#Hello, }\"    # strip prefix (shortest match): \"World!\"\necho \"${s%!}\"          # strip suffix (shortest match): \"Hello, World\"\n```\n\nPrefix/suffix stripping:\n- `#` strips shortest prefix, `##` strips longest prefix\n- `%` strips shortest suffix, `%%` strips longest suffix"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do arrays work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Create and populate\narr=(1 2 3 4 5)\narr+=(6 7)               # append elements\n\n# Access\necho \"${arr[0]}\"         # first element: 1  (0-indexed)\necho \"${arr[@]}\"         # all elements: 1 2 3 4 5 6 7\necho \"${#arr[@]}\"        # length: 7\necho \"${arr[@]:2:3}\"     # slice starting at index 2, length 3: 3 4 5\n\n# Iterate\nfor item in \"${arr[@]}\"; do\n    echo \"$item\"\ndone\n```\n\nAlways quote `\"${arr[@]}\"` (with double quotes) — without quotes, elements with spaces get split."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do associative arrays (hash maps) work in Bash?"},
+      {"role": "assistant", "content": "Associative arrays require Bash 4+ and must be declared with `declare -A`:\n\n```bash\ndeclare -A map\n\n# Assign\nmap[\"name\"]=\"Alice\"\nmap[\"age\"]=30\n\n# Access\necho \"${map[name]}\"      # Alice\necho \"${map[age]}\"       # 30\n\n# Keys and values\necho \"${!map[@]}\"        # all keys:   name age\necho \"${map[@]}\"         # all values: Alice 30\n\n# Iterate\nfor key in \"${!map[@]}\"; do\n    echo \"$key = ${map[$key]}\"\ndone\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do if/elif/else conditionals work in Bash?"},
+      {"role": "assistant", "content": "```bash\nif [[ \"$name\" == \"Alice\" ]]; then\n    echo \"Hello, Alice!\"\nelif [[ \"$age\" -gt 18 ]]; then\n    echo \"You are an adult\"\nelse\n    echo \"Hello, stranger!\"\nfi\n```\n\nKey rules:\n- `[[` and `]]` must have spaces inside\n- `;` before `then` when on the same line\n- Every `if` must end with `fi`\n- Use `[[ ]]` (double brackets) — it is safer than `[ ]` (single brackets)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are all the test conditions available in Bash [[ ]]?"},
+      {"role": "assistant", "content": "```bash\n# String tests\n[[ -z \"$var\" ]]       # true if empty string\n[[ -n \"$var\" ]]       # true if non-empty string\n[[ \"$a\" == \"$b\" ]]    # string equal\n[[ \"$a\" != \"$b\" ]]    # string not equal\n[[ \"$a\" < \"$b\" ]]     # string less than (lexicographic)\n\n# Numeric tests\n[[ $n -eq 42 ]]       # equal\n[[ $n -ne 42 ]]       # not equal\n[[ $n -lt 42 ]]       # less than\n[[ $n -gt 42 ]]       # greater than\n[[ $n -le 42 ]]       # less than or equal\n[[ $n -ge 42 ]]       # greater than or equal\n\n# File tests\n[[ -e \"file\" ]]       # exists (file or directory)\n[[ -f \"file\" ]]       # is a regular file\n[[ -d \"dir\" ]]        # is a directory\n[[ -r \"file\" ]]       # readable\n[[ -w \"file\" ]]       # writable\n[[ -x \"file\" ]]       # executable\n[[ -s \"file\" ]]       # non-empty file (size > 0)\n\n# Regex match\n[[ \"$str\" =~ ^[0-9]+$ ]]   # true if str matches the regex\n\n# Compound\n[[ $a -gt 0 && $b -gt 0 ]] # AND\n[[ $a -gt 0 || $b -gt 0 ]] # OR\n[[ ! -f \"file\" ]]           # NOT\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does the case statement work in Bash?"},
+      {"role": "assistant", "content": "```bash\ncase \"$day\" in\n    Mon|Tue|Wed|Thu|Fri)\n        echo \"Weekday\" ;;\n    Sat|Sun)\n        echo \"Weekend\" ;;\n    *)\n        echo \"Unknown\" ;;  # default/catch-all\nesac\n```\n\n- Each pattern ends with `)`\n- Each block ends with `;;`\n- `|` separates multiple patterns for the same block\n- `*` matches anything (like `default` in other languages)\n- The whole block ends with `esac` (`case` spelled backwards)\n\nGlob patterns work: `*.txt)` matches anything ending in .txt"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you write a ternary expression in Bash?"},
+      {"role": "assistant", "content": "Bash has no ternary operator, but you can simulate it:\n\n```bash\n# Pattern: [[ condition ]] && echo \"true\" || echo \"false\"\nresult=$( [[ $x -gt 0 ]] && echo \"positive\" || echo \"non-positive\" )\n\n# Inline\n[[ -f \"$file\" ]] && echo \"exists\" || echo \"missing\"\n```\n\nCaveat: `cmd1 && cmd2 || cmd3` runs `cmd3` if EITHER `cmd1` fails OR `cmd2` fails. For true ternary behavior, use an if/else:\n```bash\nif [[ $x -gt 0 ]]; then result=\"positive\"; else result=\"non-positive\"; fi\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What are all the types of for loops in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Over a list\nfor i in 1 2 3 4 5; do echo \"$i\"; done\n\n# Over a range with brace expansion\nfor i in {1..10}; do echo \"$i\"; done\n\n# Range with step\nfor i in {1..10..2}; do echo \"$i\"; done  # 1 3 5 7 9\n\n# C-style\nfor (( i=0; i<10; i++ )); do echo \"$i\"; done\n\n# Over files (glob)\nfor file in *.txt; do\n    echo \"Processing: $file\"\ndone\n\n# Over array elements\nfor item in \"${arr[@]}\"; do\n    echo \"$item\"\ndone\n\n# Over command output (safe — handles spaces in lines)\nwhile IFS= read -r line; do\n    echo \"$line\"\ndone < file.txt\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do while and until loops work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# while — loop WHILE condition is true\nn=5\nwhile [[ $n -gt 0 ]]; do\n    echo \"$n\"\n    (( n-- ))\ndone\n\n# until — loop UNTIL condition becomes true (opposite of while)\nn=0\nuntil [[ $n -ge 10 ]]; do\n    (( n++ ))\ndone\necho \"n is now $n\"\n```\n\n`while` continues as long as the condition is **true**.\n`until` continues as long as the condition is **false** (runs until it becomes true)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do break and continue work in Bash loops?"},
+      {"role": "assistant", "content": "```bash\nfor i in {1..10}; do\n    [[ $i -eq 5 ]] && break     # exit loop immediately when i=5\n    [[ $i -eq 3 ]] && continue  # skip to next iteration when i=3\n    echo \"$i\"\ndone\n# Output: 1 2 4\n```\n\n- `break` — exits the innermost loop immediately\n- `continue` — skips the rest of the current iteration, goes to the next\n- `break 2` — exits 2 levels of nested loops\n- `continue 2` — continues the outer loop"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you define and call functions in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Function definition (two equivalent syntaxes)\ngreet() {\n    local name=\"${1:-World}\"   # local variable — not visible outside\n    echo \"Hello, $name!\"\n}\n\nfunction greet {\n    echo \"Hello, ${1:-World}!\"\n}\n\n# Call\ngreet \"Alice\"    # Hello, Alice!\ngreet            # Hello, World!  (uses default)\n```\n\n- Functions must be defined BEFORE they are called\n- `local` makes a variable local to the function — always use it to avoid polluting global scope\n- Arguments inside a function: `$1`, `$2`, etc. (separate from script arguments)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do Bash functions return values?"},
+      {"role": "assistant", "content": "Bash functions can return in two ways:\n\n**Exit code** (0–255, use for success/failure):\n```bash\nis_even() {\n    [[ $(( $1 % 2 )) -eq 0 ]]   # returns 0 (true) if even, 1 (false) if odd\n}\nis_even 4 && echo \"even\" || echo \"odd\"\n```\n\n**String output** (use echo/printf, capture with `$()`):\n```bash\nget_extension() {\n    echo \"${1##*.}\"             # prints the extension\n}\next=$(get_extension \"file.txt\")  # capture output\necho \"$ext\"                      # txt\n```\n\nReturn codes 0 = success (true), non-zero = failure (false) — this is the Unix convention."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you return multiple values from a Bash function?"},
+      {"role": "assistant", "content": "```bash\nparse_name() {\n    local full=\"$1\"\n    echo \"${full%% *}\"   # print first name (strip from first space to end)\n    echo \"${full#* }\"    # print last name  (strip up to first space)\n}\n\n# Capture both outputs with process substitution\nread -r first last < <(parse_name \"Alice Smith\")\necho \"First: $first\"   # Alice\necho \"Last:  $last\"    # Smith\n```\n\nAlternative: use global variables (less clean):\n```bash\nparse_name() {\n    FIRST_NAME=\"${1%% *}\"\n    LAST_NAME=\"${1#* }\"\n}\nparse_name \"Alice Smith\"\necho \"$FIRST_NAME $LAST_NAME\"\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you write a recursive function in Bash? Show factorial."},
+      {"role": "assistant", "content": "```bash\nfactorial() {\n    [[ $1 -le 1 ]] && echo 1 && return\n    echo $(( $1 * $(factorial $(( $1 - 1 ))) ))\n}\n\nfactorial 5   # 120\nfactorial 0   # 1\n```\n\nNote: Bash recursion is slow because each function call spawns a subshell for `$()`. For performance-critical code, prefer iteration or use a compiled language."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you handle errors inside a Bash function?"},
+      {"role": "assistant", "content": "```bash\nrequire_file() {\n    if [[ ! -f \"$1\" ]]; then\n        echo \"ERROR: File not found: $1\" >&2   # print to stderr\n        return 1                                 # non-zero = failure\n    fi\n}\n\n# Usage\nrequire_file \"config.txt\" || exit 1\n# or\nif ! require_file \"config.txt\"; then\n    echo \"Aborting\"\n    exit 1\nfi\n```\n\n- `>&2` redirects the error message to **stderr** (not stdout)\n- `return 1` signals failure to the caller\n- The caller checks with `||` or `if !`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does reading user input work in Bash with the read command?"},
+      {"role": "assistant", "content": "```bash\nread -p \"Enter name: \" name          # prompt + read into $name\nread -s -p \"Password: \" password; echo  # silent input (no echo), newline after\nread -a arr -p \"Enter values: \"      # read into array (space-separated)\nread -r line < file.txt              # read first line of file (-r: no backslash escaping)\nread -t 10 -p \"Timeout in 10s: \" input  # timeout after 10 seconds\n```\n\n- `-p` — print prompt before reading\n- `-s` — silent mode (for passwords)\n- `-a` — read into an array\n- `-r` — raw mode (backslashes are literal, not escape sequences)\n- `-t N` — timeout after N seconds (returns non-zero if timed out)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is a heredoc and a here-string in Bash?"},
+      {"role": "assistant", "content": "**Here-string** — pass a string as stdin:\n```bash\ncat <<< \"Hello, World!\"\n```\n\n**Heredoc** — multi-line string as stdin:\n```bash\n# With variable expansion\ncat <<EOF\nHello, $name!\nToday is $(date)\nEOF\n\n# Without expansion (quoted delimiter)\ncat <<'EOF'\nLine 1\nLine 2 with $no_interpolation  # $ is literal here\nEOF\n```\n\n- Single-quoted `<<'EOF'` disables variable/command expansion\n- Unquoted `<<EOF` allows variable and command substitution\n- The closing delimiter must be at the **start of the line** with no leading spaces"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does I/O redirection work in Bash?"},
+      {"role": "assistant", "content": "```bash\ncommand > output.txt          # redirect stdout to file (overwrite)\ncommand >> output.txt         # redirect stdout to file (append)\ncommand 2> error.txt          # redirect stderr to file\ncommand 2>&1                  # redirect stderr to stdout (combine them)\ncommand &> all.txt            # redirect both stdout AND stderr to file\ncommand < input.txt           # redirect file to stdin\ncommand 2>/dev/null           # discard stderr (send to /dev/null)\n```\n\nFile descriptors:\n- `0` = stdin\n- `1` = stdout\n- `2` = stderr\n\n`2>&1` means: \"send file descriptor 2 to wherever file descriptor 1 is going\"\n\nOrder matters:\n```bash\ncommand > file 2>&1   # correct: stderr → stdout → file\ncommand 2>&1 > file   # wrong:   stderr → original stdout, stdout → file\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do pipes work in Bash and what is process substitution?"},
+      {"role": "assistant", "content": "**Pipes** — connect stdout of one command to stdin of the next:\n```bash\nls -l | grep \"\\.txt$\" | sort | head -10\n```\n\n**Process substitution** — treat a command's output as a file:\n```bash\n# diff two directory listings without creating temp files\ndiff <(ls dir1) <(ls dir2)\n\n# Read lines from a command safely\nwhile IFS= read -r line; do\n    echo \">> $line\"\ndone < <(grep \"error\" logfile.txt)\n```\n\n`<(command)` creates a file descriptor that reads from command's output. This lets you use command output anywhere a filename is expected.\n\n**tee** — write to file AND pass through to stdout:\n```bash\ncommand | tee output.txt          # write + display\ncommand | tee -a output.txt       # append + display\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does printf work in Bash? Show format specifiers."},
+      {"role": "assistant", "content": "```bash\nprintf \"%-20s %5d\\n\" \"Name\" 42      # left-aligned string, right-aligned int\nprintf \"%08.2f\\n\" 3.14              # zero-padded float with 2 decimal places\nprintf \"%s\\n\" \"line1\" \"line2\"       # print each arg on a new line\nprintf \"0x%X\\n\" 255                 # hex: 0xFF\n```\n\nCommon format specifiers:\n- `%s` — string\n- `%d` — decimal integer\n- `%f` — float\n- `%x` / `%X` — hex (lower/upper)\n- `%-Ns` — left-align in N characters\n- `%Nd` — right-align integer in N characters\n- `%0Nd` — zero-pad integer to N digits\n- `%.Nf` — float with N decimal places\n\n`printf` is preferred over `echo` for portable, formatted output."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does grep work in Bash? Show the most useful flags."},
+      {"role": "assistant", "content": "```bash\ngrep \"pattern\" file.txt            # basic search\ngrep -i \"PATTERN\" file.txt         # case-insensitive\ngrep -r \"pattern\" dir/             # recursive (search all files in dir)\ngrep -l \"pattern\" *.txt            # print only filenames with matches\ngrep -n \"pattern\" file.txt         # show line numbers\ngrep -v \"pattern\" file.txt         # invert: show NON-matching lines\ngrep -c \"pattern\" file.txt         # count matching lines\ngrep -E \"regex+\" file.txt          # extended regex (ERE)\ngrep -o \"matched\" file.txt         # print only the matching part (not whole line)\ngrep -A 3 -B 2 \"pattern\" file.txt  # 3 lines After and 2 lines Before each match\n```\n\nCommon patterns:\n```bash\ngrep \"^error\" file.txt    # lines starting with \"error\"\ngrep \"error$\" file.txt    # lines ending with \"error\"\ngrep -E \"^[0-9]+\" file    # lines starting with digits\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does sed (stream editor) work in Bash?"},
+      {"role": "assistant", "content": "```bash\nsed 's/foo/bar/' file.txt           # replace FIRST occurrence per line\nsed 's/foo/bar/g' file.txt          # replace ALL occurrences\nsed 's/foo/bar/gi' file.txt         # replace all, case-insensitive\nsed -i.bak 's/foo/bar/g' file.txt   # in-place edit, backup as file.txt.bak\nsed -n '5,10p' file.txt             # print only lines 5 to 10\nsed '/^#/d' file.txt                # delete lines starting with # (comments)\nsed 's/[[:space:]]*$//' file.txt    # strip trailing whitespace\n```\n\n`s/pattern/replacement/flags` — the substitution command:\n- Pattern is a regex\n- `g` = global (replace all)\n- `i` = case-insensitive\n- `d` = delete matching lines\n- `-n` suppresses default output (combine with `p` to print selected lines)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does awk work in Bash? Show common usage patterns."},
+      {"role": "assistant", "content": "```bash\nawk '{print $1}' file.txt                      # print first field (space-delimited)\nawk -F: '{print $1,$3}' /etc/passwd            # colon delimiter, print fields 1 and 3\nawk '{sum += $1} END {print sum}' file.txt     # sum first column\nawk 'NR==5' file.txt                           # print 5th line (NR = record number)\nawk '$3 > 100 {print $1, $3}' data.txt         # filter rows where column 3 > 100\nawk '/pattern/{count++} END{print count}' file  # count pattern matches\n```\n\nBuilt-in variables:\n- `$0` — entire line, `$1 $2 …` — fields\n- `NR` — current line number\n- `NF` — number of fields in current line\n- `FS` — field separator (default: whitespace)\n- `BEGIN{}` — runs before first line, `END{}` — runs after last line"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do cut, sort, uniq, and wc work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# cut — extract columns\ncut -d: -f1,3 /etc/passwd    # fields 1 and 3, colon-delimited\ncut -c1-10 file.txt           # characters 1 through 10\n\n# sort — sort lines\nsort file.txt                 # alphabetical\nsort -n file.txt              # numeric sort\nsort -rn file.txt             # reverse numeric\nsort -k2 -t, file.csv         # sort by 2nd field, comma separator\nsort -u file.txt              # sort and remove duplicates\n\n# uniq — collapse duplicate consecutive lines\nuniq file.txt                 # remove consecutive duplicates\nuniq -c file.txt              # prefix each line with count\nsort file.txt | uniq -d       # show lines that appear more than once\n\n# wc — count\nwc -l file.txt                # line count\nwc -w file.txt                # word count\nwc -c file.txt                # byte count\n```\n\nCommon pipeline:\n```bash\nsort file.txt | uniq -c | sort -rn | head -10   # top 10 most frequent lines\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you navigate directories and list files in Bash?"},
+      {"role": "assistant", "content": "```bash\npwd               # print current directory\ncd /path          # change to absolute path\ncd -              # go back to previous directory ($OLDPWD)\ncd ~              # go to home directory\n\n# Listing\nls -la            # long format, show all (including hidden .files)\nls -lh            # long format with human-readable sizes (KB, MB)\nls -lt            # long format, sorted by modification time (newest first)\nls -lS            # long format, sorted by size (largest first)\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you copy, move, delete files and create links in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Copy\ncp src dst                    # copy file\ncp -r srcdir dstdir           # copy directory recursively\ncp -a srcdir dstdir           # archive: copy recursively AND preserve metadata\n\n# Move / Rename\nmv old new                    # move or rename\n\n# Delete\nrm file                       # delete file\nrm -rf dir                    # force-delete directory recursively (DANGEROUS — no undo!)\n\n# Links\nln -s target link             # create symbolic link (symlink)\nln target link                # create hard link\n```\n\n`cp -a` is safer than `cp -r` when copying directories — it preserves timestamps, permissions, and ownership."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does the find command work in Bash?"},
+      {"role": "assistant", "content": "```bash\nfind . -name \"*.txt\"                      # find .txt files in current directory tree\nfind . -type f -newer ref.txt             # files newer than ref.txt\nfind . -size +10M                         # files larger than 10 MB\nfind . -mtime -7                          # modified in the last 7 days\nfind . -name \"*.log\" -delete              # find and delete all .log files\nfind . -name \"*.sh\" -exec chmod +x {} \\; # make all .sh files executable\n```\n\n- `-name` — match by filename (glob)\n- `-type f` — files only, `-type d` — directories only\n- `-size +10M` — larger than 10MB; `-size -1k` — smaller than 1KB\n- `-mtime -7` — modified fewer than 7 days ago\n- `-exec cmd {} \\;` — run cmd on each found file (`{}` = current file)\n- `-exec cmd {} +` — more efficient: passes multiple files to cmd at once"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you set file permissions with chmod and chown in Bash?"},
+      {"role": "assistant", "content": "```bash\n# chmod — change permissions\nchmod 755 script.sh          # rwxr-xr-x (owner:rwx, group:r-x, other:r-x)\nchmod +x script.sh           # add execute permission for all\nchmod u+rw,g+r,o-rwx file   # symbolic: user+rw, group+r, other-rwx\n\n# chown — change owner\nchown user:group file        # set owner and group\nchown -R user dir/           # recursive ownership change\n```\n\nOctal permissions:\n- `7` = rwx (4+2+1)\n- `6` = rw- (4+2)\n- `5` = r-x (4+1)\n- `4` = r-- (4)\n- `0` = --- (none)\n\n`755` = owner can read/write/execute, group and others can read/execute (typical for scripts)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does xargs work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Pass find results as arguments to grep\nfind . -name \"*.txt\" | xargs grep \"pattern\"\n\n# Use {} as placeholder for each item\nfind . -name \"*.txt\" | xargs -I{} cp {} backup/\n\n# Handle filenames with spaces safely\nfind . -name \"*.txt\" -print0 | xargs -0 grep \"pattern\"\n```\n\n`xargs` reads items from stdin and passes them as arguments to a command.\n\n- Without `xargs`, a pipe only connects stdin/stdout — `find . | grep` would search the filenames, not file contents\n- `-I{}` replaces `{}` with each input item (one at a time)\n- `-0` / `-print0` — use null bytes as delimiter (handles filenames with spaces/newlines)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do du and df work for checking disk usage in Bash?"},
+      {"role": "assistant", "content": "```bash\n# du — disk usage (how much space files/directories use)\ndu -sh dir/        # size of directory: -s=summary, -h=human-readable\ndu -sh *           # size of each item in current directory\ndu -sh * | sort -rh | head    # top directories by size\n\n# df — disk free (filesystem-level usage)\ndf -h              # show all filesystems with human-readable sizes\ndf -h /home        # show only the filesystem containing /home\n```\n\n`du` counts actual file data; `df` shows filesystem capacity, used, and available space."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does error handling work in Bash with set -e, trap, and ERR?"},
+      {"role": "assistant", "content": "```bash\n#!/usr/bin/env bash\nset -euo pipefail   # exit on error, undefined vars, pipe failures\n\n# Trap ERR — runs when any command fails\ntrap 'echo \"Error on line $LINENO\"; exit 1' ERR\n\n# Trap EXIT — runs on any exit (clean up)\ntrap 'cleanup' EXIT INT TERM\n\ncleanup() {\n    echo \"Cleaning up...\"\n    rm -f /tmp/tempfile\n}\n```\n\n- `trap 'cmd' SIGNAL` — run `cmd` when the signal is received\n- `ERR` — triggered when any command fails\n- `EXIT` — triggered when script exits (for any reason)\n- `INT` — triggered by Ctrl+C\n- `TERM` — triggered by `kill` (SIGTERM)\n- `$LINENO` — built-in variable with current line number"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does arithmetic work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Arithmetic with (( ))\n(( n++ ))             # increment\n(( n += 5 ))          # add 5\n(( n = n * 2 ))\n\n# Arithmetic expansion with $(( ))\nn=$(( n * 2 ))\necho $(( 10 / 3 ))    # integer division: 3\necho $(( 10 % 3 ))    # modulo: 1\necho $(( 2 ** 8 ))    # power: 256\n\n# Floating point with bc\necho \"scale=4; 22/7\" | bc         # 3.1428\necho \"scale=2; sqrt(2)\" | bc -l   # 1.41\n```\n\nBash only does **integer** arithmetic natively. Use `bc` or `awk` for floating-point:\n```bash\nawk 'BEGIN {printf \"%.4f\\n\", 22/7}'   # 3.1429\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you run commands in parallel and wait for them in Bash?"},
+      {"role": "assistant", "content": "```bash\n# Run commands in background with &\nfor i in {1..5}; do\n    sleep 1 &          # each runs in background simultaneously\ndone\nwait                   # wait for ALL background jobs to finish\n\n# Capture PID of background command\nsleep 100 &\nbg_pid=$!\n\n# Wait for specific PID\nwait $bg_pid\necho \"Exit status: $?\"\n```\n\n`&` sends a command to the background immediately. `wait` blocks until all background jobs (or a specific one) complete.\n\nRunning N things in parallel this way is simple but has no concurrency limit — for controlled parallelism, use `xargs -P N` or GNU `parallel`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does job control work in Bash (fg, bg, jobs, disown)?"},
+      {"role": "assistant", "content": "```bash\nsleep 100 &        # start in background\njobs -l            # list all background jobs with PIDs\nfg %1              # bring job 1 to foreground\nbg %1              # send job 1 to background (if stopped with Ctrl+Z)\ndisown %1          # detach job 1 from shell (survives shell exit)\n```\n\nWorkflow:\n1. Run a command: `some_long_command`\n2. Press **Ctrl+Z** — suspends it, returns to prompt\n3. `bg` — resume it in the background\n4. `fg` — bring it back to the foreground\n\n`disown` removes the job from the shell's job table — the process continues even if you close the terminal (like `nohup`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How does getopts work for parsing command-line arguments in Bash?"},
+      {"role": "assistant", "content": "```bash\n#!/usr/bin/env bash\nusage() { echo \"Usage: $0 [-f file] [-n num] [-v] [-h]\"; exit 0; }\n\nwhile getopts \"f:n:vh\" opt; do\n    case $opt in\n        f) file=\"$OPTARG\" ;;   # -f takes an argument (note the : after f)\n        n) num=\"$OPTARG\" ;;    # -n takes an argument\n        v) verbose=true ;;     # -v is a flag (no argument)\n        h) usage ;;            # -h prints help\n        *) usage; exit 1 ;;   # unknown option\n    esac\ndone\n\n# Shift past the processed options\nshift $(( OPTIND - 1 ))\n# Now $@ contains non-option arguments\n```\n\n- Letters followed by `:` in the option string expect an argument (stored in `$OPTARG`)\n- Letters without `:` are flags\n- `$OPTIND` tracks the index of the next argument to process"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do mapfile and readarray work in Bash?"},
+      {"role": "assistant", "content": "```bash\n# mapfile (same as readarray) — read lines into an array\nmapfile -t lines < file.txt\n\necho \"${lines[0]}\"         # first line\necho \"${#lines[@]}\"        # number of lines\n\n# Iterate\nfor line in \"${lines[@]}\"; do\n    echo \"$line\"\ndone\n\n# From a command\nmapfile -t results < <(find . -name \"*.txt\")\n```\n\n`-t` strips the trailing newline from each line.\n\nThis is safer than `IFS=$'\\n' arr=($(cat file))` because it correctly handles lines with spaces and special characters."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "How do you send signals to processes in Bash?"},
+      {"role": "assistant", "content": "```bash\nkill -SIGTERM $pid    # politely ask process to terminate (can be caught)\nkill $pid             # same as SIGTERM (default signal)\nkill -9 $pid          # SIGKILL — force kill, cannot be caught or ignored\nkill -SIGSTOP $pid    # pause process\nkill -SIGCONT $pid    # resume paused process\n```\n\nCommon signals:\n| Signal | Number | Meaning |\n|--------|--------|--------|\n| SIGTERM | 15 | Polite termination request |\n| SIGKILL | 9 | Force kill (unblockable) |\n| SIGINT | 2 | Interrupt (Ctrl+C) |\n| SIGHUP | 1 | Hangup (reload config) |\n| SIGSTOP | 19 | Pause process |\n| SIGCONT | 18 | Resume process |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is a subshell in Bash and how is it different from the current shell?"},
+      {"role": "assistant", "content": "```bash\n# Subshell: commands inside () run in a child process\n(cd /tmp && ls)        # cd is LOCAL to the subshell — parent shell stays in its directory\necho \"Still in: $PWD\"  # unchanged\n\n# Variable changes in subshell don't affect parent\nx=1\n( x=2; echo \"Inside: $x\" )   # Inside: 2\necho \"Outside: $x\"            # Outside: 1  (unchanged)\n\n# Command substitution also creates a subshell\nresult=$(command)    # runs command in subshell, captures stdout\n```\n\nA subshell is a **copy** of the current shell. It inherits variables and settings but any changes it makes are not visible to the parent."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is the SCRIPT_DIR pattern and why is it useful in Bash?"},
+      {"role": "assistant", "content": "```bash\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\n```\n\nThis gives you the **absolute path** of the directory containing the script, regardless of where you call it from.\n\nWhy it's needed:\n```bash\n# Without SCRIPT_DIR:\n./scripts/deploy.sh   # script's relative paths break if run from wrong directory\n\n# With SCRIPT_DIR:\ncd \"$SCRIPT_DIR\"        # script always knows where it lives\nsource \"$SCRIPT_DIR/lib/utils.sh\"   # reliable relative paths\n```\n\n- `${BASH_SOURCE[0]}` — path used to invoke the script (even when sourced)\n- `dirname` — strips the filename, leaving the directory\n- `cd ... && pwd` — resolves symlinks to get the true absolute path"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert Bash scripting tutor. Answer clearly, include working code examples with comments."},
+      {"role": "user", "content": "What is the difference between reading a file with 'for line in $(cat file)' vs 'while read'?"},
+      {"role": "assistant", "content": "```bash\n# UNSAFE — splits on spaces, breaks on filenames with spaces, globbing\nfor line in $(cat file.txt); do\n    echo \"$line\"\ndone\n\n# SAFE — reads one complete line at a time, preserves spaces\nwhile IFS= read -r line; do\n    echo \"$line\"\ndone < file.txt\n```\n\nWhy `while IFS= read -r` is correct:\n- `IFS=` — empty IFS preserves leading/trailing whitespace\n- `-r` — raw mode: backslashes are literal (not escape sequences)\n- `< file.txt` — stdin redirected from file (no subshell, unlike `cat file | while read`)\n\nThe `cat file | while read` pattern runs the loop in a subshell, so variable changes inside the loop are lost after the loop ends."}
+    ]
+  }
+]

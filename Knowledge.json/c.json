@@ -1,0 +1,282 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What is C and what is it used for?"},
+      {"role": "assistant", "content": "C is a general-purpose, procedural, compiled programming language.\n\nKey characteristics:\n- Provides **low-level memory access** — you control pointers, stack, and heap directly\n- **Minimal runtime** — very little overhead, close to the hardware\n- **Foundation for other languages** — C++, Objective-C, and many others are built on C\n- C11 is the current standard\n\nUsed for:\n- Operating systems (Linux, Windows kernels are written in C)\n- Embedded systems and firmware\n- Device drivers\n- High-performance libraries\n- Compilers and interpreters\n\nTools: **GCC**, **Clang**, **MSVC** (compilers). **make**, **cmake** (build systems)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "Write a Hello World program in C and show how to compile and run it."},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\nint main(void) {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}\n```\n\nCompile and run:\n```bash\ngcc -Wall -Wextra -std=c11 -o hello hello.c\n./hello\n\n# Or with Clang:\nclang -o hello hello.c\n./hello\n```\n\n- `-Wall -Wextra` — enable all common warnings (strongly recommended)\n- `-std=c11` — use the C11 standard\n- `-o hello` — name the output executable `hello`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What are the fundamental integer types in C?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\nchar    c  = 'A';       // 1 byte\nshort   s  = 100;       // >= 2 bytes\nint     n  = 42;        // >= 2 bytes (usually 4 on modern systems)\nlong    l  = 100000L;\nlong long ll = 1000000LL;\n\n// Unsigned variants\nunsigned int  u  = 4294967295U;\nunsigned char uc = 255;\n```\n\nNote: C only guarantees minimum sizes — `int` is at least 2 bytes but is usually 4. For exact sizes, use fixed-width integers from `<stdint.h>`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What are fixed-width integer types in C and when should you use them?"},
+      {"role": "assistant", "content": "```c\n#include <stdint.h>\n\nint8_t   i8  = 127;               // exactly 8-bit signed\nint16_t  i16 = 32767;             // exactly 16-bit signed\nint32_t  i32 = 2147483647;        // exactly 32-bit signed\nint64_t  i64 = 9223372036854775807LL; // exactly 64-bit signed\n\nuint8_t  u8  = 255;               // exactly 8-bit unsigned\nuint32_t u32 = 0xFFFFFFFF;        // exactly 32-bit unsigned\n```\n\nUse fixed-width types when:\n- You need exact sizes (network protocols, file formats, hardware registers)\n- Portability matters across platforms with different word sizes\n- Doing bit manipulation where exact width is critical\n\nAvoid them for general-purpose code where `int` is fine — the compiler can choose the most efficient size."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What are the floating-point types in C?"},
+      {"role": "assistant", "content": "```c\nfloat       f  = 3.14f;                      // 32-bit, ~7 significant digits\ndouble      d  = 3.14159265358979;           // 64-bit, ~15 significant digits\nlong double ld = 3.141592653589793238L;      // 80 or 128-bit (platform-dependent)\n```\n\nSuffix rules:\n- `3.14f` — float literal (without `f` it defaults to double)\n- `3.14` — double literal\n- `3.14L` — long double literal\n\nPrinting:\n```c\nprintf(\"%f\\n\", f);      // float (promoted to double in printf)\nprintf(\"%lf\\n\", d);     // double\nprintf(\"%.2f\\n\", d);    // 2 decimal places\n```\n\nUse `double` for most calculations — `float` is only preferred when memory or speed is critical (e.g. graphics, large arrays)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does printf format specifiers work in C?"},
+      {"role": "assistant", "content": "```c\nprintf(\"int: %d\\n\", n);           // decimal integer\nprintf(\"float: %f\\n\", f);         // float/double\nprintf(\"double: %lf\\n\", d);       // double (same as %f in practice)\nprintf(\"char: %c\\n\", c);          // character\nprintf(\"string: %s\\n\", \"hello\");  // string\nprintf(\"hex: %x\\n\", 255);         // hexadecimal (ff)\nprintf(\"HEX: %X\\n\", 255);         // uppercase hex (FF)\nprintf(\"unsigned: %u\\n\", u);      // unsigned int\nprintf(\"long: %ld\\n\", l);         // long\nprintf(\"size_t: %zu\\n\", sizeof(n)); // size_t\nprintf(\"pointer: %p\\n\", (void*)&n); // pointer address\nprintf(\"%.2f\\n\", 3.14159);        // 2 decimal places: 3.14\nprintf(\"%10d\\n\", 42);             // right-aligned in 10 chars\nprintf(\"%-10d|\\n\", 42);           // left-aligned in 10 chars\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do arrays work in C?"},
+      {"role": "assistant", "content": "```c\n// Declaration and initialization\nint arr[5] = {1, 2, 3, 4, 5};\nint zeros[10] = {0};           // all elements initialized to 0\nint partial[5] = {1, 2};      // remaining elements are 0 (i.e. {1,2,0,0,0})\n\n// Access (0-indexed)\nprintf(\"%d\\n\", arr[0]);        // 1 (first element)\nprintf(\"%d\\n\", arr[4]);        // 5 (last element)\n\n// Size in elements\nprintf(\"size: %zu\\n\", sizeof(arr) / sizeof(arr[0]));\n\n// Multi-dimensional array\nint matrix[3][3] = {\n    {1, 2, 3},\n    {4, 5, 6},\n    {7, 8, 9}\n};\nprintf(\"%d\\n\", matrix[1][2]);  // 6 (row 1, col 2)\n```\n\nImportant: C arrays **do not** carry their size at runtime — you must track it separately. Accessing out of bounds is undefined behavior (no automatic range checking)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do strings work in C and what are the key string functions?"},
+      {"role": "assistant", "content": "```c\n#include <string.h>\n\n// String is a char array terminated by null byte '\\0'\nchar name[20] = \"Alice\";       // stores: A l i c e \\0\nchar greeting[] = \"Hello\";    // size auto-calculated (6 bytes including \\0)\n```\n\nKey string functions:\n```c\nstrlen(name)                       // length WITHOUT null: 5\nstrcpy(dest, src)                  // copy src to dest (unsafe — no bounds check)\nstrncpy(dest, src, n)             // safe copy: at most n bytes\nstrcat(dest, src)                  // append src to dest (unsafe)\nstrncat(dest, src, n)             // safe append\nstrcmp(s1, s2)                     // compare: 0=equal, <0=s1<s2, >0=s1>s2\nstrstr(s, \"sub\")                  // find substring, returns pointer or NULL\nsprintf(buf, \"%d\", 42)            // format into buffer (unsafe)\nsnprintf(buf, sizeof(buf), \"%s\", name)  // safe format — always use this\n```\n\nAlways prefer the `n`-bounded versions (`strncpy`, `strncat`, `snprintf`) to avoid buffer overflows."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do pointers work in C? Explain the basics with examples."},
+      {"role": "assistant", "content": "```c\nint x = 10;\nint *ptr = &x;    // ptr holds the address of x\n\nprintf(\"x = %d\\n\", x);         // 10\nprintf(\"*ptr = %d\\n\", *ptr);   // 10 (dereference: value at address)\nprintf(\"&x = %p\\n\", (void*)&x); // address of x\nprintf(\"ptr = %p\\n\", (void*)ptr); // same address\n\n*ptr = 20;         // modify x through the pointer\nprintf(\"x = %d\\n\", x);   // 20\n```\n\nKey concepts:\n- `&x` — address-of operator: gets the memory address of `x`\n- `*ptr` — dereference operator: gets the value at the address stored in `ptr`\n- `int *ptr` — declaration: `ptr` is a pointer to an `int`\n\nNull pointer (safe initialization):\n```c\nint *null_ptr = NULL;\nif (null_ptr == NULL) printf(\"null!\\n\");\n// Always check for NULL before dereferencing\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does pointer arithmetic work in C?"},
+      {"role": "assistant", "content": "```c\nint arr[] = {1, 2, 3, 4, 5};\nint *p = arr;      // p points to arr[0]\n\n// Pointer arithmetic steps by sizeof(type)\nprintf(\"%d\\n\", *p);       // 1 (arr[0])\nprintf(\"%d\\n\", *(p + 1)); // 2 (arr[1])\nprintf(\"%d\\n\", *(p + 4)); // 5 (arr[4])\n\n// Iterating with pointer arithmetic\nfor (int i = 0; i < 5; i++) {\n    printf(\"%d \", *(p + i));\n}\n\n// These are equivalent:\narr[i]      // subscript notation\n*(arr + i)  // pointer arithmetic\n*(p + i)    // using a pointer variable\n```\n\n`p + 1` does NOT add 1 byte — it adds `1 * sizeof(int)` bytes (4 bytes on most systems). The compiler scales the offset by the pointed-to type's size automatically."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What is the difference between const pointer declarations in C?"},
+      {"role": "assistant", "content": "```c\nint x = 10;\nint y = 20;\n\n// Pointer to const int — can't modify the value through the pointer\nconst int *cptr = &x;\n// *cptr = 5;   // ERROR: read-only\ncptr = &y;      // OK: can change what cptr points to\n\n// Const pointer to int — can't change where the pointer points\nint *const cptr2 = &x;\n*cptr2 = 5;     // OK: can modify the value\n// cptr2 = &y; // ERROR: pointer itself is const\n\n// Const pointer to const int — neither can change\nconst int *const cptr3 = &x;\n// *cptr3 = 5;  // ERROR\n// cptr3 = &y;  // ERROR\n```\n\nMnemonic: read right to left.\n- `const int *p` → p is a pointer to (const int) — value is const\n- `int *const p` → p is a (const pointer) to int — pointer is const"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do function pointers work in C?"},
+      {"role": "assistant", "content": "```c\n// Declare a function pointer type\ntypedef int (*BinOp)(int, int);\n\nint add(int a, int b) { return a + b; }\nint mul(int a, int b) { return a * b; }\n\n// Use function pointer as parameter\nint apply(BinOp op, int a, int b) {\n    return op(a, b);   // call through pointer\n}\n\nint main(void) {\n    BinOp f = add;\n    printf(\"%d\\n\", f(3, 4));          // 7\n    printf(\"%d\\n\", apply(mul, 3, 4)); // 12\n    return 0;\n}\n```\n\nWithout typedef:\n```c\nint (*fp)(int, int) = add;   // fp is a pointer to a function taking 2 ints\n```\n\nCommon uses: callbacks, dispatch tables (like virtual functions), plugin systems, `qsort` comparators."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does dynamic memory allocation work in C? Explain malloc, calloc, realloc, and free."},
+      {"role": "assistant", "content": "```c\n#include <stdlib.h>\n\n// malloc — allocate uninitialized memory (contents are garbage)\nint *arr = malloc(10 * sizeof(int));\nif (arr == NULL) { /* always check! malloc returns NULL on failure */ }\n\n// calloc — allocate AND zero-initialize\nint *zarr = calloc(10, sizeof(int));  // all elements = 0\n\n// realloc — resize an existing allocation\narr = realloc(arr, 20 * sizeof(int));\n// Note: realloc may move the memory! always capture the return value\n\n// free — release memory back to the heap\nfree(arr);\narr = NULL;   // set to NULL to avoid dangling pointer bugs\n```\n\nCritical rules:\n1. Always check the return value of `malloc`/`calloc` for NULL\n2. Every `malloc` must have exactly one `free`\n3. Never `free` the same pointer twice (double-free = undefined behavior)\n4. Never use memory after freeing it (use-after-free)\n5. Set pointer to NULL after freeing to prevent accidental reuse"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you allocate a struct on the heap in C?"},
+      {"role": "assistant", "content": "```c\n#include <stdlib.h>\n\ntypedef struct Node {\n    int val;\n    struct Node *next;\n} Node;\n\n// Allocate one node on the heap\nNode *node = malloc(sizeof(Node));\nif (node == NULL) { /* handle error */ }\n\n// Initialize fields\nnode->val = 42;\nnode->next = NULL;\n\n// Use the node...\n\n// Free when done\nfree(node);\nnode = NULL;\n```\n\nFor multiple nodes (e.g. a linked list), allocate each one separately:\n```c\nNode *create_node(int val) {\n    Node *n = malloc(sizeof(Node));\n    if (!n) return NULL;\n    n->val = val;\n    n->next = NULL;\n    return n;\n}\n```\n\nUse `->` to access members through a pointer. `node->val` is equivalent to `(*node).val`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do function declarations (prototypes) work in C?"},
+      {"role": "assistant", "content": "```c\n// Function declarations (prototypes) — tell the compiler about the function\n// before it is defined. Typically put in header files.\nint add(int a, int b);        // declare before use\nvoid swap(int *a, int *b);\nint *create_array(int size);\n\n// Function definitions — the actual implementation\nint add(int a, int b) {\n    return a + b;\n}\n\nvoid swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}\n```\n\nWhy prototypes matter:\n- C compiles top-to-bottom — without a prototype, calling a function before its definition causes an error or warning\n- Header files (`.h`) contain prototypes; source files (`.c`) contain definitions\n- `int main(void)` — `void` in the parameter list explicitly means \"no parameters\" (unlike `int main()` which means \"unspecified parameters\" in C)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you simulate pass-by-reference in C using pointers?"},
+      {"role": "assistant", "content": "C is strictly pass-by-value — to modify a variable in the caller, pass a pointer to it:\n\n```c\n// Wrong — only modifies the local copy\nvoid increment_wrong(int n) {\n    n++;   // does NOT affect the caller's variable\n}\n\n// Correct — pass pointer, modify through it\nvoid increment(int *n) {\n    (*n)++;   // modifies the caller's variable\n}\n\nvoid swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}\n\nint main(void) {\n    int x = 3, y = 5;\n    swap(&x, &y);              // pass addresses\n    printf(\"x=%d y=%d\\n\", x, y);  // x=5 y=3\n    return 0;\n}\n```\n\nThis pattern is fundamental in C — used everywhere from `scanf(&n)` to any function that needs to return multiple values."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you return a pointer from a function in C? What are the rules?"},
+      {"role": "assistant", "content": "```c\n// CORRECT — return pointer to heap-allocated memory\nint *create_array(int size) {\n    int *arr = malloc(size * sizeof(int));\n    return arr;   // heap memory survives after function returns\n}\n\n// CORRECT — return pointer to static variable\nconst char *get_version(void) {\n    static char version[] = \"1.0.0\";\n    return version;  // static storage survives\n}\n\n// WRONG — returning pointer to local variable (undefined behavior!)\nint *bad_function(void) {\n    int local = 42;\n    return &local;   // local is destroyed when function returns!\n}\n```\n\nRules:\n- **Never** return a pointer to a local (stack) variable — it is destroyed when the function returns\n- **OK** to return pointer to heap memory (caller must `free` it)\n- **OK** to return pointer to `static` variables\n- **OK** to return one of the input pointer arguments"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do variadic functions work in C? Show with an example."},
+      {"role": "assistant", "content": "```c\n#include <stdarg.h>\n\ndouble average(int count, ...) {\n    va_list args;\n    va_start(args, count);   // initialize, starting after 'count'\n    double sum = 0;\n    for (int i = 0; i < count; i++) {\n        sum += va_arg(args, double);  // extract next argument as double\n    }\n    va_end(args);            // cleanup\n    return sum / count;\n}\n\nint main(void) {\n    printf(\"%.2f\\n\", average(3, 1.0, 2.0, 3.0));  // 2.00\n    printf(\"%.2f\\n\", average(4, 1.0, 2.0, 3.0, 4.0));  // 2.50\n    return 0;\n}\n```\n\n- `...` in the parameter list means \"zero or more additional arguments\"\n- `va_list` — type that holds the state for traversing arguments\n- `va_start(list, last_named)` — initialize list, `last_named` is the last fixed parameter\n- `va_arg(list, type)` — extract the next argument as `type`\n- `va_end(list)` — always call this before returning\n\n`printf` itself is a variadic function."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do inline functions and recursive functions work in C?"},
+      {"role": "assistant", "content": "**Inline function** — hints to the compiler to substitute the function body directly at the call site (avoids function call overhead):\n```c\nstatic inline int max(int a, int b) {\n    return a > b ? a : b;\n}\n// Called exactly like a normal function:\nint m = max(3, 7);  // likely compiled without actual function call\n```\n\n`inline` is a hint, not a guarantee — the compiler may ignore it.\n\n**Recursive function**:\n```c\nint factorial(int n) {\n    return n <= 1 ? 1 : n * factorial(n - 1);\n}\n\n// factorial(5) = 5 * factorial(4)\n//              = 5 * 4 * factorial(3)\n//              = 5 * 4 * 3 * 2 * 1 = 120\n```\n\nEvery recursive function needs a **base case** (`n <= 1`) to stop recursion. Deep recursion risks stack overflow — C has no tail-call optimization guarantee."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do structs work in C? Show definition, initialization, and member access."},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\n// Struct definition with typedef\ntypedef struct {\n    char name[50];\n    int  age;\n    float gpa;\n} Student;\n\nint main(void) {\n    // Positional initialization\n    Student s1 = {\"Alice\", 20, 3.8f};\n\n    // Designated initializers (C99+) — clearer, order-independent\n    Student s2 = {.name=\"Bob\", .age=22, .gpa=3.5f};\n\n    // Member access with dot operator\n    printf(\"Name: %s\\n\", s1.name);\n    printf(\"GPA: %.1f\\n\", s1.gpa);\n\n    // Access through pointer — use arrow operator ->\n    Student *ptr = &s1;\n    printf(\"Name: %s\\n\", ptr->name);   // ptr->name\n    printf(\"Age: %d\\n\", (*ptr).age);   // equivalent but verbose\n\n    return 0;\n}\n```\n\n`ptr->member` is syntactic sugar for `(*ptr).member` — use `->` when you have a pointer to a struct."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do nested structs work in C?"},
+      {"role": "assistant", "content": "```c\ntypedef struct {\n    float x, y;\n} Point;\n\ntypedef struct {\n    Point center;   // nested struct\n    float radius;\n} Circle;\n\nint main(void) {\n    Circle c = {\n        .center = {.x = 1.0f, .y = 2.0f},\n        .radius = 5.0f\n    };\n\n    // Access nested members with chained dots\n    printf(\"Center: (%.1f, %.1f)\\n\", c.center.x, c.center.y);\n    printf(\"Radius: %.1f\\n\", c.radius);\n\n    // Through a pointer\n    Circle *cp = &c;\n    printf(\"x = %.1f\\n\", cp->center.x);\n\n    return 0;\n}\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you implement a linked list in C?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n#include <stdlib.h>\n\n// Self-referential struct — must use 'struct Node' inside\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\n// Push to front of list\nvoid push(Node **head, int val) {\n    Node *n = malloc(sizeof(Node));\n    if (!n) return;\n    n->data = val;\n    n->next = *head;   // new node points to old head\n    *head = n;         // head now points to new node\n}\n\n// Print list\nvoid print_list(Node *head) {\n    while (head != NULL) {\n        printf(\"%d -> \", head->data);\n        head = head->next;\n    }\n    printf(\"NULL\\n\");\n}\n\n// Free entire list\nvoid free_list(Node *head) {\n    while (head) {\n        Node *tmp = head;\n        head = head->next;\n        free(tmp);\n    }\n}\n\nint main(void) {\n    Node *head = NULL;\n    push(&head, 1);\n    push(&head, 2);\n    push(&head, 3);\n    print_list(head);   // 3 -> 2 -> 1 -> NULL\n    free_list(head);\n    return 0;\n}\n```\n\nNote: `push` takes `Node **head` (pointer to pointer) so it can modify the caller's `head` variable."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do unions work in C?"},
+      {"role": "assistant", "content": "```c\ntypedef union {\n    int   i;\n    float f;\n    char  bytes[4];\n} Data;\n\nData d;\nd.i = 42;\nprintf(\"%d\\n\", d.i);    // 42\nprintf(\"%f\\n\", d.f);    // garbage — reading as wrong type!\n\nd.f = 3.14f;\nprintf(\"%f\\n\", d.f);    // 3.14\nprintf(\"%d\\n\", d.i);    // garbage — f overwrote i's bytes\n```\n\nKey properties:\n- All members **share the same memory** — writing one member invalidates all others\n- Size of the union = size of its **largest** member\n- Only the most recently written member should be read\n\nCommon use: **type punning** (interpret the same bytes as different types) and **variant types** (store one of several possible types, tracked by a separate tag field):\n```c\ntypedef struct {\n    int tag;   // 0=int, 1=float, 2=string\n    union { int i; float f; char *s; } value;\n} Variant;\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do enums work in C?"},
+      {"role": "assistant", "content": "```c\ntypedef enum {\n    RED = 0,    // explicitly set to 0\n    GREEN,      // automatically 1\n    BLUE,       // automatically 2\n    COLOR_COUNT // useful trick: gives the total number of enum values\n} Color;\n\nColor c = GREEN;\n\nif (c == GREEN) printf(\"It's green!\\n\");\n\n// Use in switch\nswitch (c) {\n    case RED:   printf(\"Red\\n\");   break;\n    case GREEN: printf(\"Green\\n\"); break;\n    case BLUE:  printf(\"Blue\\n\");  break;\n}\n\n// COLOR_COUNT trick\nconst char *names[COLOR_COUNT] = {\"Red\", \"Green\", \"Blue\"};\nprintf(\"%s\\n\", names[c]);   // Green\n```\n\nIn C, enums are just named integer constants. The compiler does not enforce that a variable only holds valid enum values — you can assign any `int` to a `Color`."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What is the difference between stack and heap memory in C?"},
+      {"role": "assistant", "content": "```c\n// STACK — automatic storage, freed when function returns\nvoid stack_example(void) {\n    int local = 42;      // on stack, freed automatically\n    int arr[100];        // fixed size, on stack\n}  // local and arr are gone here\n\n// HEAP — dynamic storage, must be freed manually\nvoid heap_example(void) {\n    int *p = malloc(100 * sizeof(int));  // on heap\n    if (!p) { perror(\"malloc\"); exit(1); }\n    p[0] = 42;\n    free(p);   // must free manually\n}  // p (the pointer variable) is gone, but the heap memory was freed\n```\n\n| | Stack | Heap |\n|---|---|---|\n| Allocation | Automatic | Manual (`malloc`/`calloc`) |\n| Deallocation | Automatic | Manual (`free`) |\n| Size | Fixed at compile time | Dynamic |\n| Speed | Very fast | Slower (bookkeeping) |\n| Limit | Small (typically ~1–8 MB) | Large (limited by RAM) |\n| Lifetime | Until function returns | Until `free` is called |"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do memcpy, memmove, and memset work in C?"},
+      {"role": "assistant", "content": "```c\n#include <string.h>\n\nchar src[] = \"Hello, World!\";\nchar dst[20];\n\n// memcpy — copy n bytes from src to dst (regions must NOT overlap)\nmemcpy(dst, src, strlen(src) + 1);  // +1 includes null terminator\n\n// memmove — like memcpy but SAFE for overlapping regions\nmemmove(src + 3, src, 5);   // shift part of src into itself (overlapping!)\n\n// memset — fill n bytes with a value\nmemset(dst, 0, sizeof(dst));       // zero out dst\nmemset(dst, 'A', 5);               // fill first 5 bytes with 'A'\n```\n\n- Use `memcpy` when regions definitely don't overlap (faster)\n- Use `memmove` when regions might overlap (safe but slightly slower)\n- `memset` is typically used with 0 (zero-initialize) or -1 (fill with 0xFF)\n- For character operations, `memcpy`/`memset` work on raw bytes, not characters — always pass byte counts"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you allocate a 2D array dynamically in C?"},
+      {"role": "assistant", "content": "```c\n#include <stdlib.h>\n#include <string.h>\n\n// Allocate rows×cols matrix\nint **alloc_matrix(int rows, int cols) {\n    // Allocate array of row pointers\n    int **m = malloc(rows * sizeof(int*));\n    if (!m) return NULL;\n    for (int i = 0; i < rows; i++) {\n        m[i] = malloc(cols * sizeof(int));\n        if (!m[i]) { /* handle error */ }\n        memset(m[i], 0, cols * sizeof(int));  // zero-initialize\n    }\n    return m;\n}\n\n// Free the matrix\nvoid free_matrix(int **m, int rows) {\n    for (int i = 0; i < rows; i++) free(m[i]);  // free each row\n    free(m);                                      // free the pointer array\n}\n\n// Usage\nint **mat = alloc_matrix(3, 4);\nmat[1][2] = 42;\nfree_matrix(mat, 3);\n```\n\nFree in **reverse order** of allocation: rows first, then the pointer array."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What is a void pointer in C and how is it used?"},
+      {"role": "assistant", "content": "```c\n// void* — generic pointer: points to any type, no type information\nvoid *generic_copy(const void *src, size_t size) {\n    void *dst = malloc(size);\n    return dst ? memcpy(dst, src, size) : NULL;\n}\n\n// Usage — must cast to use\nint x = 42;\nint *copy = (int*)generic_copy(&x, sizeof(int));\nprintf(\"%d\\n\", *copy);  // 42\nfree(copy);\n```\n\nKey rules:\n- `void*` can hold ANY pointer type — no cast needed to assign\n- To dereference or do pointer arithmetic, you must cast to a typed pointer first\n- `malloc` returns `void*` — automatically converts to any pointer type in C (but not C++)\n- Used for generic algorithms like `qsort`, `bsearch`, `memcpy`\n\n```c\n// qsort uses void* for generics\nvoid qsort(void *base, size_t n, size_t size, int (*cmp)(const void*, const void*));\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does file I/O work in C? Show fopen, fclose, reading and writing."},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\nint main(void) {\n    // Writing to a file\n    FILE *fp = fopen(\"output.txt\", \"w\");  // \"w\"=write, \"a\"=append, \"r\"=read\n    if (!fp) { perror(\"fopen\"); return 1; }  // always check!\n\n    fprintf(fp, \"Hello, %s!\\n\", \"World\"); // formatted write\n    fputs(\"Another line\\n\", fp);           // write string\n    fputc('X', fp);                         // write one character\n    fclose(fp);                             // always close!\n\n    // Reading from a file\n    FILE *in = fopen(\"output.txt\", \"r\");\n    if (!in) { perror(\"fopen\"); return 1; }\n\n    char buf[256];\n    while (fgets(buf, sizeof(buf), in)) {   // read line by line\n        printf(\"Line: %s\", buf);\n    }\n    fclose(in);\n    return 0;\n}\n```\n\nFile modes:\n- `\"r\"` — read (file must exist)\n- `\"w\"` — write (creates or truncates)\n- `\"a\"` — append\n- `\"rb\"` / `\"wb\"` — binary mode"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does binary file I/O work in C with fread and fwrite?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\nint main(void) {\n    int data[] = {1, 2, 3, 4, 5};\n\n    // Write binary data\n    FILE *bin = fopen(\"data.bin\", \"wb\");   // \"wb\" = write binary\n    if (!bin) return 1;\n    fwrite(data, sizeof(int), 5, bin);      // write 5 ints\n    fclose(bin);\n\n    // Read binary data back\n    int read_data[5];\n    bin = fopen(\"data.bin\", \"rb\");          // \"rb\" = read binary\n    if (!bin) return 1;\n    fread(read_data, sizeof(int), 5, bin);  // read 5 ints\n    fclose(bin);\n\n    for (int i = 0; i < 5; i++)\n        printf(\"%d \", read_data[i]);  // 1 2 3 4 5\n    return 0;\n}\n```\n\n`fwrite(ptr, size, count, file)` — write `count` elements of `size` bytes each.\n`fread(ptr, size, count, file)` — read `count` elements of `size` bytes each.\n\nBinary I/O is faster and exact (no text conversion) — use it for structures, arrays, or any non-text data."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do fseek and ftell work for file positioning in C?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n\nFILE *f = fopen(\"file.txt\", \"r\");\n\n// fseek(file, offset, origin)\nfseek(f, 0, SEEK_END);    // jump to end of file\nlong size = ftell(f);      // get current position = file size in bytes\nfseek(f, 0, SEEK_SET);    // jump back to beginning\n\nprintf(\"File size: %ld bytes\\n\", size);\n\n// Read 10 bytes from offset 5\nfseek(f, 5, SEEK_SET);    // jump to byte 5\nchar buf[11];\nfread(buf, 1, 10, f);\nbuf[10] = '\\0';\n\n// rewind — shortcut for fseek(f, 0, SEEK_SET)\nrewind(f);\n\nfclose(f);\n```\n\nOrigin constants:\n- `SEEK_SET` — from beginning of file\n- `SEEK_CUR` — from current position\n- `SEEK_END` — from end of file (offset is usually negative or 0)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do include guards and #pragma once work in C headers?"},
+      {"role": "assistant", "content": "**Include guards** (standard, portable):\n```c\n#ifndef MY_HEADER_H\n#define MY_HEADER_H\n\n// ... header contents ...\n\n#endif /* MY_HEADER_H */\n```\n\n**#pragma once** (non-standard but universally supported):\n```c\n#pragma once\n\n// ... header contents ...\n```\n\nBoth prevent a header from being included multiple times in the same translation unit.\n\nWithout them:\n```c\n#include \"myheader.h\"\n#include \"myheader.h\"   // would cause duplicate declarations → compiler error\n```\n\nPrefer `#pragma once` for simplicity in modern code. Use include guards for maximum portability to older or exotic compilers."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do #define macros work in C? Show constants and function-like macros."},
+      {"role": "assistant", "content": "```c\n// Constant macro\n#define PI 3.14159265\n#define MAX_SIZE 100\n\n// Function-like macro — arguments substituted as text\n#define MAX(a, b)        ((a) > (b) ? (a) : (b))\n#define SQUARE(x)        ((x) * (x))\n#define ARRAY_SIZE(arr)  (sizeof(arr) / sizeof((arr)[0]))\n\n// Variadic macro\n#define LOG(fmt, ...) fprintf(stderr, fmt \"\\n\", ##__VA_ARGS__)\n```\n\nWhy parentheses matter in macros:\n```c\n// Without parens — bug!\n#define BAD_SQUARE(x) x * x\nBAD_SQUARE(1 + 2)  // expands to: 1 + 2 * 1 + 2 = 5  (wrong!)\n\n// With parens — correct\n#define SQUARE(x) ((x) * (x))\nSQUARE(1 + 2)      // expands to: ((1 + 2) * (1 + 2)) = 9\n```\n\nAlways wrap both the macro itself and each argument in parentheses."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does conditional compilation work in C with #ifdef and #if?"},
+      {"role": "assistant", "content": "```c\n// #ifdef — if symbol is defined\n#ifdef DEBUG\n    #define DBG(msg) printf(\"DEBUG: %s\\n\", msg)\n#else\n    #define DBG(msg) ((void)0)   // expands to nothing in release builds\n#endif\n\n// #if defined — check multiple conditions\n#if defined(_WIN32)\n    #define OS \"Windows\"\n#elif defined(__linux__)\n    #define OS \"Linux\"\n#elif defined(__APPLE__)\n    #define OS \"macOS\"\n#endif\n\n// Compile with -DDEBUG to enable debug code:\n// gcc -DDEBUG myfile.c\n```\n\nCommon uses:\n- Debug/release builds\n- Platform-specific code\n- Feature flags\n- Header include guards\n\n`#if` allows expressions: `#if VERSION >= 2` (numeric comparison). `#ifdef` only checks if defined."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What are the # (stringification) and ## (token pasting) operators in C macros?"},
+      {"role": "assistant", "content": "```c\n// # (stringify) — converts argument to a string literal\n#define STRINGIFY(x) #x\n\nprintf(\"%s\\n\", STRINGIFY(hello));     // prints: hello\nprintf(\"%s\\n\", STRINGIFY(42));        // prints: 42\nprintf(\"%s\\n\", STRINGIFY(a + b));     // prints: a + b\n\n// ## (token paste) — concatenates two tokens\n#define CONCAT(a, b) a##b\n\nint CONCAT(my, var) = 42;  // expands to: int myvar = 42;\nCONCAT(pri, ntf)(\"hi\\n\");  // expands to: printf(\"hi\\n\");\n```\n\nPractical use — generate unique variable names in macros:\n```c\n#define MAKE_ARRAY(name, size) int name##_array[size]; int name##_size = size\nMAKE_ARRAY(data, 100);\n// expands to: int data_array[100]; int data_size = 100;\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How do you implement a stack in C using a linked list?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node { int val; struct Node *next; } Node;\ntypedef struct { Node *top; int size; } Stack;\n\nvoid stack_push(Stack *s, int val) {\n    Node *n = malloc(sizeof(Node));\n    if (!n) return;\n    n->val = val;\n    n->next = s->top;\n    s->top = n;\n    s->size++;\n}\n\nint stack_pop(Stack *s) {\n    if (!s->top) return -1;  // empty\n    int v = s->top->val;\n    Node *t = s->top;\n    s->top = t->next;\n    free(t);\n    s->size--;\n    return v;\n}\n\nint stack_peek(const Stack *s) {\n    return s->top ? s->top->val : -1;\n}\n\nint main(void) {\n    Stack s = {NULL, 0};\n    stack_push(&s, 1);\n    stack_push(&s, 2);\n    stack_push(&s, 3);\n    printf(\"%d\\n\", stack_pop(&s));  // 3\n    printf(\"%d\\n\", stack_pop(&s));  // 2\n    return 0;\n}\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does binary search work in C?"},
+      {"role": "assistant", "content": "```c\n// Binary search — array must be sorted!\nint bsearch_int(const int *arr, int n, int target) {\n    int lo = 0, hi = n - 1;\n    while (lo <= hi) {\n        int mid = lo + (hi - lo) / 2;  // avoids integer overflow vs (lo+hi)/2\n        if (arr[mid] == target) return mid;   // found\n        if (arr[mid] < target) lo = mid + 1; // target is in right half\n        else                   hi = mid - 1; // target is in left half\n    }\n    return -1;  // not found\n}\n\nint main(void) {\n    int arr[] = {1, 3, 5, 7, 9, 11, 13};\n    int n = sizeof(arr) / sizeof(arr[0]);\n    printf(\"%d\\n\", bsearch_int(arr, n, 7));   // 3 (index)\n    printf(\"%d\\n\", bsearch_int(arr, n, 6));   // -1 (not found)\n    return 0;\n}\n```\n\nTime complexity: O(log n). The stdlib also provides `bsearch()` which works with `void*` for any type."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "How does quicksort work in C? Show a custom implementation and the stdlib qsort."},
+      {"role": "assistant", "content": "**Custom quicksort:**\n```c\nvoid quicksort(int *arr, int lo, int hi) {\n    if (lo >= hi) return;\n    int pivot = arr[hi], i = lo - 1;\n    for (int j = lo; j < hi; j++) {\n        if (arr[j] <= pivot) {\n            int t = arr[++i]; arr[i] = arr[j]; arr[j] = t;  // swap\n        }\n    }\n    int t = arr[++i]; arr[i] = arr[hi]; arr[hi] = t;  // place pivot\n    quicksort(arr, lo, i - 1);\n    quicksort(arr, i + 1, hi);\n}\n\n// Call:\nint arr[] = {5, 2, 8, 1, 9};\nquicksort(arr, 0, 4);\n```\n\n**Standard library qsort (works with any type):**\n```c\nint cmp_int(const void *a, const void *b) {\n    return (*(int*)a) - (*(int*)b);  // positive=a>b, 0=equal, negative=a<b\n}\n\nqsort(arr, n, sizeof(int), cmp_int);\n```\n\nUse `qsort` for production code — it's optimized and handles any type via `void*` and a comparator function."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What does 'perror' do in C and how do you handle errors?"},
+      {"role": "assistant", "content": "```c\n#include <stdio.h>\n#include <stdlib.h>\n\nFILE *fp = fopen(\"nonexistent.txt\", \"r\");\nif (!fp) {\n    perror(\"fopen\");  // prints: fopen: No such file or directory\n    return 1;\n}\n\nint *p = malloc(1000000000 * sizeof(int));\nif (!p) {\n    perror(\"malloc\");  // prints: malloc: Cannot allocate memory\n    exit(1);\n}\n```\n\n`perror(prefix)` prints:\n- Your prefix string\n- A colon and space\n- The human-readable description of the last system error (from `errno`)\n- A newline\n\nError handling pattern in C:\n```c\nif (operation_fails()) {\n    perror(\"operation\");   // describe what failed\n    // cleanup if needed\n    return 1;              // or exit(1)\n}\n```\n\nC has no exceptions — every function that can fail must have its return value checked."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert C programming language tutor. Answer clearly and always include working C code examples with comments."},
+      {"role": "user", "content": "What is a dangling pointer and how do you avoid it in C?"},
+      {"role": "assistant", "content": "A **dangling pointer** points to memory that has been freed or gone out of scope:\n\n```c\n// Dangling pointer after free\nint *p = malloc(sizeof(int));\n*p = 42;\nfree(p);\n// p is now dangling — the memory may be reused by the OS\n*p = 100;  // UNDEFINED BEHAVIOR\n\n// Fix: set to NULL after freeing\nfree(p);\np = NULL;\nif (p != NULL) *p = 100;  // safe — NULL check prevents use\n\n// Dangling pointer to local variable\nint *bad_ptr;\n{\n    int local = 42;\n    bad_ptr = &local;\n}  // local is destroyed here\n// bad_ptr now points to invalid stack memory\n```\n\nPrevention:\n1. Set pointers to `NULL` after `free`\n2. Never return pointers to local variables\n3. Use tools: **Valgrind** (memory error detector), **AddressSanitizer** (`-fsanitize=address`)"}
+    ]
+  }
+]

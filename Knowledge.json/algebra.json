@@ -1,0 +1,590 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are natural numbers, whole numbers, and integers?"},
+      {"role": "assistant", "content": "- **Natural numbers** (counting numbers): 1, 2, 3, 4, … — positive integers only.\n- **Whole numbers**: 0, 1, 2, 3, … — natural numbers plus zero.\n- **Integers**: … −3, −2, −1, 0, 1, 2, 3, … — positive, negative, and zero."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are rational numbers? Give examples."},
+      {"role": "assistant", "content": "Rational numbers are any numbers expressible as p/q where p and q are integers and q ≠ 0.\n\nThey include:\n- Terminating decimals: 0.25 = 1/4\n- Repeating decimals: 0.333… = 1/3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are irrational numbers and how are they different from rational numbers?"},
+      {"role": "assistant", "content": "Irrational numbers cannot be expressed as p/q. Their decimal expansion is infinite and non-repeating.\n\nExamples: √2 = 1.41421…, π = 3.14159…, e = 2.71828…\n\nUnlike rational numbers, they cannot be written as a fraction of two integers."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are real numbers and complex numbers?"},
+      {"role": "assistant", "content": "- **Real numbers**: all rational and irrational numbers together; every point on the number line.\n- **Complex numbers**: a + bi where a, b are real and i = √(−1). Real numbers are a special case with b = 0.\n\nThe number line places negative numbers to the left of 0 and positive numbers to the right. The absolute value |x| is the distance from 0, always ≥ 0."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the commutative property?"},
+      {"role": "assistant", "content": "- **Commutative property of addition**: a + b = b + a\n- **Commutative property of multiplication**: a · b = b · a\n\nImportant: subtraction and division are NOT commutative."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the associative property?"},
+      {"role": "assistant", "content": "- **Associative property of addition**: (a + b) + c = a + (b + c)\n- **Associative property of multiplication**: (a · b) · c = a · (b · c)\n\nThe grouping of terms does not change the result."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the distributive property? Give examples."},
+      {"role": "assistant", "content": "The distributive property states:\n- a(b + c) = ab + ac\n- a(b − c) = ab − ac\n\nExamples:\n- 3(x + 4) = 3x + 12\n- −2(x − 5) = −2x + 10"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are identity elements and inverse elements in algebra?"},
+      {"role": "assistant", "content": "**Identity elements:**\n- a + 0 = a → 0 is the additive identity\n- a · 1 = a → 1 is the multiplicative identity\n\n**Inverse elements:**\n- a + (−a) = 0 → −a is the additive inverse of a\n- a · (1/a) = 1 for a ≠ 0 → 1/a is the multiplicative inverse of a"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the zero product property?"},
+      {"role": "assistant", "content": "**Zero product property**: if a · b = 0, then a = 0 or b = 0 (or both).\n\nThis is the foundation for solving factored equations. For example:\n(x − 2)(x + 3) = 0 → x − 2 = 0 or x + 3 = 0 → x = 2 or x = −3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the order of operations (PEMDAS/BODMAS)?"},
+      {"role": "assistant", "content": "Order of operations (PEMDAS/BODMAS):\n1. **P**arentheses / **B**rackets\n2. **E**xponents / **O**rders\n3. **M**ultiplication and **D**ivision (left to right)\n4. **A**ddition and **S**ubtraction (left to right)\n\nAlways evaluate inner parentheses first, then work outward."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the difference between a variable, expression, equation, and formula?"},
+      {"role": "assistant", "content": "- **Variable**: a letter representing an unknown value. Common variables: x, y, z, n, t.\n- **Expression**: a combination of numbers, variables, and operations with no equals sign. Example: 3x² − 2x + 7.\n- **Equation**: states that two expressions are equal. Example: 3x + 5 = 14.\n- **Formula**: an equation relating multiple quantities. Example: A = πr²."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are terms, coefficients, constants, and like terms?"},
+      {"role": "assistant", "content": "- **Terms**: parts of an expression separated by + or −. In 4x² − 3x + 1, the terms are 4x², −3x, and 1.\n- **Coefficient**: the numerical factor of a term. In 7x, the coefficient is 7.\n- **Constant term**: a term with no variable. In 4x + 9, the constant is 9.\n- **Like terms**: terms with the same variable(s) raised to the same power(s). 3x² and −5x² are like terms."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you combine like terms and simplify expressions?"},
+      {"role": "assistant", "content": "Combining like terms means adding or subtracting terms with the same variable and exponent:\n- 5x + 3x = 8x\n- 7y² − 2y² + y = 5y² + y\n\nSimplifying expressions: expand brackets first, then combine like terms.\n\nExample: 2(x + 3) − (x − 1)\n= 2x + 6 − x + 1\n= x + 7"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the steps to solve a linear equation in one variable?"},
+      {"role": "assistant", "content": "A linear equation has the form ax + b = c. Goal: isolate the variable.\n\nSteps:\n1. Distribute/expand\n2. Combine like terms\n3. Move variable terms to one side\n4. Move constants to the other side\n5. Divide by the coefficient"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve: 3x − 4 = 11"},
+      {"role": "assistant", "content": "3x − 4 = 11\n3x = 11 + 4\n3x = 15\nx = 5"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve: x/2 + 3 = 7"},
+      {"role": "assistant", "content": "x/2 + 3 = 7\nx/2 = 7 − 3\nx/2 = 4\nx = 8"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve: 5x + 2 = 3x − 6"},
+      {"role": "assistant", "content": "5x + 2 = 3x − 6\n5x − 3x = −6 − 2\n2x = −8\nx = −4"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the special cases when solving linear equations — no solution and infinite solutions?"},
+      {"role": "assistant", "content": "**No solution (contradiction):** 2x + 3 = 2x + 7\n→ subtract 2x from both sides: 3 = 7 (false)\n→ No values satisfy it.\n\n**All real solutions (identity):** 2x + 4 = 2(x + 2)\n→ 2x + 4 = 2x + 4\n→ 4 = 4 (always true)\n→ Every real number is a solution."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the key rule when solving inequalities that is different from equations?"},
+      {"role": "assistant", "content": "When you multiply or divide both sides of an inequality by a **negative number**, you must **REVERSE the inequality sign**.\n\nExample: −3x > 9\n→ divide by −3 (negative!) and flip the sign\n→ x < −3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve: 2x − 5 ≤ 7"},
+      {"role": "assistant", "content": "2x − 5 ≤ 7\n2x ≤ 7 + 5\n2x ≤ 12\nx ≤ 6"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How does interval notation work?"},
+      {"role": "assistant", "content": "Interval notation represents solution sets of inequalities:\n- x > 3 → (3, ∞) — parenthesis means 3 is NOT included\n- x ≤ 5 → (−∞, 5] — bracket means 5 IS included\n- 2 < x ≤ 8 → (2, 8] — 2 not included, 8 included"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are compound inequalities (AND and OR)?"},
+      {"role": "assistant", "content": "**AND (intersection):** both conditions must hold.\n−2 < x AND x ≤ 5 → −2 < x ≤ 5 (values satisfying both)\n\n**OR (union):** at least one condition must hold.\nx < 1 OR x > 4 → (−∞, 1) ∪ (4, ∞)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve absolute value equations? Example: |x − 3| = 7"},
+      {"role": "assistant", "content": "|x − 3| = 7\n\nSplit into two cases:\n- x − 3 = 7 → x = 10\n- x − 3 = −7 → x = −4\n\nSolution: x = 10 or x = −4"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the rules for absolute value inequalities?"},
+      {"role": "assistant", "content": "- |x| < a → −a < x < a (AND — values between −a and a)\n- |x| > a → x < −a or x > a (OR — values outside the range)\n\nExample: |x| < 5 → −5 < x < 5\nExample: |x| > 3 → x < −3 or x > 3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the three forms of a linear equation?"},
+      {"role": "assistant", "content": "- **Standard form**: Ax + By = C\n- **Slope-intercept form**: y = mx + b, where m = slope and b = y-intercept\n- **Point-slope form**: y − y₁ = m(x − x₁), used when you know a point (x₁, y₁) and slope m"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is slope and how do you calculate it?"},
+      {"role": "assistant", "content": "**Slope formula**: m = (y₂ − y₁) / (x₂ − x₁) = rise / run\n\nTypes of slope:\n- Positive slope: line goes up left to right\n- Negative slope: line goes down left to right\n- Zero slope: horizontal line\n- Undefined slope: vertical line"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the relationship between parallel and perpendicular lines in terms of slope?"},
+      {"role": "assistant", "content": "**Parallel lines**: same slope (m₁ = m₂), different y-intercepts.\n\n**Perpendicular lines**: slopes are negative reciprocals, meaning m₁ · m₂ = −1.\nExample: if one slope is 2, the perpendicular slope is −1/2."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you find x-intercepts and y-intercepts of a line?"},
+      {"role": "assistant", "content": "- **x-intercept**: set y = 0 and solve for x\n- **y-intercept**: set x = 0 and solve for y (equals b in y = mx + b)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the distance formula and midpoint formula?"},
+      {"role": "assistant", "content": "**Distance between two points (x₁, y₁) and (x₂, y₂):**\nd = √((x₂ − x₁)² + (y₂ − y₁)²)\n\n**Midpoint between two points:**\nM = ((x₁ + x₂)/2, (y₁ + y₂)/2)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the three types of solutions a system of linear equations can have?"},
+      {"role": "assistant", "content": "- **One solution**: lines intersect at one point (consistent and independent)\n- **No solution**: parallel lines — same slope, different intercepts (inconsistent)\n- **Infinitely many solutions**: same line — one equation is a multiple of the other (consistent and dependent)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve this system using substitution: y = 2x + 1 and 3x + y = 11"},
+      {"role": "assistant", "content": "y = 2x + 1 and 3x + y = 11\n\nSubstitute y = 2x + 1 into the second equation:\n3x + (2x + 1) = 11\n5x + 1 = 11\n5x = 10\nx = 2\n\nFind y: y = 2(2) + 1 = 5\n\nSolution: (2, 5)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "Solve this system using elimination: 2x + 3y = 12 and 4x − 3y = 6"},
+      {"role": "assistant", "content": "2x + 3y = 12\n4x − 3y = 6\n\nAdd both equations (the 3y and −3y cancel):\n6x = 18\nx = 3\n\nSubstitute back: 2(3) + 3y = 12 → 6 + 3y = 12 → 3y = 6 → y = 2\n\nSolution: (3, 2)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a 3×3 system of equations?"},
+      {"role": "assistant", "content": "For three equations with three unknowns, use:\n- **Elimination or substitution repeatedly**: eliminate one variable from two pairs of equations, reducing to a 2×2 system, then solve as usual.\n- **Row reduction (Gaussian elimination)**: write the augmented matrix [A|b] and reduce to row echelon form, then back-substitute."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are all the exponent rules?"},
+      {"role": "assistant", "content": "- **Product rule**: aᵐ · aⁿ = aᵐ⁺ⁿ\n- **Quotient rule**: aᵐ / aⁿ = aᵐ⁻ⁿ (a ≠ 0)\n- **Power rule**: (aᵐ)ⁿ = aᵐⁿ\n- **Power of product**: (ab)ⁿ = aⁿbⁿ\n- **Power of quotient**: (a/b)ⁿ = aⁿ/bⁿ\n- **Zero exponent**: a⁰ = 1 (a ≠ 0)\n- **Negative exponent**: a⁻ⁿ = 1/aⁿ"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is scientific notation and how do you use it?"},
+      {"role": "assistant", "content": "Scientific notation writes a number as c × 10ⁿ where 1 ≤ |c| < 10.\n\nExample: 0.00045 = 4.5 × 10⁻⁴\n\nThe exponent of 10 tells you how many places the decimal point moves:\n- Positive exponent → large number (decimal moves right)\n- Negative exponent → small number (decimal moves left)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do radicals and fractional exponents relate to each other?"},
+      {"role": "assistant", "content": "- √a = a^(1/2)\n- ∛a = a^(1/3)\n- ⁿ√a = a^(1/n)\n- a^(m/n) = (ⁿ√a)ᵐ = ⁿ√(aᵐ)\n\nRadical rules:\n- √(ab) = √a · √b\n- √(a/b) = √a / √b\n- ⚠️ Common mistake: √a + √b ≠ √(a+b)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you simplify radicals? Example: √72"},
+      {"role": "assistant", "content": "To simplify a radical, find the largest perfect square factor.\n\n√72 = √(36 · 2) = √36 · √2 = 6√2"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is rationalizing the denominator and how do you do it?"},
+      {"role": "assistant", "content": "Rationalizing the denominator means eliminating radicals from the denominator.\n\nExample: 1/√3\n→ Multiply numerator and denominator by √3:\n= (1 · √3) / (√3 · √3)\n= √3 / 3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is a polynomial? What are degree and leading coefficient?"},
+      {"role": "assistant", "content": "A polynomial is a sum of terms of the form aₙxⁿ + … + a₁x + a₀.\n\n- **Degree**: the highest power of x. Linear = degree 1, Quadratic = degree 2, Cubic = degree 3.\n- **Leading coefficient**: the coefficient of the highest-degree term."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you add and subtract polynomials?"},
+      {"role": "assistant", "content": "Add or subtract polynomials by combining like terms:\n\n(3x² − 2x + 1) + (x² + 4x − 5)\n= (3x² + x²) + (−2x + 4x) + (1 − 5)\n= 4x² + 2x − 4"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you multiply polynomials? Show with (x + 3)(x − 2)"},
+      {"role": "assistant", "content": "Distribute every term of one polynomial to every term of the other:\n\n(x + 3)(x − 2)\n= x·x + x·(−2) + 3·x + 3·(−2)\n= x² − 2x + 3x − 6\n= x² + x − 6"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the FOIL method?"},
+      {"role": "assistant", "content": "FOIL is a memory aid for multiplying two binomials — **F**irst, **O**uter, **I**nner, **L**ast:\n\n(a + b)(c + d) = ac + ad + bc + bd\n\nExample: (x + 3)(x − 2)\n- First: x · x = x²\n- Outer: x · (−2) = −2x\n- Inner: 3 · x = 3x\n- Last: 3 · (−2) = −6\n\nResult: x² − 2x + 3x − 6 = x² + x − 6"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the special product formulas to memorize?"},
+      {"role": "assistant", "content": "- (a + b)² = a² + 2ab + b²\n- (a − b)² = a² − 2ab + b²\n- (a + b)(a − b) = a² − b² (difference of squares)\n- (a + b)³ = a³ + 3a²b + 3ab² + b³"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you factor out the GCF (Greatest Common Factor)?"},
+      {"role": "assistant", "content": "Always factor out the GCF first — the largest factor common to all terms.\n\nExample: 6x³ + 9x²\n- GCF of 6 and 9 is 3; GCF of x³ and x² is x²\n- GCF = 3x²\n\n6x³ + 9x² = 3x²(2x + 3)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you factor a trinomial x² + bx + c where the leading coefficient is 1?"},
+      {"role": "assistant", "content": "Find two numbers that **multiply to c** and **add to b**.\n\nExample: x² + 5x + 6\n- Need two numbers that multiply to 6 and add to 5 → 2 and 3\n- x² + 5x + 6 = (x + 2)(x + 3)\n\nCheck: (x + 2)(x + 3) = x² + 3x + 2x + 6 = x² + 5x + 6 ✓"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you factor a trinomial ax² + bx + c where a ≠ 1? Example: 2x² + 7x + 3"},
+      {"role": "assistant", "content": "Use the **AC method**:\n1. Multiply a · c = 2 · 3 = 6\n2. Find factors of 6 that add to b = 7 → 1 and 6\n3. Rewrite the middle term: 2x² + x + 6x + 3\n4. Factor by grouping: x(2x + 1) + 3(2x + 1)\n5. Factor out the common binomial: (x + 3)(2x + 1)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the special factoring patterns?"},
+      {"role": "assistant", "content": "- **Difference of squares**: a² − b² = (a + b)(a − b). Example: x² − 25 = (x + 5)(x − 5)\n- **Perfect square trinomial**: a² + 2ab + b² = (a + b)²; a² − 2ab + b² = (a − b)²\n- **Sum of cubes**: a³ + b³ = (a + b)(a² − ab + b²)\n- **Difference of cubes**: a³ − b³ = (a − b)(a² + ab + b²)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you factor by grouping? Example: x³ + 2x² + 3x + 6"},
+      {"role": "assistant", "content": "Factoring by grouping works when you have 4 terms:\n1. Group into two pairs: (x³ + 2x²) + (3x + 6)\n2. Factor each pair: x²(x + 2) + 3(x + 2)\n3. Factor out the common binomial: (x² + 3)(x + 2)\n\nAlways check: can any factor be factored further? Is the leading coefficient positive?"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a quadratic equation by factoring?"},
+      {"role": "assistant", "content": "Factor the quadratic, then set each factor equal to zero (zero product property).\n\nExample: x² − 5x + 6 = 0\n→ (x − 2)(x − 3) = 0\n→ x − 2 = 0 or x − 3 = 0\n→ x = 2 or x = 3"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a quadratic using the square root method?"},
+      {"role": "assistant", "content": "Use this method when there is no bx term.\n\nExample 1: x² = 49\n→ x = ±7\n\nExample 2: (x − 3)² = 16\n→ x − 3 = ±4\n→ x = 3 + 4 = 7 or x = 3 − 4 = −1"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a quadratic by completing the square? Example: x² + 6x + 5 = 0"},
+      {"role": "assistant", "content": "x² + 6x + 5 = 0\n\nStep 1 — Move constant to the right:\nx² + 6x = −5\n\nStep 2 — Add (b/2)² = (6/2)² = 9 to both sides:\nx² + 6x + 9 = −5 + 9 = 4\n\nStep 3 — Write as perfect square:\n(x + 3)² = 4\n\nStep 4 — Square root both sides:\nx + 3 = ±2\n\nx = −3 + 2 = −1 or x = −3 − 2 = −5"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the quadratic formula and when should you use it?"},
+      {"role": "assistant", "content": "The quadratic formula solves any equation of the form ax² + bx + c = 0:\n\nx = (−b ± √(b² − 4ac)) / (2a)\n\nUse it when:\n- The quadratic is difficult or impossible to factor\n- You want a guaranteed method that always works"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the discriminant and what does it tell you?"},
+      {"role": "assistant", "content": "The discriminant is D = b² − 4ac (the expression under the square root in the quadratic formula).\n\n- **D > 0**: two distinct real solutions\n- **D = 0**: one repeated real solution (double root)\n- **D < 0**: two complex conjugate solutions (no real solutions)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the vertex form of a quadratic and how do you find the vertex?"},
+      {"role": "assistant", "content": "**Vertex form**: y = a(x − h)² + k, where the vertex is at (h, k).\n\nTo find the vertex from standard form y = ax² + bx + c:\n- h = −b / (2a)\n- k = f(h) — substitute h back into the function\n\nThe axis of symmetry is the vertical line x = h."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How does the value of 'a' in a quadratic affect the parabola?"},
+      {"role": "assistant", "content": "In f(x) = ax² + bx + c:\n- **a > 0**: parabola opens upward → vertex is a minimum\n- **a < 0**: parabola opens downward → vertex is a maximum\n\nThe x-intercepts are the real roots; the y-intercept is c (set x = 0)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the transformations of the parabola y = x²?"},
+      {"role": "assistant", "content": "Starting from the parent function y = x²:\n- y = x² + k: shifts up (k > 0) or down (k < 0) by k units\n- y = (x − h)²: shifts right (h > 0) or left (h < 0) by h units\n- y = ax²: vertical stretch if |a| > 1, compression if |a| < 1\n- y = −x²: reflection over the x-axis"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is a function? What is the vertical line test?"},
+      {"role": "assistant", "content": "A **function** f maps each input x to exactly one output f(x). Written as f: A → B.\n\n**Vertical line test**: a graph represents a function if and only if every vertical line crosses it at most once."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are domain and range? What are common domain restrictions?"},
+      {"role": "assistant", "content": "- **Domain**: all valid input values (x values).\n- **Range**: all possible output values (f(x) values).\n\nCommon restrictions:\n- Avoid division by zero: f(x) = 1/(x − 3) has domain x ≠ 3\n- Avoid square roots of negative numbers: g(x) = √(x + 4) has domain x ≥ −4"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the operations on functions (sum, difference, product, quotient)?"},
+      {"role": "assistant", "content": "- **Sum**: (f + g)(x) = f(x) + g(x)\n- **Difference**: (f − g)(x) = f(x) − g(x)\n- **Product**: (f · g)(x) = f(x) · g(x)\n- **Quotient**: (f / g)(x) = f(x) / g(x), domain excludes points where g(x) = 0"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is function composition? Example: f(x) = x², g(x) = x + 1, find (f∘g)(3)"},
+      {"role": "assistant", "content": "Composition (f∘g)(x) = f(g(x)) — evaluate g first, then apply f to the result.\n\nExample: f(x) = x², g(x) = x + 1\n(f∘g)(3) = f(g(3)) = f(3 + 1) = f(4) = 4² = 16"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are inverse functions and how do you find them?"},
+      {"role": "assistant", "content": "An inverse function f⁻¹ undoes f:\n- f(f⁻¹(x)) = x and f⁻¹(f(x)) = x\n\nTo find the inverse:\n1. Replace f(x) with y\n2. Swap x and y\n3. Solve for y\n4. The domain of f⁻¹ equals the range of f\n\n**Horizontal line test**: f has an inverse if every horizontal line crosses the graph at most once."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are even and odd functions?"},
+      {"role": "assistant", "content": "- **Even function**: f(−x) = f(x) — symmetric about the y-axis. Example: f(x) = x²\n- **Odd function**: f(−x) = −f(x) — symmetric about the origin. Example: f(x) = x³"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you simplify a rational expression? Example: (x² − 4)/(x + 2)"},
+      {"role": "assistant", "content": "Factor the numerator and denominator, then cancel common factors:\n\n(x² − 4) / (x + 2)\n= (x + 2)(x − 2) / (x + 2)\n= x − 2, provided x ≠ −2\n\nAlways state the restriction on the domain where the cancelled factor was zero."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you multiply and divide rational expressions?"},
+      {"role": "assistant", "content": "**Multiplying**: multiply numerators, multiply denominators, then simplify.\n(a/b) · (c/d) = ac/bd\n\n**Dividing**: multiply by the reciprocal.\n(a/b) ÷ (c/d) = (a/b) · (d/c) = ad/bc"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you add rational expressions with different denominators? Example: 1/(x+1) + 2/(x−1)"},
+      {"role": "assistant", "content": "1/(x + 1) + 2/(x − 1)\n\nStep 1 — LCD = (x + 1)(x − 1)\n\nStep 2 — Convert each fraction:\n= (x − 1)/((x+1)(x−1)) + 2(x + 1)/((x+1)(x−1))\n\nStep 3 — Add numerators:\n= (x − 1 + 2x + 2) / ((x+1)(x−1))\n= (3x + 1) / (x² − 1)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are extraneous solutions in rational equations and why must you check for them?"},
+      {"role": "assistant", "content": "When solving rational equations, you multiply both sides by the LCD to clear denominators. This can introduce **extraneous solutions** — values that satisfy the transformed equation but make the original denominator zero.\n\nAlways substitute your answers back into the original equation to verify they don't make any denominator equal to zero."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the definition of a logarithm?"},
+      {"role": "assistant", "content": "logₐ(x) = y means aʸ = x\n\nConditions: a > 0, a ≠ 1, x > 0\n\n- **Common log**: log(x) = log₁₀(x)\n- **Natural log**: ln(x) = logₑ(x), where e ≈ 2.71828"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the logarithm properties?"},
+      {"role": "assistant", "content": "- **Product rule**: logₐ(MN) = logₐ(M) + logₐ(N)\n- **Quotient rule**: logₐ(M/N) = logₐ(M) − logₐ(N)\n- **Power rule**: logₐ(Mⁿ) = n · logₐ(M)\n- **Change of base**: logₐ(x) = log(x)/log(a) = ln(x)/ln(a)\n- logₐ(a) = 1\n- logₐ(1) = 0\n- logₐ(aˣ) = x\n- aˡᵒᵍₐˣ = x"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve an exponential equation? Example: 3ˣ = 81"},
+      {"role": "assistant", "content": "Take the logarithm of both sides:\n\n3ˣ = 81\nx · log(3) = log(81)\nx = log(81) / log(3)\nx = 4\n\n(Alternatively: 81 = 3⁴, so x = 4 by inspection.)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a logarithmic equation? Example: log₂(x) = 5"},
+      {"role": "assistant", "content": "Convert from logarithmic form to exponential form:\n\nlog₂(x) = 5\n→ x = 2⁵\n→ x = 32"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What are the exponential growth and decay formulas?"},
+      {"role": "assistant", "content": "- **Continuous growth/decay**: A = A₀ · eᵏᵗ, where k > 0 is growth, k < 0 is decay\n- **Periodic growth/decay**: A = A₀ · (1 + r)ᵗ, where r is the rate per period\n\nA₀ is the initial amount, t is time."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is an arithmetic sequence? How do you find the nth term and sum?"},
+      {"role": "assistant", "content": "An arithmetic sequence has each term differ by a constant d (common difference).\n\n- **General term**: aₙ = a₁ + (n − 1)d\n- **Sum of n terms**: Sₙ = n(a₁ + aₙ)/2 = n(2a₁ + (n − 1)d)/2\n\nExample: 3, 7, 11, 15, … (d = 4)\na₁₀ = 3 + 9 · 4 = 39"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is a geometric sequence? How do you find the nth term and sum?"},
+      {"role": "assistant", "content": "A geometric sequence has each term multiplied by a constant r (common ratio).\n\n- **General term**: aₙ = a₁ · rⁿ⁻¹\n- **Sum of n terms**: Sₙ = a₁(1 − rⁿ)/(1 − r) for r ≠ 1\n- **Infinite geometric series** (|r| < 1): S∞ = a₁/(1 − r)\n\nExample: 2, 6, 18, 54, … (r = 3)\na₅ = 2 · 3⁴ = 162"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is sigma notation?"},
+      {"role": "assistant", "content": "Sigma notation Σᵢ₌₁ⁿ aᵢ means the sum of terms a₁ through aₙ.\n\nExample: Σᵢ₌₁⁴ i = 1 + 2 + 3 + 4 = 10\n\nThe variable below Σ is the index, the number above is the upper limit, and the expression to the right defines each term."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How does matrix addition and scalar multiplication work?"},
+      {"role": "assistant", "content": "**Matrix addition**: add corresponding elements (matrices must be the same size).\n\n**Scalar multiplication**: multiply every element of the matrix by the scalar."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How does matrix multiplication work and when is it defined?"},
+      {"role": "assistant", "content": "Matrix multiplication (A · B): entry (i, j) of the result = dot product of row i of A and column j of B.\n\n(A · B)ᵢⱼ = sum of (row i of A) × (column j of B)\n\nIt is only defined when the number of **columns of A** equals the number of **rows of B**.\n\nNote: AI = IA = A (identity matrix leaves A unchanged)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you calculate the determinant of a 2×2 matrix?"},
+      {"role": "assistant", "content": "For a 2×2 matrix [[a, b], [c, d]]:\n\ndet = ad − bc\n\nExample: [[3, 2], [1, 4]] → det = 3·4 − 2·1 = 12 − 2 = 10"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you find the inverse of a 2×2 matrix?"},
+      {"role": "assistant", "content": "For [[a, b], [c, d]], if det = ad − bc ≠ 0:\n\n[[a, b], [c, d]]⁻¹ = (1/det) · [[d, −b], [−c, a]]\n\nA matrix is **invertible (non-singular)** if and only if its determinant ≠ 0."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve a system of equations using Gaussian elimination (row reduction)?"},
+      {"role": "assistant", "content": "1. Write the augmented matrix [A|b]\n2. Use row operations to reduce to row echelon form:\n   - Swap rows\n   - Multiply a row by a non-zero scalar\n   - Add a multiple of one row to another\n3. Back-substitute from the bottom row upward to find all variables\n\nAlternatively, use **Cramer's Rule**: express each variable as a ratio of determinants."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the imaginary unit i and what are its powers?"},
+      {"role": "assistant", "content": "The imaginary unit is i = √(−1), so i² = −1.\n\nPowers of i cycle with period 4:\n- i¹ = i\n- i² = −1\n- i³ = −i\n- i⁴ = 1\n- i⁵ = i (repeats)\n\nTo find iⁿ, divide n by 4 and use the remainder."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you add, subtract and multiply complex numbers?"},
+      {"role": "assistant", "content": "A complex number has the form a + bi (a = real part, b = imaginary part).\n\n**Add/subtract**: (a + bi) ± (c + di) = (a ± c) + (b ± d)i\n\n**Multiply**: (a + bi)(c + di) = ac + adi + bci + bdi² = (ac − bd) + (ad + bc)i\n\nExample: (2 + 3i)(1 + i) = 2 + 2i + 3i + 3i² = 2 + 5i − 3 = −1 + 5i"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the conjugate of a complex number and how do you divide complex numbers?"},
+      {"role": "assistant", "content": "The **conjugate** of a + bi is a − bi.\nProduct of conjugates: (a + bi)(a − bi) = a² + b²\n\n**Dividing**: multiply numerator and denominator by the conjugate of the denominator.\n\nExample: (2 + 3i) / (1 − i)\n= (2 + 3i)(1 + i) / (1 − i)(1 + i)\n= (2 + 2i + 3i + 3i²) / (1 + 1)\n= (2 + 5i − 3) / 2\n= (−1 + 5i) / 2"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "What is the modulus of a complex number?"},
+      {"role": "assistant", "content": "|a + bi| = √(a² + b²)\n\nThe modulus is the distance from the origin in the complex plane."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert algebra tutor. Answer clearly and show all steps."},
+      {"role": "user", "content": "How do you solve equations that have complex solutions? Examples: x² + 4 = 0 and x² + 2x + 5 = 0"},
+      {"role": "assistant", "content": "**Example 1:** x² + 4 = 0\nx² = −4\nx = ±√(−4) = ±2i\n\n**Example 2:** x² + 2x + 5 = 0\nUsing the quadratic formula with a=1, b=2, c=5:\nx = (−2 ± √(4 − 20)) / 2\n= (−2 ± √(−16)) / 2\n= (−2 ± 4i) / 2\n= −1 ± 2i"}
+    ]
+  }
+]

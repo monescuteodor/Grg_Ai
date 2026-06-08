@@ -1,0 +1,142 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "What is MATLAB and what is it used for?"},
+      {"role": "assistant", "content": "MATLAB (Matrix Laboratory) is a high-level language and interactive environment for numerical computation, visualization, and programming. It excels at matrix operations, signal processing, control systems, and scientific computing.\n\nTools used with MATLAB:\n- **MATLAB IDE** — the main development environment\n- **Live Scripts (.mlx)** — interactive notebooks combining code, output, and text\n- **Simulink** — graphical simulation and model-based design\n- **Toolboxes** — domain-specific add-ons (Signal Processing, Statistics, etc.)\n\nGNU Octave is a free, mostly compatible alternative."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "Write a Hello World program in MATLAB and show basic interface commands."},
+      {"role": "assistant", "content": "```matlab\n% hello.m\ndisp('Hello, World!')\nfprintf('Hello, %s!\\n', 'MATLAB')\n\n% Run: type hello in MATLAB prompt, or:\n% >> run('hello.m')\n```\n\nBasic interface commands:\n```matlab\n% Workspace\nwhos         % list variables\nclear        % clear all\nclear x y    % clear specific\nclc          % clear command window\nclose all    % close all figures\n\n% Getting help\nhelp sin\ndoc sin\nlookfor 'fast fourier'\n\n% Semicolon suppresses output\nx = 42;      % no output\ny = 42       % displays y = 42\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do variables and basic data types work in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Scalars\nx = 42;\ny = 3.14;\nz = 2 + 3i;        % complex\nb = true;           % logical\n\n% Basic operations\n2 + 3, 10 - 4, 5 * 6, 15 / 4   % 5, 6, 30, 3.75\n2 ^ 10                            % 1024\nmod(17, 5)                        % 2\nabs(-5)                           % 5\nsqrt(16)                          % 4\nfloor(3.7), ceil(3.2), round(3.5) % 3, 4, 4\n\n% Type functions\nclass(x)          % 'double'\nisa(x, 'double')  % 1 (true)\nisnumeric(x)      % 1\nislogical(b)      % 1\nischar('hello')   % 1\n\n% Constants\npi, exp(1), Inf, -Inf, NaN\n```\n\nThe default numeric type in MATLAB is `double`. Type-checking functions like `isnumeric`, `islogical`, and `ischar` return 1 (true) or 0 (false)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do strings and character arrays work in MATLAB?"},
+      {"role": "assistant", "content": "MATLAB has two string types: char arrays (older) and the newer `string` type:\n\n```matlab\ns1 = 'Hello';          % char array\ns2 = \"Hello\";          % string (newer)\ns1(1)                  % 'H'\nlength(s1)             % 5\nnumel(s1)              % 5\nupper(s1)              % 'HELLO'\nlower(s1)              % 'hello'\nstrtrim(s1)            % trim whitespace\nstrsplit('a,b,c', ',') % {'a','b','c'}\nstrjoin({'a','b'}, '-') % 'a-b'\nstrfind(s1, 'ell')     % 2 (index)\nstrrep(s1,'l','L')     % 'HeLLo'\nsprintf('%.2f', pi)    % '3.14'\nnum2str(42)            % '42'\nstr2num('42')          % 42\nstr2double('3.14')     % 3.14\nstrcmp(s1, 'Hello')    % 1\n```\n\n- Single quotes `'...'` create char arrays; double quotes `\"...\"` create the newer string type\n- `strcmp` is used for string comparison (not `==` which compares element-by-element)\n- `sprintf` formats numbers into strings, similar to C's printf"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you create and work with vectors and matrices in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Create vectors\nrow_vec = [1 2 3 4 5];       % row vector\ncol_vec = [1; 2; 3; 4; 5];  % column vector\nrange   = 1:5;                % [1 2 3 4 5]\nstep    = 0:0.5:2;           % [0 0.5 1 1.5 2]\nlinspace(0, 1, 5)            % [0 0.25 0.5 0.75 1]\n\n% Create matrices\nA = [1 2 3; 4 5 6; 7 8 9];  % 3x3 matrix\nB = zeros(3, 3);             % 3x3 zeros\nC = ones(2, 4);              % 2x4 ones\nD = eye(3);                  % 3x3 identity\nE = rand(3, 3);              % 3x3 random [0,1]\nF = randn(3, 3);             % 3x3 normal(0,1)\n\n% Size and shape\nsize(A)         % [3 3]\nsize(A, 1)      % 3 (rows)\nsize(A, 2)      % 3 (cols)\nlength(A)       % 3 (max dimension)\nnumel(A)        % 9 (total elements)\nndims(A)        % 2\n```\n\n- Spaces or commas separate elements in a row; semicolons start a new row\n- `1:5` creates a range; `0:0.5:2` adds a step value\n- `linspace(a,b,n)` creates n evenly spaced points between a and b"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How does indexing work in MATLAB matrices?"},
+      {"role": "assistant", "content": "MATLAB uses **1-based indexing** (unlike most languages that start at 0):\n\n```matlab\nA = [1 2 3; 4 5 6; 7 8 9];\n\n% Basic indexing\nA(2, 3)         % row 2, col 3 = 6\nA(2, :)         % entire row 2: [4 5 6]\nA(:, 3)         % entire col 3: [3;6;9]\nA(1:2, 2:3)    % submatrix\nA(end, :)       % last row\nA(end-1:end, :) % last 2 rows\nA([1 3], :)    % rows 1 and 3\n\n% Linear indexing (column-major order)\nA(5)            % 5th element: 5\nA(:)            % all elements as column vector\n\n% Concatenation\n[A, B]          % horizontal concat\n[A; B]          % vertical concat\n[eye(3) A; zeros(3) eye(3)]\n```\n\n- `:` means \"all elements\" along that dimension\n- `end` refers to the last index — very useful for dynamic-length arrays\n- Linear indexing counts down columns first (column-major), so `A(5)` in a 3x3 matrix is the element at row 2, col 2"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "What matrix operations and linear algebra functions does MATLAB provide?"},
+      {"role": "assistant", "content": "```matlab\n% Arithmetic operators\nA + B           % element-wise add\nA - B\nA * B           % matrix multiply\nA .* B          % element-wise multiply\nA ./ B          % element-wise divide\nA ^ 2           % matrix power (A*A)\nA .^ 2          % element-wise square\nA'              % conjugate transpose\nA.'             % non-conjugate transpose\n\n% Linear algebra\ndet(A)          % determinant\ninv(A)          % inverse\nrank(A)\ntrace(A)\nnorm(A)         % Frobenius norm\nnorm(A, 1)      % 1-norm\nnorm(v)         % Euclidean norm for vectors\neig(A)          % eigenvalues\n[V, D] = eig(A) % eigenvectors and values\n[U, S, V] = svd(A)\nA \\ b           % solve Ax=b (backslash)\n```\n\n- The dot prefix (`.`) makes an operator element-wise: `.*`, `./`, `.^`\n- `A \\ b` (backslash) is the preferred way to solve linear systems — more numerically stable than `inv(A) * b`\n- `A'` is the conjugate transpose; use `A.'` for real-valued non-conjugate transpose"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "Show me all control flow structures in MATLAB: if, for, while, switch, break, continue."},
+      {"role": "assistant", "content": "```matlab\n% if/elseif/else\nx = 10;\nif x > 0\n    disp('positive')\nelseif x == 0\n    disp('zero')\nelse\n    disp('negative')\nend\n\n% for loop\nfor i = 1:10\n    fprintf('%d ', i);\nend\nfprintf('\\n');\n\nfor i = 1:2:10   % step of 2\n    disp(i)\nend\n\nfor row = A'     % iterate columns of A (transpose to iterate rows)\n    disp(row)\nend\n\n% while loop\nn = 1;\nwhile n < 100\n    n = n * 2;\nend\ndisp(n)   % 128\n\n% switch\nday = 'Mon';\nswitch day\n    case {'Mon','Tue','Wed','Thu','Fri'}\n        disp('Weekday')\n    case {'Sat','Sun'}\n        disp('Weekend')\n    otherwise\n        disp('Unknown')\nend\n\n% break / continue\nfor i = 1:10\n    if i == 5, break; end\n    if mod(i,2) == 0, continue; end\n    disp(i)\nend\n```\n\n- MATLAB has no `do-while` loop natively, but you can emulate it with `while true` and a `break`\n- `switch` can match a cell array of values `{'a','b'}` — any match triggers that case\n- `break` exits the innermost loop; `continue` skips to the next iteration"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do logical operators work in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\ntrue & false    % AND (element-wise)\ntrue | false    % OR (element-wise)\n~true           % NOT\ntrue && false   % AND (short-circuit scalar)\ntrue || false   % OR (short-circuit scalar)\nxor(true, false)\nany([0 1 0])   % true if any element is nonzero\nall([1 1 1])   % true if all elements are nonzero\n```\n\n- `&` and `|` operate element-wise on arrays\n- `&&` and `||` are short-circuit operators for scalars — the second operand is only evaluated if necessary\n- `any(v)` returns true if at least one element of `v` is nonzero; `all(v)` requires all to be nonzero\n- In MATLAB, any nonzero number is treated as `true` in logical contexts"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you define and call functions in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% function_name.m (one function per file, or local functions at end of script)\nfunction result = factorial(n)\n    if n <= 1\n        result = 1;\n    else\n        result = n * factorial(n - 1);\n    end\nend\n\n% Multiple outputs\nfunction [mn, mx] = minmax(v)\n    mn = min(v);\n    mx = max(v);\nend\n[a, b] = minmax([3 1 4 1 5 9]);\n\n% nargin / nargout — check number of arguments\nfunction result = flexible(a, b, c)\n    if nargin < 2, b = 1; end\n    if nargin < 3, c = 0; end\n    result = a * b + c;\nend\n\n% varargin — variable number of inputs\nfunction result = sum_all(varargin)\n    result = 0;\n    for i = 1:nargin\n        result = result + varargin{i};\n    end\nend\n```\n\n- Each function must be in a file with the same name (e.g., `factorial.m`), or defined as a local function at the bottom of a script\n- MATLAB functions can return multiple outputs using brackets: `[a, b] = func(...)`\n- `nargin` gives the number of arguments actually passed by the caller; use it to set defaults"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "What are anonymous functions and function handles in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Anonymous functions\nsquare = @(x) x.^2;\nadd    = @(a, b) a + b;\ncompose = @(f, g) @(x) f(g(x));\n\n% Usage\nsquare(5)          % 25\nadd(3, 4)          % 7\n\n% Function handles\nf = @sin;\nplot(0:0.01:2*pi, f(0:0.01:2*pi))\n\n% feval\nfeval('sin', pi/2)   % 1\n\n% cellfun and arrayfun\nnums = {1, 4, 9, 16};\nresult = cellfun(@sqrt, nums)    % [1 2 3 4]\n\narr = 1:5;\nresult2 = arrayfun(@(x) x^2 + 1, arr)   % [2 5 10 17 26]\n```\n\n- Anonymous functions are created with `@(args) expression` — they capture variables from the enclosing scope at creation time\n- Function handles (`@sin`, `@myFunc`) let you pass functions as arguments\n- `cellfun` applies a function to each element of a cell array; `arrayfun` does the same for numeric arrays\n- Higher-order patterns like `compose` are possible by returning anonymous functions from anonymous functions"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you create 2D plots and customize them in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\nx = 0:0.01:2*pi;\ny = sin(x);\n\nfigure;\nplot(x, y, 'b-', 'LineWidth', 2)\nhold on\nplot(x, cos(x), 'r--')\nhold off\ntitle('Trig Functions')\nxlabel('x')\nylabel('y')\nlegend('sin(x)', 'cos(x)')\ngrid on\naxis([0 2*pi -1.5 1.5])\n```\n\nOther common 2D plot types:\n```matlab\nbar([1 3 2 5 4])\nhistogram(randn(1000,1), 30)\nscatter(randn(100,1), randn(100,1))\npie([30 20 50], {'A','B','C'})\nstem(1:10, (1:10).^2)\nstairs(1:5, [1 3 2 5 4])\nerrorbar(1:5, rand(1,5), 0.1*ones(1,5))\n```\n\n- `hold on` / `hold off` allow multiple plots on the same axes\n- Format strings like `'b-'` set color (`b`=blue) and line style (`-`=solid, `--`=dashed)\n- `axis([xmin xmax ymin ymax])` sets the visible range manually"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you create subplots and 3D plots in MATLAB, and save figures?"},
+      {"role": "assistant", "content": "```matlab\n% Multiple subplots\nfigure;\nsubplot(2, 2, 1); plot(x, sin(x)); title('sin')\nsubplot(2, 2, 2); plot(x, cos(x)); title('cos')\nsubplot(2, 2, 3); plot(x, tan(x)); title('tan'); ylim([-5 5])\nsubplot(2, 2, 4); plot(x, exp(-x)); title('exp(-x)')\n\n% 3D surface plot\n[X, Y] = meshgrid(-3:0.1:3, -3:0.1:3);\nZ = sin(X) .* cos(Y);\nfigure;\nsurf(X, Y, Z)\ncolorbar\nshading interp\nlighting phong\n\n% Contour plot\nfigure;\ncontour(X, Y, Z, 20)\n\n% Save figures\nsaveas(gcf, 'plot.png')\nprint('-dpng', '-r300', 'plot_hq.png')   % high-res\nexportgraphics(gcf, 'plot.pdf')\n```\n\n- `subplot(rows, cols, n)` selects the n-th panel in a grid layout\n- `meshgrid` creates 2D grids from 1D vectors, needed for surface/contour plots\n- `gcf` = get current figure; `gca` = get current axes\n- `exportgraphics` (R2020a+) is preferred for publication-quality PDF/PNG export"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do cell arrays and structs work in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Cell arrays — heterogeneous containers\nc = {1, 'hello', [1 2 3], true}\nc{1}       % 1\nc{2}       % 'hello'\nc{3}(2)    % 2\nc{end}     % true\n\n% Struct — named fields\ns.name = 'Alice';\ns.age  = 30;\ns.scores = [85 90 92];\n\n% Array of structs\ns(2).name = 'Bob';\ns(2).age  = 25;\n[s.age]    % extract all ages: [30 25]\n```\n\n- Cell arrays use `{}` for indexing (not `()`); `()` selects a sub-cell-array, `{}` extracts the contents\n- Structs are created by direct field assignment; no declaration needed\n- `[s.field]` collects the value of `field` from every element of a struct array into a single array\n- Cell arrays are useful when you need to store mixed types together (numbers, strings, arrays, etc.)"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you use tables (like DataFrames) in MATLAB for data manipulation?"},
+      {"role": "assistant", "content": "```matlab\n% Create a table\nT = table({'Alice';'Bob'}, [30;25], [90;85], ...\n    'VariableNames', {'Name','Age','Score'})\n\n% Access columns\nT.Name\nT.Age\n\n% Filter rows (logical indexing)\nT(T.Age > 25, :)\n\n% Add a new column\nT.Bonus = T.Score * 0.1\n\n% Sort\nsortrows(T, 'Score', 'descend')\n\n% Read and write CSV\nT2 = readtable('data.csv')\nwritetable(T, 'output.csv')\n\n% Read as matrix\nM = readmatrix('data.csv')\nwritematrix(M, 'output.csv')\n\n% Save/load .mat files\ndata = load('data.mat')\nsave('output.mat', 'T', 'x', 'y')\n```\n\n- Tables are similar to DataFrames in pandas — each column can have a different type\n- Logical indexing `T(condition, :)` filters rows, just like in matrices\n- `readtable` auto-detects column names and types from CSV headers\n- `.mat` files are MATLAB's native binary format for saving workspace variables"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "What statistical functions does MATLAB provide?"},
+      {"role": "assistant", "content": "```matlab\n% Descriptive statistics\nmean(v), median(v), std(v), var(v)\nmin(v), max(v), sum(v), prod(v)\ncumsum(v), cumprod(v)\n\n% Sorting and unique values\nsort(v)\nunique(v)\n\n% Percentiles and correlation\nprctile(v, [25 50 75])   % quartiles\ncorrcoef(x, y)            % correlation matrix\ncov(x, y)                 % covariance\n```\n\n- Most functions operate along the first non-singleton dimension by default; pass a second argument to specify the dimension: `mean(A, 2)` gives row means\n- `std(v)` normalizes by N-1 (sample std) by default; use `std(v, 1)` for population std\n- `corrcoef` returns a 2x2 matrix; the off-diagonal element is the Pearson correlation coefficient\n- `prctile` requires the Statistics and Machine Learning Toolbox"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you find roots and minimize functions in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% fzero — find root of a scalar equation\nf = @(x) x^3 - x - 2;\nroot = fzero(f, 1.5)   % initial guess → root ≈ 1.5214\n\n% fminbnd — minimize on a bounded interval\ng = @(x) (x-2)^2 + sin(x);\n[xmin, fmin] = fminbnd(g, 0, 5)\n\n% fminsearch — unconstrained multivariate minimization (Nelder-Mead)\nh = @(v) (v(1)-1)^2 + (v(2)-2)^2;\n[x, fval] = fminsearch(h, [0,0])\n```\n\n- `fzero` finds a zero (root) of a function near a given starting point\n- `fminbnd` searches for a minimum within a specified interval `[a, b]`\n- `fminsearch` handles multi-dimensional problems; pass an initial guess vector\n- For constrained optimization, use `fmincon` from the Optimization Toolbox"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you solve ordinary differential equations (ODEs) in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Simple scalar ODE: dy/dt = -2y, y(0)=1\nodefun = @(t, y) -2*y;\n[t, y] = ode45(odefun, [0 5], 1);  % solve from t=0 to t=5\nplot(t, y)\n\n% System of ODEs — Lorenz attractor\nsigma=10; rho=28; beta=8/3;\nlorenz = @(t, s) [sigma*(s(2)-s(1)); ...\n                  s(1)*(rho-s(3))-s(2); ...\n                  s(1)*s(2)-beta*s(3)];\n[t,s] = ode45(lorenz, [0 50], [1;1;1]);\nplot3(s(:,1), s(:,2), s(:,3))\n```\n\n- `ode45` uses a 4th/5th order Runge-Kutta method and is the standard choice for non-stiff ODEs\n- The ODE function signature is always `@(t, y)` — even if the equation doesn't depend on `t`\n- For systems, `y` is a column vector; the function must return a column vector of derivatives\n- For stiff ODEs use `ode15s`; for high accuracy use `ode113`"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How do you perform FFT and digital filtering in MATLAB?"},
+      {"role": "assistant", "content": "```matlab\n% Fast Fourier Transform\nN = 1024; Fs = 1000;        % N samples, 1000 Hz sample rate\nt = (0:N-1)/Fs;\nx = sin(2*pi*50*t) + 0.5*sin(2*pi*120*t);  % 50 Hz + 120 Hz\nX = fft(x);\nf = (0:N-1)*Fs/N;           % frequency axis in Hz\nplot(f(1:N/2), 2*abs(X(1:N/2))/N)  % single-sided spectrum\n\n% Butterworth low-pass filter design\nfc = 100;                           % cutoff frequency (Hz)\n[b,a] = butter(4, fc/(Fs/2), 'low'); % 4th order, normalized cutoff\nfiltered = filter(b, a, x);\n```\n\n- `fft(x)` returns complex coefficients; `abs` gives magnitude, `angle` gives phase\n- The frequency resolution is `Fs/N`; only the first `N/2` bins represent positive frequencies\n- `butter(n, Wn, type)` designs a Butterworth filter where `Wn` is normalized to Nyquist (0 to 1)\n- Other filter designs: `cheby1`, `cheby2`, `ellip`; use `freqz(b,a)` to visualize the frequency response"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are an expert MATLAB programming tutor. Answer clearly and always include code examples from the MATLAB reference."},
+      {"role": "user", "content": "How does symbolic math work in MATLAB with the Symbolic Math Toolbox?"},
+      {"role": "assistant", "content": "```matlab\nsyms x n\n\n% Differentiation\ndiff(sin(x^2), x)          % result: 2*x*cos(x^2)\n\n% Integration\nint(x^2 * exp(x), x)       % symbolic indefinite integral\n\n% Solve equations\nsolve(x^2 - 5*x + 6, x)    % result: [2, 3]\n\n% Taylor series\ntaylor(sin(x), x, 0, 7)    % 7th-degree expansion around x=0\n\n% Symbolic sum\nsymsum(n^2, n, 1, inf)      % closed-form sum formula\n```\n\n- `syms x` declares `x` as a symbolic variable — no value, just the symbol\n- `diff(f, x)` differentiates `f` with respect to `x`; `diff(f, x, 2)` gives the second derivative\n- `int(f, x)` computes the indefinite integral; `int(f, x, a, b)` computes a definite integral\n- `solve` returns exact solutions; for numerical roots use `vpasolve` or `fzero`\n- Requires the Symbolic Math Toolbox (included in most academic licenses)"}
+    ]
+  }
+]
