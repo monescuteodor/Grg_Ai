@@ -1,4 +1,4 @@
-#AI was used to help generate this code and help to the structure!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#Ai was used in this project.
 import os
 import re
 import sys
