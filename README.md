@@ -18,3 +18,6 @@ TO RUN:
 1. Go in Releases and download the version you want.(I recomand v1.1.0)
 
 2. Double click the grg_ai.exe file!
+
+I built a server out of an old laptop on which you can run the AI ​​model without installing anything:
+https://grg-ai.com/
