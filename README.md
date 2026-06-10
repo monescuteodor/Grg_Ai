@@ -1,6 +1,6 @@
 # Grg_Ai
-Trained Ai specialized in programing 
-The AI model is trained with .json file but also with .md files
+Trained Ai specialized in programing. 
+The AI model is trained with .json file but also with .md files.
 
 
 If you want you don't really need to install the whole project, you can use it on the web on https://grg-ai.com/.
