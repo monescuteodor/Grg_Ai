@@ -1,5 +1,5 @@
 # Grg_Ai
-##Trained Ai specialized in programing 
+Trained Ai specialized in programing 
 The AI model is trained with .json file but also with .md files
 
 
