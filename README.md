@@ -1,5 +1,7 @@
 # Grg_Ai
-Trained Ai specialized in programing 
+##Trained Ai specialized in programing 
+###The AI model is trained with .json file but also with .md files
+
 
 If you want you don't really need to install the whole project, you can use it on the web on https://grg-ai.com/.
 The web page is hosted by cloudflare and the server were the AI runs is an old laptop in my room.
