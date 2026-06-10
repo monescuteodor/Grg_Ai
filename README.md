@@ -1,6 +1,9 @@
 # Grg_Ai
 Trained Ai specialized in programing 
 
+If you want you don't really need to install the whole project, you can use it on the web on https://grg-ai.com/.
+The web page is hosted by cloudflare and the server were the AI runs is an old laptop in my room.
+
 Model architecture: Qwen 2.5 1.5B (GGUF)
 System: minimum 8GB of RAM requiered and minimum 4 cores CPU
 GPU is recomanded for higher performance.
