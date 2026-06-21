@@ -27,3 +27,7 @@ TO RUN:
 
 I built a server out of an old laptop on which you can run the AI ​​model without installing anything:
 https://grg-ai.com/
+
+<img width="1600" height="1200" alt="image" src="https://github.com/user-attachments/assets/e246d4b3-5aad-414f-9f67-3c9d8164f2a5" />
+
+In the future I want to expand Grg AI to be the most powerfull AI model in the industry.
