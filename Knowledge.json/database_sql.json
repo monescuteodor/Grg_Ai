@@ -1,0 +1,37 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert database and SQL developer. Explain database concepts with practical SQL examples."},
+      {"role": "user", "content": "What is a SQL JOIN and what types exist?"},
+      {"role": "assistant", "content": "JOINs combine rows from two tables based on a related column.\n\n```sql\n-- Sample data\n-- users: id, name\n-- orders: id, user_id, total\n\n-- INNER JOIN: only matching rows from BOTH tables\nSELECT u.name, o.total\nFROM users u\nINNER JOIN orders o ON o.user_id = u.id;\n-- Users WITHOUT orders are excluded\n\n-- LEFT JOIN: all rows from LEFT table + matching from right\nSELECT u.name, COALESCE(o.total, 0) AS total\nFROM users u\nLEFT JOIN orders o ON o.user_id = u.id;\n-- Users WITHOUT orders show with total=0\n\n-- RIGHT JOIN: all from RIGHT table + matching from left\n-- (Rarely used — rewrite as LEFT JOIN with tables swapped)\n\n-- FULL OUTER JOIN: all rows from BOTH tables\nSELECT u.name, o.total\nFROM users u\nFULL OUTER JOIN orders o ON o.user_id = u.id;\n-- Shows all users AND all orders, NULLs where no match\n\n-- CROSS JOIN: every combination (cartesian product)\nSELECT * FROM sizes CROSS JOIN colors;\n-- 3 sizes × 4 colors = 12 rows\n```\n\n**Most common:** INNER JOIN (only matches) and LEFT JOIN (keep all from left table). LEFT JOIN is essential for \"show users even if they have no orders.\""}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert database and SQL developer. Explain database concepts with practical SQL examples."},
+      {"role": "user", "content": "What are SQL window functions?"},
+      {"role": "assistant", "content": "Window functions compute values across related rows WITHOUT collapsing them (unlike GROUP BY).\n\n```sql\nSELECT\n    name,\n    department,\n    salary,\n    AVG(salary) OVER (PARTITION BY department) AS dept_avg,\n    salary - AVG(salary) OVER (PARTITION BY department) AS diff_from_avg,\n    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rank\nFROM employees;\n```\n\nResult keeps every row but adds computed columns:\n```\nname    dept    salary  dept_avg  diff    rank\nAlice   Eng     120000  100000    20000   1\nBob     Eng     100000  100000    0       2\nCarol   Eng     80000   100000    -20000  3\nDave    Sales   90000   85000     5000    1\nEve     Sales   80000   85000     -5000   2\n```\n\n**Common window functions:**\n- `ROW_NUMBER()` — unique sequential rank\n- `RANK()` — rank with gaps on ties\n- `DENSE_RANK()` — rank without gaps\n- `LAG(col, n)` — value from n rows before\n- `LEAD(col, n)` — value from n rows after\n- `SUM/AVG/COUNT() OVER(...)` — running aggregates\n\n**Top N per group pattern:**\n```sql\nWITH ranked AS (\n    SELECT *, ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) AS rn\n    FROM employees\n)\nSELECT * FROM ranked WHERE rn <= 3;\n```"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert database and SQL developer. Explain database concepts with practical SQL examples."},
+      {"role": "user", "content": "How do database indexes work and when should I add them?"},
+      {"role": "assistant", "content": "An index is a data structure (usually B-tree) that speeds up lookups at the cost of slower writes and extra storage.\n\n**Without index:** database scans EVERY row (full table scan). O(n).\n**With index:** database jumps directly to matching rows. O(log n).\n\n```sql\n-- Create index\nCREATE INDEX idx_users_email ON users(email);\n\n-- Composite index (multi-column)\nCREATE INDEX idx_orders_user_date ON orders(user_id, created_at DESC);\n\n-- Unique index (also enforces uniqueness)\nCREATE UNIQUE INDEX idx_users_email_unique ON users(email);\n```\n\n**When to add indexes:**\n- Columns in WHERE clauses: `WHERE status = 'active'`\n- Columns in JOIN conditions: `ON orders.user_id = users.id`\n- Columns in ORDER BY: `ORDER BY created_at DESC`\n- Foreign keys (always!)\n\n**When NOT to:**\n- Small tables (<1000 rows) — full scan is fast enough\n- Columns with very few unique values (boolean, status)\n- Tables with heavy writes and few reads\n\n**Check if index is used:**\n```sql\nEXPLAIN ANALYZE SELECT * FROM users WHERE email = 'alice@example.com';\n-- Should show \"Index Scan\" not \"Seq Scan\"\n```\n\nOne index can turn a 5-second query into 5 milliseconds."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert database and SQL developer. Explain database concepts with practical SQL examples."},
+      {"role": "user", "content": "What is SQL injection and how do I prevent it?"},
+      {"role": "assistant", "content": "SQL injection happens when user input is inserted directly into SQL queries, allowing attackers to execute arbitrary SQL.\n\n**Vulnerable code:**\n```python\n# NEVER DO THIS!\nquery = f\"SELECT * FROM users WHERE name = '{user_input}'\"\n# Attacker sends: ' OR '1'='1\n# Becomes: SELECT * FROM users WHERE name = '' OR '1'='1'\n# Returns ALL users!\n\n# Even worse: '; DROP TABLE users;--\n# Deletes the entire table!\n```\n\n**Fix: parameterized queries (prepared statements):**\n```python\n# Python (psycopg2)\ncursor.execute(\"SELECT * FROM users WHERE name = %s\", (user_input,))\n\n# Python (SQLAlchemy)\ndb.execute(text(\"SELECT * FROM users WHERE name = :name\"), {\"name\": user_input})\n\n# Node.js (pg)\npool.query('SELECT * FROM users WHERE name = $1', [userInput]);\n\n# Java (JDBC)\nPreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE name = ?\");\nps.setString(1, userInput);\n```\n\nThe database treats the parameter as DATA, never as SQL code. No matter what the user sends, it's just a string value.\n\nParameterized queries are the ONLY reliable defense. Input sanitization and escaping are fragile and error-prone."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert database and SQL developer. Explain database concepts with practical SQL examples."},
+      {"role": "user", "content": "What is database normalization?"},
+      {"role": "assistant", "content": "Normalization organizes data to reduce redundancy and prevent update anomalies.\n\n**1NF (First Normal Form):** No repeating groups. Each cell has one value.\n```\n-- BAD: multiple values in one cell\nid  name    phones\n1   Alice   555-0001, 555-0002\n\n-- GOOD: separate rows\nid  name    phone\n1   Alice   555-0001\n1   Alice   555-0002\n```\n\n**2NF:** Remove partial dependencies (every non-key column depends on the FULL primary key).\n```\n-- BAD: student_name depends only on student_id, not course_id\nstudent_id  course_id  student_name  grade\n1           101        Alice         A\n\n-- GOOD: split into two tables\nstudents: student_id, name\nenrollments: student_id, course_id, grade\n```\n\n**3NF:** Remove transitive dependencies (non-key columns don't depend on other non-key columns).\n```\n-- BAD: city depends on zip_code, not directly on student_id\nstudent_id  zip_code  city\n\n-- GOOD: separate table\nzip_codes: zip_code, city\nstudents: student_id, zip_code\n```\n\n**In practice:** normalize to 3NF by default. Denormalize intentionally for performance (caching computed values, avoiding JOINs in read-heavy systems). Know the rules before you break them."}
+    ]
+  }
+]

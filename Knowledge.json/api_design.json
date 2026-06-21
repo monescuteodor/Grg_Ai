@@ -1,0 +1,37 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert API designer. Explain REST API design principles with practical examples."},
+      {"role": "user", "content": "How do I design a good REST API?"},
+      {"role": "assistant", "content": "**Use nouns for resources, HTTP methods for actions:**\n```\nGET    /api/users          → List users\nGET    /api/users/123      → Get user 123\nPOST   /api/users          → Create user\nPUT    /api/users/123      → Update user 123 (full replace)\nPATCH  /api/users/123      → Partial update\nDELETE /api/users/123      → Delete user 123\n\n# Nested resources\nGET    /api/users/123/orders     → User's orders\nPOST   /api/users/123/orders     → Create order for user\n```\n\n**Use proper status codes:**\n```\n200 OK            → Success (GET, PUT, PATCH)\n201 Created       → Resource created (POST)\n204 No Content    → Deleted (DELETE)\n400 Bad Request   → Invalid input\n401 Unauthorized  → Not authenticated\n403 Forbidden     → Authenticated but no permission\n404 Not Found     → Resource doesn't exist\n409 Conflict      → Duplicate (e.g., email already taken)\n422 Unprocessable → Validation failed\n429 Too Many      → Rate limited\n500 Server Error  → Bug on server\n```\n\n**Consistent response format:**\n```json\n{\"data\": {\"id\": 1, \"name\": \"Alice\"}, \"meta\": {\"timestamp\": \"...\"}}\n{\"error\": {\"code\": \"VALIDATION\", \"message\": \"Email required\", \"field\": \"email\"}}\n```\n\nBe consistent. Use plural nouns (`/users` not `/user`). Version your API (`/api/v1/users`)."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert API designer. Explain REST API design principles with practical examples."},
+      {"role": "user", "content": "How do I implement pagination in an API?"},
+      {"role": "assistant", "content": "Two approaches: offset-based (simple) and cursor-based (scalable).\n\n**Offset-based (simple, good for <100K records):**\n```\nGET /api/users?page=2&per_page=20\n```\n```json\n{\n    \"data\": [{\"id\": 21, \"name\": \"...\"}, ...],\n    \"meta\": {\n        \"page\": 2,\n        \"per_page\": 20,\n        \"total\": 150,\n        \"total_pages\": 8\n    }\n}\n```\n```sql\nSELECT * FROM users ORDER BY id LIMIT 20 OFFSET 20;\n-- Problem: OFFSET 100000 scans and discards 100K rows!\n```\n\n**Cursor-based (scalable, good for any size):**\n```\nGET /api/users?limit=20&after=abc123\n```\n```json\n{\n    \"data\": [{\"id\": 21, \"name\": \"...\"}, ...],\n    \"meta\": {\n        \"has_next\": true,\n        \"next_cursor\": \"def456\"\n    }\n}\n```\n```sql\nSELECT * FROM users WHERE id > 20 ORDER BY id LIMIT 21;\n-- Always fast! Uses index, no offset scanning.\n```\n\nCursor = encoded reference to last item seen. Fetch 21 items to check if there's a next page, return 20.\n\nUse offset for admin panels with page numbers. Use cursor for feeds, timelines, infinite scroll."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert API designer. Explain REST API design principles with practical examples."},
+      {"role": "user", "content": "How should I handle API errors?"},
+      {"role": "assistant", "content": "Return consistent error responses with enough detail for the client to handle them.\n\n```json\n{\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"message\": \"Request validation failed\",\n        \"details\": [\n            {\"field\": \"email\", \"message\": \"Must be a valid email address\"},\n            {\"field\": \"age\", \"message\": \"Must be a positive integer\"}\n        ]\n    }\n}\n```\n\n**Implementation:**\n```python\nfrom fastapi import HTTPException\n\nclass AppError(HTTPException):\n    def __init__(self, code: str, message: str, status: int = 400, details=None):\n        super().__init__(status_code=status, detail={\n            'error': {\n                'code': code,\n                'message': message,\n                'details': details or [],\n            }\n        })\n\n# Usage\nraise AppError('NOT_FOUND', 'User not found', status=404)\nraise AppError('VALIDATION_ERROR', 'Invalid input', details=[\n    {'field': 'email', 'message': 'Required'}\n])\nraise AppError('RATE_LIMITED', 'Too many requests', status=429)\n```\n\n**Rules:**\n- Machine-readable `code` (clients switch on this)\n- Human-readable `message` (displayed to users)\n- Never expose stack traces or internal details in production\n- Log the full error server-side, return a clean error to client"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert API designer. Explain REST API design principles with practical examples."},
+      {"role": "user", "content": "What is the difference between REST and GraphQL?"},
+      {"role": "assistant", "content": "**REST:** multiple endpoints, each returns fixed data shape.\n```\nGET /api/users/1         → Full user object\nGET /api/users/1/posts   → All posts (separate request)\nGET /api/users/1/friends → All friends (another request)\n```\n\n**GraphQL:** single endpoint, client specifies exact data needed.\n```graphql\nquery {\n    user(id: 1) {\n        name\n        email\n        posts(limit: 5) {\n            title\n            createdAt\n        }\n        friends {\n            name\n        }\n    }\n}\n```\nOne request, exact fields, no over-fetching.\n\n**When to use REST:**\n- Simple CRUD APIs\n- Public APIs (easier to cache, simpler to understand)\n- Small team, straightforward data requirements\n- Caching matters (HTTP caching works out of the box)\n\n**When to use GraphQL:**\n- Mobile apps (minimize data transfer)\n- Complex relationships (avoid N+1 REST calls)\n- Multiple frontend teams needing different data shapes\n- Rapidly changing frontend requirements\n\n**Trade-offs:** GraphQL adds complexity (schema, resolvers, N+1 at resolver level). REST is simpler but can lead to over-fetching or under-fetching. Most projects are fine with REST."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert API designer. Explain REST API design principles with practical examples."},
+      {"role": "user", "content": "How do I version my API?"},
+      {"role": "assistant", "content": "API versioning lets you make breaking changes without breaking existing clients.\n\n**URL versioning (most common, simplest):**\n```\nGET /api/v1/users\nGET /api/v2/users     ← New response format\n```\n```python\n# FastAPI\nfrom fastapi import APIRouter\n\nv1 = APIRouter(prefix='/api/v1')\nv2 = APIRouter(prefix='/api/v2')\n\n@v1.get('/users')\ndef list_users_v1():\n    return [{\"name\": \"Alice\"}]  # Old format\n\n@v2.get('/users')\ndef list_users_v2():\n    return {\"data\": [{\"id\": 1, \"name\": \"Alice\"}], \"meta\": {}}  # New format\n\napp.include_router(v1)\napp.include_router(v2)\n```\n\n**Header versioning (cleaner URLs):**\n```\nGET /api/users\nAccept: application/vnd.myapp.v2+json\n```\n\n**When to bump version:**\n- Removing a field from response\n- Changing a field's type\n- Changing URL structure\n- Changing authentication method\n\n**When NOT to version (non-breaking):**\n- Adding new fields to response\n- Adding new endpoints\n- Adding optional query parameters\n\nKeep old versions alive for at least 6-12 months. Communicate deprecation timeline clearly. Monitor old version usage before sunsetting."}
+    ]
+  }
+]

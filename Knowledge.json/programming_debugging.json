@@ -1,0 +1,184 @@
+[
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Why does this Python code crash?\n\ndef get_average(numbers):\n    total = sum(numbers)\n    return total / len(numbers)\n\nresult = get_average([])"},
+      {"role": "assistant", "content": "The crash is a `ZeroDivisionError` because `len([])` returns `0`, and dividing by zero is undefined.\n\n**Why it happens:** You call `get_average` with an empty list. `sum([])` returns `0`, but `len([])` is also `0`, so `0 / 0` raises the error.\n\n**Fix:**\n```python\ndef get_average(numbers):\n    if not numbers:\n        return 0  # or raise ValueError(\"Cannot average empty list\")\n    return sum(numbers) / len(numbers)\n```\n\nAlways guard against empty collections before dividing by their length."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "This JavaScript code returns undefined instead of the array. Why?\n\nfunction doubleAll(arr) {\n    arr.forEach(x => {\n        return x * 2;\n    });\n}"},
+      {"role": "assistant", "content": "The function returns `undefined` because `forEach` does NOT return anything — it always returns `undefined`. The `return x * 2` inside the callback only returns from the callback, not from `doubleAll`.\n\n**Fix — use `map` instead:**\n```javascript\nfunction doubleAll(arr) {\n    return arr.map(x => x * 2);\n}\n```\n\n`map` creates and returns a new array with transformed values. `forEach` is only for side effects (logging, mutations), never for building new arrays."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My Python dictionary keeps raising KeyError:\n\nuser = {'name': 'Alice', 'age': 30}\nprint(user['email'])"},
+      {"role": "assistant", "content": "The `KeyError: 'email'` occurs because the key `'email'` doesn't exist in the dictionary. Accessing a non-existent key with `[]` raises KeyError.\n\n**Three fixes depending on what you want:**\n\n1. **Use `.get()` with a default:**\n```python\nprint(user.get('email', 'No email'))  # Returns 'No email' instead of crashing\n```\n\n2. **Check first:**\n```python\nif 'email' in user:\n    print(user['email'])\n```\n\n3. **Use `defaultdict` for automatic defaults:**\n```python\nfrom collections import defaultdict\nuser = defaultdict(str, {'name': 'Alice', 'age': 30})\nprint(user['email'])  # Returns '' (empty string)\n```\n\nPrefer `.get()` for single lookups — it's the most Pythonic approach."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Why does this loop never end?\n\ni = 0\nwhile i < 10:\n    print(i)\n    if i == 5:\n        continue\n    i += 1"},
+      {"role": "assistant", "content": "The loop becomes infinite when `i` reaches `5`. Here's why:\n\nWhen `i == 5`, `continue` skips the rest of the loop body — including `i += 1`. So `i` stays at `5` forever, and the condition `i < 10` is always true.\n\n**Fix — increment before continue:**\n```python\ni = 0\nwhile i < 10:\n    print(i)\n    if i == 5:\n        i += 1\n        continue\n    i += 1\n```\n\n**Better fix — use a for loop:**\n```python\nfor i in range(10):\n    if i == 5:\n        continue\n    print(i)\n```\n\n`for` loops handle incrementing automatically, eliminating this entire class of bugs. Prefer `for` over `while` when the iteration count is known."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "This React component re-renders infinitely:\n\nfunction UserProfile({ userId }) {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    fetch(`/api/users/${userId}`)\n      .then(res => res.json())\n      .then(data => setUser(data));\n  });\n\n  return <div>{user?.name}</div>;\n}"},
+      {"role": "assistant", "content": "The infinite re-render happens because `useEffect` has **no dependency array**. Without one, it runs after EVERY render:\n\n1. Component renders → useEffect fires → fetch → setUser\n2. setUser causes re-render → useEffect fires again → fetch → setUser\n3. Repeat forever\n\n**Fix — add dependency array:**\n```jsx\nuseEffect(() => {\n    fetch(`/api/users/${userId}`)\n      .then(res => res.json())\n      .then(data => setUser(data));\n}, [userId]);  // Only re-run when userId changes\n```\n\nThe dependency array `[userId]` tells React: only run this effect when `userId` changes. This is one of the most common React bugs.\n\nRules:\n- `[]` = run once on mount\n- `[dep]` = run when dep changes\n- No array = run every render (almost never what you want)"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My SQL query returns wrong results:\n\nSELECT users.name, COUNT(orders.id)\nFROM users\nLEFT JOIN orders ON orders.user_id = users.id\nWHERE orders.status = 'completed'\nGROUP BY users.name;"},
+      {"role": "assistant", "content": "The problem is the `WHERE` clause filters out users with no orders, turning your `LEFT JOIN` into an `INNER JOIN`.\n\nWith `LEFT JOIN`, users without orders get `NULL` for all order columns. But `WHERE orders.status = 'completed'` eliminates `NULL` rows — so users with zero orders disappear from results.\n\n**Fix — move the condition to the JOIN:**\n```sql\nSELECT users.name, COUNT(orders.id)\nFROM users\nLEFT JOIN orders ON orders.user_id = users.id\n    AND orders.status = 'completed'\nGROUP BY users.name;\n```\n\nNow the status filter is part of the join condition. Users with no completed orders still appear with a count of `0`.\n\nThis is a classic SQL pitfall: `WHERE` filters AFTER the join, but `ON` filters DURING the join. For `LEFT JOIN`, always put the right-table conditions in `ON`."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "This Python code mutates my default argument:\n\ndef add_item(item, lst=[]):\n    lst.append(item)\n    return lst\n\nprint(add_item('a'))  # ['a']\nprint(add_item('b'))  # ['a', 'b']  Why not just ['b']?"},
+      {"role": "assistant", "content": "This is Python's infamous **mutable default argument** trap. The default list `[]` is created ONCE when the function is defined, not each time it's called. Every call shares the same list object.\n\nCall 1: `lst` is the default `[]`, append 'a' → `['a']`\nCall 2: `lst` is the SAME list `['a']`, append 'b' → `['a', 'b']`\n\n**Fix — use `None` as default:**\n```python\ndef add_item(item, lst=None):\n    if lst is None:\n        lst = []\n    lst.append(item)\n    return lst\n```\n\nNow a fresh list is created each call. This pattern applies to ALL mutable defaults: lists, dicts, sets. Never use `[]`, `{}`, or `set()` as default arguments."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Why does my async JavaScript code print in wrong order?\n\nconsole.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');"},
+      {"role": "assistant", "content": "The output is: `1, 4, 3, 2`. Here's why:\n\nJavaScript has an event loop with priority levels:\n\n1. **Synchronous code** runs first: `console.log('1')` and `console.log('4')`\n2. **Microtasks** (Promises) run next: `console.log('3')`\n3. **Macrotasks** (setTimeout, setInterval) run last: `console.log('2')`\n\nExecution order:\n- `'1'` — synchronous, runs immediately\n- `setTimeout` — scheduled as macrotask (even with 0ms delay)\n- `Promise.then` — scheduled as microtask\n- `'4'` — synchronous, runs immediately\n- `'3'` — microtask queue processed before macrotask queue\n- `'2'` — macrotask runs last\n\nKey rule: **microtasks (Promises) always run before macrotasks (setTimeout)**, regardless of scheduling order. This is fundamental to understanding async JavaScript."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My CSS flexbox layout isn't centering:\n\n.container {\n    display: flex;\n    justify-content: center;\n}\n\nThe items are horizontally centered but not vertically."},
+      {"role": "assistant", "content": "Items aren't vertically centered because `justify-content` only handles the **main axis** (horizontal by default). You need `align-items` for the **cross axis** (vertical).\n\nAlso, the container needs a height — without it, the container is only as tall as its content, so there's no room to center vertically.\n\n**Fix:**\n```css\n.container {\n    display: flex;\n    justify-content: center;  /* horizontal center */\n    align-items: center;      /* vertical center */\n    min-height: 100vh;        /* give it height to center within */\n}\n```\n\nFlexbox axes:\n- `flex-direction: row` (default): main = horizontal, cross = vertical\n- `flex-direction: column`: main = vertical, cross = horizontal\n- `justify-content`: distributes along main axis\n- `align-items`: aligns along cross axis"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My git merge has conflicts. What do I do?\n\nAuto-merging src/app.py\nCONFLICT (content): Merge conflict in src/app.py"},
+      {"role": "assistant", "content": "Git found that both branches changed the same lines in `src/app.py`. Here's how to resolve it:\n\n**Step 1: Open the file.** You'll see conflict markers:\n```\n<<<<<<< HEAD\ndb_timeout = 30\n=======\ndb_timeout = 60\n>>>>>>> feature-branch\n```\n\n**Step 2: Choose the correct version.** Edit the file to keep what you want:\n```python\ndb_timeout = 60\n```\nRemove ALL conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).\n\n**Step 3: Stage and commit:**\n```bash\ngit add src/app.py\ngit commit -m \"Resolve merge conflict in app.py\"\n```\n\n**Tips:**\n- Use `git diff` to see all conflicts\n- VS Code highlights conflicts with clickable \"Accept Current/Incoming/Both\" buttons\n- `git merge --abort` to cancel the merge entirely\n- Prevent future conflicts: pull often, keep branches short-lived, communicate with team"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My API returns 500 but only in production. Works fine locally. How do I debug?"},
+      {"role": "assistant", "content": "Classic \"works on my machine\" problem. Here's a systematic debugging approach:\n\n**1. Check logs first:**\n```bash\ntail -100 /var/log/app/error.log\njournalctl -u myapp.service -n 100 --no-pager\n```\nThe stack trace tells you exactly what failed.\n\n**2. Common causes for local-works-prod-breaks:**\n\n- **Environment variables** missing in production (DB_URL, API_KEY, SECRET)\n- **Database** schema different (missing migration in prod)\n- **Permissions** (file/directory not writable, wrong user)\n- **Dependencies** version mismatch (local has newer version)\n- **Memory/CPU limits** (works with 10 users, crashes with 10,000)\n- **HTTPS vs HTTP** (mixed content, certificate issues)\n- **File paths** (hardcoded `/Users/me/...` vs production paths)\n\n**3. Reproduce in staging** (if you have one).\n\n**4. Add structured logging** around the failing endpoint with request details (but never log passwords/tokens).\n\n**5. Check if recent deployment** changed something:\n```bash\ngit log --oneline -10\n```\nRollback if recent change caused it."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My Python list comprehension is too slow for 10 million items. How to optimize?"},
+      {"role": "assistant", "content": "For 10M items, here are the optimization levels:\n\n**Level 1: Generator expression (save memory)**\n```python\n# List comprehension: creates full list in memory\nresult = [x * 2 for x in range(10_000_000)]  # ~80MB\n\n# Generator: produces items one at a time\nresult = (x * 2 for x in range(10_000_000))  # ~0MB until consumed\n```\n\n**Level 2: NumPy (10-100x faster for numeric)**\n```python\nimport numpy as np\narr = np.arange(10_000_000)\nresult = arr * 2  # Vectorized C operation, ~50x faster\n```\n\n**Level 3: Filter with NumPy boolean indexing**\n```python\n# Instead of: [x for x in arr if x > 1000]\nresult = arr[arr > 1000]  # 100x faster\n```\n\n**Level 4: Parallel processing**\n```python\nfrom multiprocessing import Pool\nwith Pool(4) as p:\n    result = p.map(process_chunk, chunks)\n```\n\n**Rule of thumb:**\n- < 100K items: list comprehension is fine\n- 100K - 10M: use NumPy for numeric, generators for non-numeric\n- > 10M: NumPy + multiprocessing or Polars/Dask"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "What's wrong with this code?\n\nfor i in range(len(lst)):\n    if lst[i] == target:\n        lst.remove(lst[i])"},
+      {"role": "assistant", "content": "This code has two bugs:\n\n**Bug 1: Modifying list while iterating.** When you `remove` an element, all subsequent indices shift left. The loop skips the next element.\n\nExample with `lst = [1, 2, 2, 3]`, target = 2:\n- i=0: lst[0]=1, no match\n- i=1: lst[1]=2, remove → lst=[1, 2, 3]\n- i=2: lst[2]=3, no match — **skipped the second 2!**\n\n**Bug 2: IndexError.** After removing, the list is shorter but `range(len(lst))` was calculated at the start. You'll access an index that no longer exists.\n\n**Fix — build a new list:**\n```python\nlst = [x for x in lst if x != target]\n```\n\n**Or iterate backwards (safe to remove):**\n```python\nfor i in range(len(lst) - 1, -1, -1):\n    if lst[i] == target:\n        lst.pop(i)\n```\n\n**Or use filter:**\n```python\nlst = list(filter(lambda x: x != target, lst))\n```\n\nThe list comprehension is the cleanest and most Pythonic approach."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "My Node.js server leaks memory. How do I find the leak?"},
+      {"role": "assistant", "content": "Memory leak debugging in Node.js step by step:\n\n**Step 1: Confirm the leak**\n```javascript\nsetInterval(() => {\n    const used = process.memoryUsage();\n    console.log(`Heap: ${Math.round(used.heapUsed / 1024 / 1024)}MB`);\n}, 10000);\n```\nIf heapUsed grows continuously over hours → leak confirmed.\n\n**Step 2: Take heap snapshots**\n```bash\nnode --inspect server.js\n```\nOpen `chrome://inspect` → Memory tab → Take heap snapshot → Use app for 5 min → Take another snapshot → Compare.\n\nLook for objects that grew significantly between snapshots.\n\n**Step 3: Common Node.js leak sources:**\n\n1. **Event listeners accumulating:**\n```javascript\n// BAD: adds new listener on each request\napp.get('/', (req, res) => {\n    emitter.on('data', handler);  // Never removed!\n});\n```\n\n2. **Growing cache without limit:**\n```javascript\nconst cache = {};  // Grows forever\n// Fix: use LRU cache with max size\n```\n\n3. **Closures holding references:**\n```javascript\nfunction handler() {\n    const hugeData = loadMB();  // Captured by closure\n    return (req, res) => res.json(hugeData.summary);\n}\n```\n\n4. **Uncleared timers/intervals**\n\n**Step 4: Fix and monitor** — watch heap for 24h after fix to confirm."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "TypeError: Cannot read properties of undefined (reading 'map')\n\nHow do I fix this React error?"},
+      {"role": "assistant", "content": "This means you're calling `.map()` on a value that is `undefined`. Very common in React when data hasn't loaded yet.\n\n**Typical scenario:**\n```jsx\nfunction UserList() {\n    const [users, setUsers] = useState();  // undefined!\n    \n    useEffect(() => {\n        fetch('/api/users').then(r => r.json()).then(setUsers);\n    }, []);\n    \n    return users.map(u => <div>{u.name}</div>);  // CRASH on first render\n}\n```\n\nOn first render, `users` is `undefined` (fetch hasn't completed). Calling `undefined.map()` crashes.\n\n**Fix 1: Initialize with empty array:**\n```jsx\nconst [users, setUsers] = useState([]);  // [] not undefined\n```\n\n**Fix 2: Optional chaining:**\n```jsx\nreturn users?.map(u => <div>{u.name}</div>) || null;\n```\n\n**Fix 3: Loading state (best UX):**\n```jsx\nconst [users, setUsers] = useState(null);\n\nif (users === null) return <Spinner />;\nif (users.length === 0) return <p>No users found</p>;\nreturn users.map(u => <div key={u.id}>{u.name}</div>);\n```\n\nAlways initialize state with the correct type: arrays as `[]`, objects as `null` or `{}`."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "How do I reverse a linked list?"},
+      {"role": "assistant", "content": "Classic interview question. The idea: iterate through the list, reversing each pointer.\n\n**Iterative approach (O(n) time, O(1) space):**\n```python\ndef reverse_list(head):\n    prev = None\n    current = head\n    \n    while current:\n        next_temp = current.next  # Save next node\n        current.next = prev       # Reverse the pointer\n        prev = current            # Move prev forward\n        current = next_temp       # Move current forward\n    \n    return prev  # prev is the new head\n```\n\n**Walkthrough with 1 → 2 → 3 → None:**\n```\nStep 1: prev=None, curr=1\n  1.next = None, prev=1, curr=2\n  None ← 1   2 → 3 → None\n\nStep 2: prev=1, curr=2\n  2.next = 1, prev=2, curr=3\n  None ← 1 ← 2   3 → None\n\nStep 3: prev=2, curr=3\n  3.next = 2, prev=3, curr=None\n  None ← 1 ← 2 ← 3\n\nReturn prev (3) = new head\nResult: 3 → 2 → 1 → None\n```\n\n**Recursive approach:**\n```python\ndef reverse_list(head):\n    if not head or not head.next:\n        return head\n    new_head = reverse_list(head.next)\n    head.next.next = head\n    head.next = None\n    return new_head\n```\n\nThe iterative version is preferred in interviews — O(1) space and easier to follow."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Explain the difference between == and === in JavaScript"},
+      {"role": "assistant", "content": "**`==` (loose equality)** performs type coercion before comparing. It converts values to the same type first:\n```javascript\n1 == '1'        // true (string '1' coerced to number 1)\n0 == false      // true (false coerced to 0)\n'' == false     // true (both coerce to 0)\nnull == undefined // true (special rule)\n```\n\n**`===` (strict equality)** compares value AND type with no coercion:\n```javascript\n1 === '1'       // false (number vs string)\n0 === false     // false (number vs boolean)\n'' === false    // false (string vs boolean)\nnull === undefined // false (different types)\n```\n\n**Rule: always use `===`** unless you have a specific reason for `==`.\n\nThe only common use for `==` is checking null/undefined together:\n```javascript\nif (value == null) {\n    // true for both null AND undefined\n    // equivalent to: value === null || value === undefined\n}\n```\n\nESLint's `eqeqeq` rule enforces `===` everywhere — enable it."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "What is a closure and why is it useful?"},
+      {"role": "assistant", "content": "A **closure** is a function that remembers the variables from its outer scope, even after the outer function has returned.\n\n```python\ndef make_counter():\n    count = 0\n    def increment():\n        nonlocal count\n        count += 1\n        return count\n    return increment\n\ncounter = make_counter()\nprint(counter())  # 1\nprint(counter())  # 2\nprint(counter())  # 3\n```\n\n`increment` is a closure — it \"closes over\" the `count` variable. Even though `make_counter()` has returned, `increment` still has access to `count`.\n\n**Why useful:**\n\n1. **Data privacy** — `count` can't be accessed directly, only through `increment()`\n2. **Factory functions:**\n```python\ndef multiplier(factor):\n    return lambda x: x * factor\n\ndouble = multiplier(2)\ntriple = multiplier(3)\ndouble(5)  # 10\n```\n\n3. **Callbacks and event handlers:**\n```javascript\nfunction setupButton(name) {\n    button.addEventListener('click', () => {\n        console.log(`${name} clicked`);  // Closes over 'name'\n    });\n}\n```\n\n4. **Memoization, decorators, middleware** — all use closures.\n\nClosures exist in Python, JavaScript, Go, Rust, Swift — virtually every modern language."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "How do I handle errors properly in async Python?"},
+      {"role": "assistant", "content": "Async error handling in Python follows the same `try/except` pattern, but with some async-specific gotchas:\n\n**Basic:**\n```python\nasync def fetch_data(url):\n    try:\n        async with aiohttp.ClientSession() as session:\n            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:\n                if resp.status != 200:\n                    raise ValueError(f\"HTTP {resp.status}\")\n                return await resp.json()\n    except aiohttp.ClientError as e:\n        print(f\"Network error: {e}\")\n        return None\n    except asyncio.TimeoutError:\n        print(\"Request timed out\")\n        return None\n    except ValueError as e:\n        print(f\"Bad response: {e}\")\n        return None\n```\n\n**With `gather` — handle partial failures:**\n```python\nresults = await asyncio.gather(\n    fetch_data(url1),\n    fetch_data(url2),\n    fetch_data(url3),\n    return_exceptions=True  # Don't crash on single failure\n)\n\nfor result in results:\n    if isinstance(result, Exception):\n        print(f\"Failed: {result}\")\n    else:\n        process(result)\n```\n\n**TaskGroup (Python 3.11+):**\n```python\nasync with asyncio.TaskGroup() as tg:\n    task1 = tg.create_task(fetch_data(url1))\n    task2 = tg.create_task(fetch_data(url2))\n# If ANY task fails, all are cancelled and ExceptionGroup raised\n```\n\nAlways set timeouts on network operations — an unresponsive server shouldn't hang your entire app."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "What's the time complexity of this code?\n\ndef find_duplicates(lst):\n    duplicates = []\n    for i in range(len(lst)):\n        for j in range(i + 1, len(lst)):\n            if lst[i] == lst[j] and lst[i] not in duplicates:\n                duplicates.append(lst[i])\n    return duplicates"},
+      {"role": "assistant", "content": "**Time complexity: O(n³)** — worse than it looks!\n\nBreakdown:\n- Outer loop: O(n)\n- Inner loop: O(n)\n- `lst[i] not in duplicates`: O(n) — linear scan of list!\n- Total: O(n × n × n) = O(n³)\n\nFor a list of 10,000 items, that's up to 1 trillion operations.\n\n**Optimized to O(n) using a set:**\n```python\ndef find_duplicates(lst):\n    seen = set()\n    duplicates = set()\n    for item in lst:\n        if item in seen:      # O(1) set lookup\n            duplicates.add(item)  # O(1) set add\n        seen.add(item)         # O(1) set add\n    return list(duplicates)\n```\n\nWhy faster:\n- Set `in` check: O(1) average (hash table)\n- Single pass through list: O(n)\n- Total: O(n)\n\nFrom O(n³) to O(n) — for 10,000 items that's from ~10¹² to ~10⁴ operations. **A million times faster.**\n\nLesson: always use `set` for membership testing, never `list`."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "How do I make a REST API in FastAPI?"},
+      {"role": "assistant", "content": "Here's a complete FastAPI REST API:\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\nfrom typing import Optional\n\napp = FastAPI(title=\"My API\")\n\n# Data model\nclass Item(BaseModel):\n    name: str\n    price: float\n    description: Optional[str] = None\n\n# In-memory storage (use database in production)\nitems = {}\ncounter = 0\n\n# CREATE\n@app.post(\"/items\", status_code=201)\ndef create_item(item: Item):\n    global counter\n    counter += 1\n    items[counter] = item\n    return {\"id\": counter, **item.dict()}\n\n# READ all\n@app.get(\"/items\")\ndef list_items():\n    return [{\"id\": k, **v.dict()} for k, v in items.items()]\n\n# READ one\n@app.get(\"/items/{item_id}\")\ndef get_item(item_id: int):\n    if item_id not in items:\n        raise HTTPException(status_code=404, detail=\"Item not found\")\n    return {\"id\": item_id, **items[item_id].dict()}\n\n# UPDATE\n@app.put(\"/items/{item_id}\")\ndef update_item(item_id: int, item: Item):\n    if item_id not in items:\n        raise HTTPException(status_code=404, detail=\"Item not found\")\n    items[item_id] = item\n    return {\"id\": item_id, **item.dict()}\n\n# DELETE\n@app.delete(\"/items/{item_id}\", status_code=204)\ndef delete_item(item_id: int):\n    if item_id not in items:\n        raise HTTPException(status_code=404, detail=\"Item not found\")\n    del items[item_id]\n```\n\nRun with: `uvicorn main:app --reload`\n\nDocs auto-generated at: `http://localhost:8000/docs`\n\nFastAPI gives you automatic validation (Pydantic), auto-docs (Swagger), async support, and type safety — all for free."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Explain Big O notation simply"},
+      {"role": "assistant", "content": "Big O describes **how your code scales** as input grows. It answers: \"If I double the input, how much longer does it take?\"\n\n**O(1) — Constant:** Same time regardless of input size.\n```python\ndef get_first(lst):\n    return lst[0]  # Always 1 operation\n```\n\n**O(n) — Linear:** Time grows proportionally with input.\n```python\ndef find(lst, target):\n    for item in lst:  # Check each item once\n        if item == target:\n            return True\n```\nDouble the list → double the time.\n\n**O(n²) — Quadratic:** Nested loops over the same data.\n```python\ndef has_duplicates(lst):\n    for i in range(len(lst)):\n        for j in range(i+1, len(lst)):  # Loop inside loop\n            if lst[i] == lst[j]:\n                return True\n```\nDouble the list → 4× the time. 1000 items = 1M comparisons.\n\n**O(log n) — Logarithmic:** Halves the problem each step.\n```python\ndef binary_search(sorted_list, target):\n    # Each step eliminates half the remaining items\n```\n1 million items → only ~20 steps!\n\n**O(n log n):** Efficient sorting (merge sort, quick sort).\n\n**Practical guide:**\n- n < 100: anything works\n- n < 10,000: O(n²) is OK\n- n < 1,000,000: need O(n log n) or O(n)\n- n > 1,000,000: need O(n) or O(log n)"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "How do I center a div?"},
+      {"role": "assistant", "content": "The classic web dev question! Here are the modern solutions:\n\n**1. Flexbox (recommended for most cases):**\n```css\n.parent {\n    display: flex;\n    justify-content: center;  /* horizontal */\n    align-items: center;      /* vertical */\n    min-height: 100vh;        /* needs height to center vertically */\n}\n```\n\n**2. Grid (cleanest one-liner):**\n```css\n.parent {\n    display: grid;\n    place-items: center;\n    min-height: 100vh;\n}\n```\n\n**3. Horizontal only (block element):**\n```css\n.child {\n    width: 300px;\n    margin: 0 auto;  /* auto left/right margins */\n}\n```\n\n**4. Absolute positioning (overlay/modal):**\n```css\n.child {\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n}\n```\n\n**Which to use:**\n- Most cases → Flexbox\n- Quick centering → Grid `place-items: center`\n- Only horizontal → `margin: 0 auto`\n- Overlays/modals → absolute + transform\n\nAvoid old hacks like `display: table-cell` — Flexbox and Grid have made centering easy."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "What's the difference between a process and a thread?"},
+      {"role": "assistant", "content": "**Process:** An independent running program with its own memory space.\n- Has its own address space (heap, stack, code)\n- Crash in one process doesn't affect others\n- Communication via IPC (pipes, sockets, shared memory)\n- Heavy to create (~10MB+, OS overhead)\n- True isolation\n\n**Thread:** A lightweight unit of execution within a process.\n- Shares memory with other threads in same process\n- Crash in one thread can crash all threads in the process\n- Communication via shared memory (fast but needs synchronization)\n- Light to create (~1MB stack)\n- No isolation (shared heap)\n\n**Analogy:**\n- Process = separate apartments (own kitchen, bathroom, living room)\n- Thread = roommates in one apartment (share everything)\n\n**When to use which:**\n- **Threads:** I/O-bound tasks (web requests, file reading), shared data needed\n- **Processes:** CPU-bound tasks, isolation needed, untrusted code\n- **Async:** Many I/O operations with minimal CPU (web servers, API clients)\n\n**In Python specifically:**\n- `threading`: limited by GIL for CPU work, good for I/O\n- `multiprocessing`: true parallelism, bypasses GIL\n- `asyncio`: best for I/O-heavy workloads (thousands of connections)"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "Write a binary search in Python"},
+      {"role": "assistant", "content": "```python\ndef binary_search(arr, target):\n    \"\"\"Search for target in sorted array. Returns index or -1.\"\"\"\n    left, right = 0, len(arr) - 1\n    \n    while left <= right:\n        mid = (left + right) // 2\n        \n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1    # Target is in right half\n        else:\n            right = mid - 1   # Target is in left half\n    \n    return -1  # Not found\n\n# Usage\nnums = [1, 3, 5, 7, 9, 11, 13, 15]\nprint(binary_search(nums, 7))   # 3 (index of 7)\nprint(binary_search(nums, 6))   # -1 (not found)\n```\n\n**How it works:**\n1. Start with full array `[left...right]`\n2. Check middle element\n3. If target < middle → search left half\n4. If target > middle → search right half\n5. Repeat until found or `left > right`\n\n**Complexity:** O(log n) — each step eliminates half the array.\nFor 1 million elements: only ~20 comparisons!\n\n**Requirements:** Array must be **sorted**. If unsorted, sort first (O(n log n)) or use a hash set for O(1) lookup.\n\n**Python built-in:**\n```python\nimport bisect\nidx = bisect.bisect_left(nums, 7)  # Returns insertion point\nfound = idx < len(nums) and nums[idx] == 7\n```"}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "system", "content": "You are Grg AI, a skilled programming assistant. When debugging, think step by step: identify the error, explain why it happens, and provide the fix."},
+      {"role": "user", "content": "How do I make my website faster?"},
+      {"role": "assistant", "content": "Here are the highest-impact optimizations, ordered by effort vs reward:\n\n**Quick wins (minutes):**\n1. **Compress images** — use WebP/AVIF instead of PNG/JPEG (30-50% smaller)\n2. **Enable gzip/brotli** on your server\n3. **Add `loading=\"lazy\"`** to below-fold images\n4. **Set width/height on images** to prevent layout shift\n\n**Medium effort (hours):**\n5. **Code split** — `React.lazy()` for route-based splitting\n6. **Cache static assets** — `Cache-Control: max-age=31536000` with hashed filenames\n7. **Use a CDN** (Cloudflare is free) for static assets\n8. **Defer non-critical JS** — `<script defer>`\n9. **Preload critical resources** — fonts, hero image\n\n**Bigger changes (days):**\n10. **Server-side rendering** (Next.js) for faster first paint\n11. **Database indexing** for slow API queries\n12. **Redis caching** for expensive computations\n13. **HTTP/2** or HTTP/3 (usually automatic with CDN)\n\n**Measure first!** Don't guess what's slow:\n- Chrome DevTools → Lighthouse tab → Run audit\n- Look at the score and specific recommendations\n- Focus on Core Web Vitals: LCP < 2.5s, INP < 200ms, CLS < 0.1\n\nThe biggest bang-for-buck is almost always images and JavaScript bundle size."}
+    ]
+  }
+]

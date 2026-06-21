@@ -1,0 +1,37 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert developer. Explain Git concepts clearly with practical commands and workflows."},
+      {"role": "user", "content": "How do I undo the last commit?"},
+      {"role": "assistant", "content": "Depends on whether you've pushed it:\n\n**Not pushed yet (safe):**\n```bash\n# Undo commit, keep changes staged\ngit reset --soft HEAD~1\n\n# Undo commit, unstage changes (keep in working dir)\ngit reset HEAD~1\n\n# Undo commit AND discard changes (DESTRUCTIVE!)\ngit reset --hard HEAD~1\n```\n\n**Already pushed (safe for shared branches):**\n```bash\n# Create a NEW commit that undoes the previous one\ngit revert HEAD\n# History preserved: old commit + undo commit\n```\n\n**Fix commit message only:**\n```bash\ngit commit --amend -m \"Corrected message\"\n```\n\n**Add forgotten file to last commit:**\n```bash\ngit add forgotten_file.py\ngit commit --amend --no-edit\n```\n\nRule: use `reset` for unpushed commits, `revert` for pushed commits. Never `reset --hard` on shared branches — it rewrites history and breaks teammates."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert developer. Explain Git concepts clearly with practical commands and workflows."},
+      {"role": "user", "content": "What is git rebase and when should I use it?"},
+      {"role": "assistant", "content": "Rebase replays your commits on top of another branch, creating a linear history.\n\n```bash\n# You're on feature branch, main has new commits\ngit checkout feature\ngit rebase main\n\n# Before rebase:\n# main:    A──B──C\n# feature:    └──D──E\n\n# After rebase:\n# main:    A──B──C\n# feature:          └──D'──E'  (replayed on top of C)\n\n# Then merge is fast-forward (linear!)\ngit checkout main\ngit merge feature\n# main: A──B──C──D'──E'\n```\n\n**Interactive rebase (clean up commits before PR):**\n```bash\ngit rebase -i HEAD~3\n# Opens editor:\n# pick abc123 Add login form\n# fixup def456 Fix typo          ← Squash into previous\n# pick 789abc Add validation\n# Result: 2 clean commits instead of 3\n```\n\n**Golden rule:** NEVER rebase commits that have been pushed to a shared branch. Rebase rewrites history — teammates who have the old commits will have conflicts.\n\n**Use rebase for:** updating feature branch with latest main, cleaning up local commits before PR. Use merge for: merging PRs into main."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert developer. Explain Git concepts clearly with practical commands and workflows."},
+      {"role": "user", "content": "How do I find which commit introduced a bug?"},
+      {"role": "assistant", "content": "Use `git bisect` — binary search through commits to find the exact one.\n\n```bash\ngit bisect start\ngit bisect bad              # Current commit has the bug\ngit bisect good v1.0        # This old version was fine\n\n# Git checks out a middle commit. You test:\ngit bisect good   # No bug here → search later commits\n# or\ngit bisect bad    # Bug here → search earlier commits\n\n# Repeat 5-7 times → Git finds THE commit\n# \"abc123 is the first bad commit\"\n\ngit bisect reset   # Return to original branch\n```\n\n**Automated (even better):**\n```bash\ngit bisect start HEAD v1.0\ngit bisect run npm test\n# Git runs tests on each commit automatically!\n# Finds the exact commit that broke the tests.\n```\n\nFor 1000 commits, bisect finds the bug in ~10 steps (log₂ 1000). Much faster than checking commits one by one."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert developer. Explain Git concepts clearly with practical commands and workflows."},
+      {"role": "user", "content": "How should I write good commit messages?"},
+      {"role": "assistant", "content": "Follow the Conventional Commits standard:\n\n```\n<type>(<scope>): <description>\n\n[optional body]\n[optional footer]\n```\n\n**Types:**\n- `feat`: new feature\n- `fix`: bug fix\n- `docs`: documentation\n- `refactor`: code change (no new feature, no fix)\n- `test`: adding tests\n- `chore`: maintenance\n- `perf`: performance improvement\n\n**Examples:**\n```\nfeat(auth): add JWT authentication\nfix(api): handle null user in profile endpoint\ndocs(readme): add deployment instructions\nrefactor(utils): extract date formatting to helper\ntest(auth): add login integration tests\n```\n\n**Bad messages:**\n```\nfix stuff\nupdate\nWIP\nasdfgh\nfinal fix (hopefully)\n```\n\n**Why it matters:**\n- Auto-generate CHANGELOG\n- Easy to search history (`git log --grep='auth'`)\n- Semantic versioning (feat = minor, fix = patch)\n- Code reviewers understand the intent without reading every line"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert developer. Explain Git concepts clearly with practical commands and workflows."},
+      {"role": "user", "content": "What is the difference between git pull and git fetch?"},
+      {"role": "assistant", "content": "**`git fetch`** downloads new commits from remote but does NOT modify your working files.\n```bash\ngit fetch origin\n# Now you can see what changed:\ngit log HEAD..origin/main  # Commits on remote you don't have\ngit diff HEAD origin/main  # Actual changes\n```\n\n**`git pull`** = `git fetch` + `git merge` (or rebase). It downloads AND integrates.\n```bash\ngit pull origin main\n# Equivalent to:\ngit fetch origin\ngit merge origin/main\n```\n\n**Best practice:**\n```bash\n# Pull with rebase (cleaner history, no merge commits)\ngit pull --rebase origin main\n\n# Or configure as default:\ngit config --global pull.rebase true\n```\n\n**When to use:**\n- `fetch` when you want to inspect changes before integrating\n- `pull --rebase` for daily workflow (clean linear history)\n- `pull` (merge) when you want to preserve the merge point\n\nTip: `git pull --rebase --autostash` is the safest — stashes your uncommitted changes, rebases, then re-applies them."}
+    ]
+  }
+]

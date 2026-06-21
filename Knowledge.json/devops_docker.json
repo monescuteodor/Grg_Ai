@@ -1,0 +1,37 @@
+[
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert DevOps engineer. Explain Docker, deployment, and infrastructure concepts with practical examples."},
+      {"role": "user", "content": "How do I write a good Dockerfile?"},
+      {"role": "assistant", "content": "```dockerfile\n# 1. Use specific version, Alpine for small size\nFROM node:20-alpine AS builder\n\nWORKDIR /app\n\n# 2. Copy package files first (cache dependencies layer)\nCOPY package*.json ./\nRUN npm ci\n\n# 3. Copy source code (changes often, separate layer)\nCOPY . .\nRUN npm run build\n\n# 4. Production stage (multi-stage = small final image)\nFROM node:20-alpine\nWORKDIR /app\n\n# 5. Non-root user (security)\nRUN addgroup -S app && adduser -S app -G app\n\nCOPY --from=builder /app/dist ./dist\nCOPY --from=builder /app/node_modules ./node_modules\n\nUSER app\nEXPOSE 3000\nHEALTHCHECK CMD wget -qO- http://localhost:3000/health || exit 1\nCMD [\"node\", \"dist/server.js\"]\n```\n\n**Key practices:**\n- Pin versions (`node:20-alpine` not `node:latest`)\n- Multi-stage builds (builder stage has dev tools, production stage is minimal)\n- Copy package.json before source (Docker caches unchanged layers)\n- Run as non-root user\n- Add healthcheck\n- Use `.dockerignore` to exclude `node_modules`, `.git`, `dist`\n\nBuilder: ~500MB → Final image: ~80MB"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert DevOps engineer. Explain Docker, deployment, and infrastructure concepts with practical examples."},
+      {"role": "user", "content": "What is a CI/CD pipeline and how do I set one up?"},
+      {"role": "assistant", "content": "CI/CD automates testing and deployment on every code change.\n\n**CI (Continuous Integration):** automatically test every push/PR\n**CD (Continuous Deployment):** automatically deploy after tests pass\n\n**GitHub Actions example:**\n```yaml\n# .github/workflows/ci.yml\nname: CI/CD\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: npm\n      - run: npm ci\n      - run: npm run lint\n      - run: npm test -- --coverage\n      - run: npm run build\n\n  deploy:\n    needs: test\n    if: github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: docker build -t myapp:${{ github.sha }} .\n      - run: docker push myapp:${{ github.sha }}\n      - run: kubectl set image deployment/api api=myapp:${{ github.sha }}\n```\n\n**Flow:** Push code → CI runs tests → tests pass → CD deploys automatically. If tests fail → deployment blocked, developer notified. Every PR must pass CI before merge."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert DevOps engineer. Explain Docker, deployment, and infrastructure concepts with practical examples."},
+      {"role": "user", "content": "How do I use docker-compose for local development?"},
+      {"role": "assistant", "content": "docker-compose defines multi-container setups in one file.\n\n```yaml\n# docker-compose.yml\nversion: '3.9'\nservices:\n  api:\n    build: .\n    ports:\n      - '3000:3000'\n    volumes:\n      - ./src:/app/src     # Live reload: edit locally, reflected in container\n    environment:\n      - NODE_ENV=development\n      - DB_HOST=db\n      - REDIS_URL=redis://cache:6379\n    depends_on:\n      - db\n      - cache\n\n  db:\n    image: postgres:16-alpine\n    ports:\n      - '5432:5432'\n    environment:\n      POSTGRES_DB: myapp\n      POSTGRES_PASSWORD: devpass\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\n  cache:\n    image: redis:7-alpine\n    ports:\n      - '6379:6379'\n\nvolumes:\n  pgdata:\n```\n\n**Commands:**\n```bash\ndocker compose up -d          # Start all services\ndocker compose logs -f api    # Follow API logs\ndocker compose exec db psql -U postgres  # Shell into DB\ndocker compose down           # Stop all\ndocker compose down -v        # Stop + delete volumes (fresh start)\n```\n\nService names (`db`, `cache`) become hostnames inside the Docker network. The API connects to `db:5432` and `cache:6379` automatically."}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert DevOps engineer. Explain Docker, deployment, and infrastructure concepts with practical examples."},
+      {"role": "user", "content": "What is environment variable management and how do I handle secrets?"},
+      {"role": "assistant", "content": "**Never hardcode secrets in code or commit them to Git.**\n\n**Local development — .env files:**\n```bash\n# .env (in .gitignore!)\nDB_PASSWORD=devpass123\nJWT_SECRET=dev-secret-key\nAPI_KEY=sk_test_abc123\n```\n\n```python\n# Python\nfrom dotenv import load_dotenv\nimport os\n\nload_dotenv()\ndb_password = os.environ['DB_PASSWORD']\n```\n\n```javascript\n// Node.js\nrequire('dotenv').config();\nconst secret = process.env.JWT_SECRET;\n```\n\n**Production — proper secret management:**\n- **Docker:** `docker run -e DB_PASSWORD=secret` or `--env-file`\n- **Kubernetes:** `kubectl create secret generic app-secrets --from-literal=DB_PASSWORD=secret`\n- **Cloud:** AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault\n- **CI/CD:** GitHub Secrets, GitLab CI Variables\n\n**Rules:**\n1. `.env` in `.gitignore` (never commit!)\n2. `.env.example` committed (template with empty values)\n3. Different secrets per environment (dev/staging/prod)\n4. Rotate secrets regularly\n5. If secret leaked → rotate IMMEDIATELY, then fix the leak"}
+    ]
+  },
+  {
+    "conversations": [
+      {"role": "system", "content": "You are Grg AI, an expert DevOps engineer. Explain Docker, deployment, and infrastructure concepts with practical examples."},
+      {"role": "user", "content": "How do I monitor a production application?"},
+      {"role": "assistant", "content": "Three pillars of observability: **logs, metrics, traces.**\n\n**Logs** — what happened:\n```python\nimport logging\nlogger = logging.getLogger(__name__)\n\nlogger.info('Request received', extra={'path': '/api/users', 'method': 'GET'})\nlogger.error('Database timeout', extra={'query': 'SELECT...', 'duration_ms': 5000})\n```\n\n**Metrics** — how much/how fast:\n```\n# Key metrics (RED method):\nhttp_requests_total{method=\"GET\", status=\"200\"}    # Rate\nhttp_errors_total{method=\"POST\", status=\"500\"}     # Errors\nhttp_request_duration_seconds{quantile=\"0.99\"}     # Duration\n```\n\n**Health endpoint:**\n```python\n@app.get('/health')\ndef health():\n    return {\n        'status': 'ok',\n        'uptime': time.time() - start_time,\n        'db': check_db_connection(),\n        'memory_mb': get_memory_usage(),\n    }\n```\n\n**Alerting rules:**\n- Error rate > 1% for 5 minutes → page on-call\n- Response time p99 > 2 seconds → warning\n- Disk usage > 80% → warning\n- Health check failing → critical\n\n**Tools:** Prometheus + Grafana (metrics), Loki (logs), Sentry (errors), Datadog/New Relic (all-in-one). At minimum, structured logging + health endpoint + uptime monitoring."}
+    ]
+  }
+]
