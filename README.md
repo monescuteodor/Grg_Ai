@@ -1,6 +1,7 @@
 # Grg_Ai
 I declare using AI in this project.
 
+The README.md file for the version you want is in RELEASES.
 Trained Ai specialized in programing. 
 The AI model is trained with .json file but also with .md files.
 
