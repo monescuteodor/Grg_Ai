@@ -2,7 +2,8 @@
 Trained Ai specialized in programing. 
 The AI model is trained with .json file but also with .md files.
 
-Please note that this version is not very stable and probabily you will need some libraries, if you want to try enter on:
+Please note that this version is not very stable and probabily you will need some libraries and dll's.
+If you want to try without installing anything enter on:
 https://grg-ai.com/
 
 The web page is hosted by cloudflare and the server were the AI runs is an old laptop in my room.
