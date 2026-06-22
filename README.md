@@ -28,3 +28,10 @@ The web page is hosted by cloudflare and the server were the AI runs is an old l
 https://grg-ai.com/
 
 <img width="1600" height="1200" alt="image" src="https://github.com/user-attachments/assets/ad0cb6fe-bbb3-43a6-bb4c-008d1156884b" />
+
+# Video explanation
+
+https://youtu.be/ReckK3EEgZI?si=IWOV9yItKVkCz0Ez
+
+
+
