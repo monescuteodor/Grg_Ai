@@ -1,5 +1,7 @@
 # Grg_Ai
 
+### I declare that I used AI in this project.
+
 # Description
 Trained Ai specialized in programing. 
 The AI model is trained with .json file but also with .md files.
