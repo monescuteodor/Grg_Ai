@@ -10,11 +10,11 @@ If you want more performance you can chose option 1.
 If you don't want to install anything chose option 2.
 
 # TO RUN, you have 2 options:
-1. Install the version you want LOCALY on your PC and run it safe wherever you want:
+Option 1. Install the version you want LOCALY on your PC and run it safe wherever you want:
     1. Go in Releases and download the version you want.(I recomand v1.1.0)
     2. Follow the README.md file specific to your wanted version.
 
-2. You can test it on my server(from old laptop) on your browser:
+Option 2. You can test it on my server(from old laptop) on your browser:
     https://grg-ai.com/
 
 # Details:
