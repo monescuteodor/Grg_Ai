@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grg AI</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0a0a0a;
+            --bg-sidebar: #0e0e0e;
+            --border: #2a2a2a;
+            --border-soft: #1c1c1c;
+            --text: #d8d8d8;
+            --text-dim: #888888;
+            --text-mute: #5a5a5a;
+            --user-color: #ffffff;
+            --code-bg: #151515;
+            --hover: #181818;
+            --active: #1f1f1f;
+            --sidebar-w: 260px;
+            --transition: 180ms ease;
+        }
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Times New Roman', Georgia, serif; font-size: 15px; line-height: 1.6; }
+        body { display: flex; }
+        .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; transition: margin-left var(--transition); overflow: hidden; }
+        .sidebar.collapsed { margin-left: calc(var(--sidebar-w) * -1); }
+        .sidebar-header { padding: 14px 16px; border-bottom: 1px solid var(--border-soft); }
+        .sidebar-title { font-family: 'Courier New', monospace; font-size: 13px; color: var(--text-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+        .new-chat-btn { display: block; width: calc(100% - 32px); margin: 16px; background: transparent; color: var(--text); border: 1px solid var(--border); padding: 10px 14px; font-family: inherit; font-size: 14px; cursor: pointer; text-align: left; transition: background var(--transition); }
+        .new-chat-btn:hover { background: var(--hover); border-color: var(--text-dim); }
+        .new-chat-btn::before { content: "+ "; color: var(--text-dim); }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 0 0 16px; }
+        .section { border-top: 1px solid var(--border-soft); }
+        .section-header { padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background var(--transition); }
+        .section-header:hover { background: var(--hover); }
+        .section-title { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+        .section-arrow { font-size: 10px; color: var(--text-mute); transition: transform var(--transition); }
+        .section.expanded .section-arrow { transform: rotate(90deg); }
+        .section-body { display: none; padding: 4px 16px 12px; }
+        .section.expanded .section-body { display: block; }
+        .history-list { list-style: none; }
+        .history-item { padding: 8px 10px; margin: 2px 0; font-size: 13px; color: var(--text-dim); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background var(--transition); position: relative; }
+        .history-item:hover { background: var(--hover); color: var(--text); }
+        .history-item.active { background: var(--active); color: var(--text); }
+        .history-item .delete-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-mute); font-size: 14px; cursor: pointer; opacity: 0; padding: 2px 6px; }
+        .history-item:hover .delete-btn { opacity: 1; }
+        .history-empty { font-size: 12px; color: var(--text-mute); padding: 6px 10px; font-style: italic; }
+        .section-body p { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+        .section-body a { color: var(--text-dim); text-decoration: underline; text-decoration-color: var(--text-mute); }
+        .section-body a:hover { color: var(--text); }
+        .lang-list { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); line-height: 1.8; padding-left: 4px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
+        .setting-row button { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 4px 10px; font-family: inherit; font-size: 12px; cursor: pointer; }
+        .setting-row button:hover { background: var(--hover); border-color: var(--text-dim); }
+        .main { flex: 1; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .menu-toggle { position: fixed; top: 14px; left: 14px; background: var(--bg); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; font-family: 'Courier New', monospace; font-size: 18px; transition: background var(--transition); }
+        .menu-toggle:hover { background: var(--hover); }
+        .container { width: 100%; max-width: 820px; padding: 32px 40px 24px; display: flex; flex-direction: column; min-height: 100%; }
+        .banner { text-align: center; margin-bottom: 40px; padding: 16px 0 32px; border-bottom: 1px solid var(--border); }
+        .banner pre { display: inline-block; text-align: left; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.1; color: var(--text); white-space: pre; }
+        .messages { flex: 1; margin-bottom: 24px; }
+        .messages-empty { color: var(--text-mute); text-align: center; font-style: italic; padding: 80px 0; font-size: 14px; }
+        .message { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .message:last-child { border-bottom: none; }
+        .message-role { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .message-role.user { color: var(--user-color); }
+        .message-content { color: var(--text); line-height: 1.7; white-space: pre-wrap; word-wrap: break-word; }
+        .message-content pre { background: var(--code-bg); border: 1px solid var(--border); padding: 12px 14px; margin: 12px 0; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; overflow-x: auto; white-space: pre; color: var(--text); }
+        .message-content code { background: var(--code-bg); padding: 1px 5px; font-family: 'Courier New', monospace; font-size: 13px; }
+        .message-content pre code { background: transparent; padding: 0; }
+        .cursor { display: inline-block; width: 8px; border-bottom: 1px solid var(--text); animation: blink 1.2s steps(1) infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+        .input-area { position: sticky; bottom: 0; background: var(--bg); padding: 16px 0 24px; border-top: 1px solid var(--border); }
+        .input-wrap { display: flex; gap: 8px; align-items: flex-end; }
+        .input-field { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 10px 12px; font-family: inherit; font-size: 15px; color: var(--text); outline: none; resize: none; max-height: 140px; min-height: 40px; line-height: 1.5; }
+        .input-field:focus { border-color: var(--text-dim); }
+        .input-field:disabled { opacity: 0.5; }
+        .send-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 10px 16px; font-family: inherit; font-size: 14px; cursor: pointer; }
+        .send-btn:hover:not(:disabled) { background: var(--hover); border-color: var(--text-dim); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .privacy-notice { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-sidebar); border-top: 1px solid var(--border); padding: 16px 24px; display: none; z-index: 200; box-shadow: 0 -4px 12px rgba(0,0,0,0.3); }
+        .privacy-notice.visible { display: block; }
+        .privacy-notice-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .privacy-notice-text { flex: 1; min-width: 280px; font-size: 13px; color: var(--text); line-height: 1.5; }
+        .privacy-notice-text strong { color: var(--user-color); }
+        .privacy-notice-text a { color: var(--text-dim); text-decoration: underline; text-decoration-color: var(--text-mute); }
+        .privacy-notice-text a:hover { color: var(--text); }
+        .privacy-notice-actions { display: flex; gap: 8px; }
+        .privacy-notice button { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; font-family: inherit; font-size: 13px; cursor: pointer; transition: background var(--transition); white-space: nowrap; }
+        .privacy-notice button:hover { background: var(--hover); border-color: var(--text-dim); }
+        .privacy-notice button.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+        .privacy-notice button.primary:hover { background: var(--user-color); border-color: var(--user-color); }
+        .footer { border-top: 1px solid var(--border); padding: 16px 0 8px; text-align: center; font-size: 12px; color: var(--text-mute); font-family: 'Courier New', monospace; }
+        .footer a { color: var(--text-dim); text-decoration: none; margin: 0 8px; }
+        .footer a:hover { color: var(--text); text-decoration: underline; }
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+            .container { padding: 24px 18px 18px; padding-top: 64px; }
+            .banner pre { font-size: 9px; }
+            .privacy-notice-inner { flex-direction: column; align-items: stretch; }
+            .privacy-notice-actions { justify-content: stretch; }
+            .privacy-notice button { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">≡</button>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><span class="sidebar-title">Menu</span></div>
+        <button class="new-chat-btn" onclick="newChat()">New chat</button>
+        <div class="sidebar-content">
+            <div class="section expanded" id="section-history">
+                <div class="section-header" onclick="toggleSection('section-history')">
+                    <span class="section-title">History</span><span class="section-arrow">▶</span>
+                </div>
+                <div class="section-body"><ul class="history-list" id="history-list"></ul></div>
+            </div>
+            <div class="section" id="section-languages">
+                <div class="section-header" onclick="toggleSection('section-languages')">
+                    <span class="section-title">Languages</span><span class="section-arrow">▶</span>
+                </div>
+                <div class="section-body">
+                    <div class="lang-list">C++<br>C#<br>Python<br>JavaScript<br>TypeScript<br>React Native<br>Brainfuck<br>and more...</div>
+                </div>
+            </div>
+            <div class="section" id="section-settings">
+                <div class="section-header" onclick="toggleSection('section-settings')">
+                    <span class="section-title">Settings</span><span class="section-arrow">▶</span>
+                </div>
+                <div class="section-body">
+                    <div class="setting-row"><span>Clear all data</span><button onclick="clearAllData()">Clear</button></div>
+                </div>
+            </div>
+            <div class="section" id="section-about">
+                <div class="section-header" onclick="toggleSection('section-about')">
+                    <span class="section-title">About</span><span class="section-arrow">▶</span>
+                </div>
+                <div class="section-body">
+                    <p>Grg AI by Monescu Teodor. Powered by Qwen.</p>
+                    <p>Conversations stay in your browser. The server keeps nothing.</p>
+                    <p style="margin-top: 12px;">
+                        <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="container">
+            <div class="banner">
+<pre>                       _______
+            ----------/       \----------
+            \        /         \        /
+             \_______\_________/_______/
+
+       ____  ____    ____       _     ___ 
+      / ___||  _ \  / ___|     / \   |_ _|
+     | |  _ | |_) || |  _     / _ \   | | 
+     | |_| ||  _ < | |_| |   / ___ \  | | 
+      \____||_| \_\ \____|  /_/   \_\|___|</pre>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div class="input-wrap">
+                    <textarea class="input-field" id="input" placeholder="Ask anything..." rows="1" autofocus></textarea>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            <div class="footer">
+                <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a> · © 2026 Monescu Teodor
+            </div>
+        </div>
+    </main>
+    <div class="privacy-notice" id="privacy-notice">
+        <div class="privacy-notice-inner">
+            <div class="privacy-notice-text">
+                <strong>Privacy notice:</strong> Grg AI stores your conversations <strong>only in your browser</strong> (localStorage, not cookies). The server does not log them. By using this service, you agree to the
+                <a href="/terms" target="_blank">Terms of Service</a> and
+                <a href="/privacy" target="_blank">Privacy Policy</a>.
+            </div>
+            <div class="privacy-notice-actions">
+                <button onclick="rejectPrivacy()">Leave</button>
+                <button class="primary" onclick="acceptPrivacy()">I understand</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    const STORAGE_KEY = 'grg-ai-conversations';
+    const CURRENT_KEY = 'grg-ai-current';
+    const CONSENT_KEY = 'grg-ai-consent';
+    let conversations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let currentId = localStorage.getItem(CURRENT_KEY) || null;
+    let isStreaming = false;
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+    const sidebarEl = document.getElementById('sidebar');
+    const historyListEl = document.getElementById('history-list');
+    const privacyNoticeEl = document.getElementById('privacy-notice');
+
+    function checkPrivacyConsent() {
+        const consent = localStorage.getItem(CONSENT_KEY);
+        if (!consent) {
+            privacyNoticeEl.classList.add('visible');
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+        }
+    }
+    function acceptPrivacy() {
+        localStorage.setItem(CONSENT_KEY, JSON.stringify({ accepted: true, timestamp: Date.now(), version: '1.0' }));
+        privacyNoticeEl.classList.remove('visible');
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
+    }
+    function rejectPrivacy() {
+        if (confirm('You will be redirected away from the site. Continue?')) {
+            window.location.href = 'https://duckduckgo.com';
+        }
+    }
+    function toggleSidebar() { sidebarEl.classList.toggle('collapsed'); }
+    function toggleSection(id) { document.getElementById(id).classList.toggle('expanded'); }
+    function makeId() { return 'c' + Date.now() + Math.random().toString(36).slice(2,6); }
+    function getConv(id) { return conversations.find(c => c.id === id); }
+    function getCurrentConv() { return getConv(currentId); }
+    function saveAll() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+        if (currentId) localStorage.setItem(CURRENT_KEY, currentId);
+        else localStorage.removeItem(CURRENT_KEY);
+    }
+    function newChat() { currentId = null; renderMessages(); renderHistoryList(); saveAll(); inputEl.focus(); }
+    function loadChat(id) { currentId = id; renderMessages(); renderHistoryList(); saveAll(); }
+    function deleteChat(id, event) {
+        event.stopPropagation();
+        if (!confirm('Delete this conversation?')) return;
+        conversations = conversations.filter(c => c.id !== id);
+        if (currentId === id) currentId = null;
+        renderMessages(); renderHistoryList(); saveAll();
+    }
+    function clearAllData() {
+        if (!confirm('Delete ALL conversations and reset privacy consent?')) return;
+        conversations = []; currentId = null;
+        localStorage.clear();
+        renderMessages(); renderHistoryList();
+        checkPrivacyConsent();
+    }
+    function escapeHtml(text) { return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function formatResponse(text) {
+        let html = escapeHtml(text);
+        html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (m,l,c) => `<pre><code>${c.trim()}</code></pre>`);
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        return html;
+    }
+    function renderHistoryList() {
+        historyListEl.innerHTML = '';
+        if (conversations.length === 0) { historyListEl.innerHTML = '<li class="history-empty">No conversations yet</li>'; return; }
+        const sorted = [...conversations].sort((a,b) => b.created - a.created);
+        for (const conv of sorted) {
+            const li = document.createElement('li');
+            li.className = 'history-item' + (conv.id === currentId ? ' active' : '');
+            li.onclick = () => loadChat(conv.id);
+            li.innerHTML = `<span>${escapeHtml(conv.title || 'Untitled')}</span><button class="delete-btn" onclick="deleteChat('${conv.id}', event)">×</button>`;
+            historyListEl.appendChild(li);
+        }
+    }
+    function renderMessages() {
+        messagesEl.innerHTML = '';
+        const conv = getCurrentConv();
+        if (!conv || conv.turns.length === 0) {
+            messagesEl.innerHTML = '<div class="messages-empty">Start a new conversation below.</div>';
+            return;
+        }
+        for (const turn of conv.turns) {
+            appendMessage('user', turn.user, true);
+            appendMessage('assistant', turn.assistant, true);
+        }
+        document.querySelector('.main').scrollTop = document.querySelector('.main').scrollHeight;
+    }
+    function appendMessage(role, text, formatted=false) {
+        const empty = messagesEl.querySelector('.messages-empty');
+        if (empty) empty.remove();
+        const msg = document.createElement('div');
+        msg.className = 'message';
+        msg.innerHTML = `<div class="message-role ${role}">${role==='user'?'You':'Grg AI'}</div><div class="message-content"></div>`;
+        const contentEl = msg.querySelector('.message-content');
+        if (formatted) contentEl.innerHTML = formatResponse(text);
+        else contentEl.textContent = text;
+        messagesEl.appendChild(msg);
+        return contentEl;
+    }
+    async function sendMessage() {
+        if (isStreaming) return;
+        const message = inputEl.value.trim();
+        if (!message) return;
+        if (!localStorage.getItem(CONSENT_KEY)) { checkPrivacyConsent(); return; }
+        if (!currentId) {
+            const c = { id: makeId(), title: message.length>40?message.slice(0,40)+'…':message, turns: [], created: Date.now() };
+            conversations.push(c); currentId = c.id; renderHistoryList();
+        }
+        const conv = getCurrentConv();
+        const history = conv.turns.map(t => ({user:t.user, assistant:t.assistant}));
+        isStreaming = true; sendBtn.disabled = true; inputEl.disabled = true;
+        appendMessage('user', message);
+        inputEl.value = ''; inputEl.style.height = 'auto';
+        const assistantEl = appendMessage('assistant', '');
+        const cursorEl = document.createElement('span');
+        cursorEl.className = 'cursor';
+        assistantEl.appendChild(cursorEl);
+        let fullResponse = '';
+        try {
+            const response = await fetch('/api/chat', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({message, history})
+            });
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            while (true) {
+                const {done, value} = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, {stream:true});
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    try {
+                        const p = JSON.parse(line.slice(6));
+                        if (p.token) { fullResponse += p.token; assistantEl.textContent = fullResponse; assistantEl.appendChild(cursorEl); }
+                        if (p.done) assistantEl.innerHTML = formatResponse(fullResponse);
+                        if (p.error) assistantEl.textContent = '[Error: '+p.error+']';
+                    } catch(e) {}
+                }
+            }
+            if (fullResponse.trim()) {
+                conv.turns.push({user:message, assistant:fullResponse.trim()});
+                saveAll();
+            }
+        } catch(e) {
+            assistantEl.textContent = '[Error: '+e.message+']';
+        } finally {
+            cursorEl.remove();
+            isStreaming = false; sendBtn.disabled = false; inputEl.disabled = false;
+            inputEl.focus();
+        }
+    }
+    inputEl.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    inputEl.addEventListener('input', () => { inputEl.style.height='auto'; inputEl.style.height=Math.min(inputEl.scrollHeight,140)+'px'; });
+    renderHistoryList();
+    renderMessages();
+    checkPrivacyConsent();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a132b5f64a5fc9e4',t:'MTc4MjcxMjgyNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
