@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#07070a">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23111'/><text x='50' y='72' font-family='Arial,sans-serif' font-size='70' font-weight='bold' fill='white' text-anchor='middle'>G</text></svg>">
     <title>Grg AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
@@ -425,7 +426,7 @@ const STORE = 'grg-chats';
 const CUR = 'grg-current';
 const CONSENT = 'grg-consent';
 let chats = JSON.parse(localStorage.getItem(STORE) || '[]');
-let currentId = localStorage.getItem(CUR) || null;
+let currentId = null;
 let streaming = false;
 let attachedFile = null;  // {name, content}
 
