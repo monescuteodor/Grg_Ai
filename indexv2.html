@@ -158,6 +158,34 @@
         .send-btn:hover:not(:disabled) { background: #5558e6; transform: scale(1.05); }
         .send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
         .send-btn svg { width: 18px; height: 18px; }
+        .stop-btn { background: var(--red); color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all var(--transition); flex-shrink: 0; margin: 2px; }
+        .stop-btn:hover { background: #dc2626; }
+        .stop-btn svg { width: 16px; height: 16px; }
+        .regen-wrap { display: flex; justify-content: center; margin-top: 8px; }
+        .regen-btn { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font); font-size: 12px; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 6px; }
+        .regen-btn:hover { border-color: var(--text-mute); color: var(--text); background: var(--bg-hover); }
+        .regen-btn svg { width: 14px; height: 14px; }
+        .msg-body h1 { font-size: 22px; font-weight: 600; margin: 16px 0 8px; color: var(--text); white-space: normal; }
+        .msg-body h2 { font-size: 18px; font-weight: 600; margin: 14px 0 6px; color: var(--text); white-space: normal; }
+        .msg-body h3 { font-size: 15px; font-weight: 600; margin: 12px 0 4px; color: var(--text); white-space: normal; }
+        .msg-body ul, .msg-body ol { margin: 8px 0 8px 20px; color: var(--text); white-space: normal; }
+        .msg-body li { margin-bottom: 4px; white-space: normal; }
+        .msg-body a.md-link { color: var(--accent); text-decoration: none; }
+        .msg-body a.md-link:hover { text-decoration: underline; }
+        .msg-body blockquote { border-left: 3px solid var(--border); padding: 4px 12px; margin: 8px 0; color: var(--text-dim); white-space: normal; }
+        .msg-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+        .msg-body table { border-collapse: collapse; margin: 12px 0; width: 100%; }
+        .msg-body th, .msg-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; font-size: 13px; }
+        .msg-body th { background: var(--bg-surface); color: var(--text); font-weight: 600; }
+        .msg-body td { color: var(--text-dim); }
+        .theme-btn { background: none; border: 1px solid var(--border); color: var(--text-dim); width: 34px; height: 34px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); font-size: 16px; margin-left: auto; }
+        .theme-btn:hover { background: var(--bg-hover); color: var(--text); }
+        /* Light theme */
+        [data-theme="light"] { --bg-deep: #f5f5f7; --bg: #ffffff; --bg-surface: #f0f0f2; --bg-hover: #e8e8ec; --bg-active: #dddde2; --border: #d0d0d8; --border-light: #c0c0c8; --text: #1a1a2e; --text-dim: #555568; --text-mute: #8888a0; --accent: #5558e6; --accent-soft: rgba(85,88,230,0.1); --green: #16a34a; --red: #dc2626; --code-bg: #f0f0f5; }
+        [data-theme="light"] .msg-body code { background: #e8e8f0; border-color: #d0d0d8; }
+        [data-theme="light"] .code-wrap { border-color: #d0d0d8; }
+        [data-theme="light"] .code-header { background: #e8e8ec; border-color: #d0d0d8; }
+        [data-theme="light"] .hljs { background: #f0f0f5 !important; }
         .input-hint { text-align: center; font-size: 11px; color: var(--text-mute); margin-top: 8px; }
 
         /* ─── GDPR ─── */
@@ -343,6 +371,9 @@
         <span class="topbar-title">Grg AI</span>
         <div class="status-dot"></div>
         <span class="status-text">Online</span>
+        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
     </div>
 
     <div class="chat-area" id="chat-area">
@@ -362,6 +393,9 @@
                 <textarea class="input-field" id="input" placeholder="Ask anything about programming..." rows="1" autofocus></textarea>
                 <button class="send-btn" id="send-btn" onclick="sendMessage()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+                <button class="stop-btn" id="stop-btn" onclick="stopGeneration()">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
                 </button>
             </div>
             <input type="file" id="file-input" accept=".py,.js,.ts,.jsx,.tsx,.c,.cpp,.h,.java,.go,.rs,.rb,.php,.html,.css,.json,.xml,.yaml,.yml,.toml,.md,.txt,.sql,.sh,.bat,.ps1,.r,.swift,.kt,.dart,.lua,.zig,.csv,.log,.env,.gitignore,.dockerfile" style="display:none" onchange="handleFileAttach(event)">
@@ -428,6 +462,8 @@ const CONSENT = 'grg-consent';
 let chats = JSON.parse(localStorage.getItem(STORE) || '[]');
 let currentId = null;
 let streaming = false;
+var _abortController = null;
+var _lastUserMsg = '';
 let attachedFile = null;  // {name, content}
 
 const $msgs = document.getElementById('messages');
@@ -522,6 +558,8 @@ function removeFile() {
 
 function formatMsg(text) {
     var h = esc(text);
+    // Code blocks first (protect from other replacements)
+    var codeBlocks = [];
     h = h.replace(/```(\w*)\n?([\s\S]*?)```/g, function(m, lang, code) {
         var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
         var label = lang || 'code';
@@ -533,10 +571,34 @@ function formatMsg(text) {
         var codeBtn = '<button class="code-btn-inline" onclick="openCodePanel(this,\'' + label + '\')">' + codeIcon + '</button>';
         var btns = '<div style="display:flex;gap:4px;">' + codeBtn + runBtn + '<button class="copy-btn" onclick="copyCode(this)">' + copyIcon + '<span>Copy</span></button></div>';
         var hdr = '<div class="code-header"><span class="code-lang">' + label + '</span>' + btns + '</div>';
-        return '<div class="code-wrap">' + hdr + '<pre><code>' + code.trim() + '</code></pre></div>';
+        var idx = codeBlocks.length;
+        codeBlocks.push('<div class="code-wrap">' + hdr + '<pre><code class="language-' + label + '">' + code.trim() + '</code></pre></div>');
+        return '%%CODE' + idx + '%%';
     });
+    // Headings
+    h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // Blockquotes
+    h = h.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    // Horizontal rules
+    h = h.replace(/^---$/gm, '<hr>');
+    // Unordered lists
+    h = h.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+    // Ordered lists
+    h = h.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    // Links
+    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
+    // Inline code
     h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Bold + italic
+    h = h.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
     h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Restore code blocks
+    for (var i = 0; i < codeBlocks.length; i++) {
+        h = h.replace('%%CODE' + i + '%%', codeBlocks[i]);
+    }
     return h;
 }
 
@@ -605,19 +667,32 @@ function addMsgUI(role, content, isFormatted) {
     return body;
 }
 
-async function sendMessage() {
+async function sendMessage(regenerate) {
     if (streaming) return;
-    const msg = $input.value.trim();
+    var msg = regenerate ? _lastUserMsg : $input.value.trim();
     if (!msg) return;
     if (!localStorage.getItem(CONSENT)) { $consent.classList.add('visible'); return; }
+
+    // Remove previous regenerate button
+    var oldRegen = $msgs.querySelector('.regen-wrap');
+    if (oldRegen) oldRegen.remove();
 
     // Build the full message (include file if attached)
     let fullMsg = msg;
     let displayMsg = msg;
-    if (attachedFile) {
+    if (!regenerate && attachedFile) {
         fullMsg = `[Attached file: ${attachedFile.name}]\n\`\`\`\n${attachedFile.content}\n\`\`\`\n\n${msg}`;
         displayMsg = `📎 ${attachedFile.name}\n\n${msg}`;
         removeFile();
+    }
+    _lastUserMsg = fullMsg;
+
+    // If regenerating, remove last AI response
+    if (regenerate) {
+        var curChat = getCurrent();
+        if (curChat && curChat.turns.length > 0) { curChat.turns.pop(); save(); }
+        var allMsgs = $msgs.querySelectorAll('.message');
+        if (allMsgs.length >= 2) { allMsgs[allMsgs.length - 1].remove(); allMsgs[allMsgs.length - 2].remove(); }
     }
 
     if (!currentId) {
@@ -627,7 +702,11 @@ async function sendMessage() {
     const chat = getCurrent();
     const history = chat.turns.map(t => ({ user: t.user, assistant: t.assistant }));
 
-    streaming = true; $send.disabled = true; $input.disabled = true;
+    streaming = true;
+    $send.style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'flex';
+    $input.disabled = true;
+    _abortController = new AbortController();
     addMsgUI('user', displayMsg, true);
     $input.value = ''; $input.style.height = 'auto';
 
@@ -756,7 +835,8 @@ async function sendMessage() {
     try {
         const res = await fetch('/api/chat', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: fullMsg, history })
+            body: JSON.stringify({ message: fullMsg, history }),
+            signal: _abortController.signal
         });
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -794,10 +874,50 @@ async function sendMessage() {
     } catch(e) {
         aiBody.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
     } finally {
-        streaming = false; $send.disabled = false; $input.disabled = false;
-        $input.focus(); renderHistory();
+        streaming = false;
+        $send.style.display = 'flex';
+        document.getElementById('stop-btn').style.display = 'none';
+        $send.disabled = false;
+        $input.disabled = false;
+        $input.focus();
+        renderHistory();
+        // Add regenerate button
+        var regen = document.createElement('div');
+        regen.className = 'regen-wrap';
+        regen.innerHTML = '<button class="regen-btn" onclick="this.parentElement.remove();sendMessage(true);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Regenerate</button>';
+        $msgs.appendChild(regen);
+        scrollBottom();
     }
 }
+
+function stopGeneration() {
+    if (_abortController) _abortController.abort();
+    streaming = false;
+}
+
+function toggleTheme() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('grg-theme', next);
+    var icon = document.getElementById('theme-icon');
+    if (next === 'light') {
+        icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    } else {
+        icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    }
+}
+(function() {
+    var saved = localStorage.getItem('grg-theme');
+    if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+        if (saved === 'light') {
+            var icon = document.getElementById('theme-icon');
+            if (icon) icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+        }
+    }
+})();
 
 $input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 $input.addEventListener('input', () => { $input.style.height = 'auto'; $input.style.height = Math.min($input.scrollHeight, 200) + 'px'; });
@@ -905,39 +1025,102 @@ function codePanelRun() {
 var _dangerPatterns = [/document\.cookie/i, /eval\s*\(/i, /new\s+Function/i, /child_process/i, /require\s*\(\s*['"]fs/i, /rm\s+-rf/i, /__proto__/i];
 
 function runPreview(btn) {
-    var code = btn.closest('.code-wrap').querySelector('code').textContent;
     var panel = document.getElementById('preview-panel');
     var frame = document.getElementById('preview-frame');
     var badge = document.getElementById('preview-badge');
 
-    // Safety check
+    // Find the parent message containing this code block
+    var message = btn.closest('.message');
+    if (!message) message = btn.closest('.msg-body');
+    if (!message) message = document.getElementById('messages');
+
+    // Collect ALL code blocks from this message
+    var allCodeBlocks = message.querySelectorAll('.code-wrap');
+    var htmlParts = [];
+    var cssParts = [];
+    var jsParts = [];
+    var fullHtml = null;
+
+    for (var i = 0; i < allCodeBlocks.length; i++) {
+        var langEl = allCodeBlocks[i].querySelector('.code-lang');
+        var codeEl = allCodeBlocks[i].querySelector('code');
+        if (!codeEl) continue;
+        var lang = langEl ? langEl.textContent.toLowerCase().trim() : '';
+        var code = codeEl.textContent;
+
+        // Check if it's a full HTML document
+        var trimmed = code.trim().toLowerCase();
+        if (trimmed.indexOf('<!doctype') === 0 || trimmed.indexOf('<html') === 0) {
+            fullHtml = code;
+            continue;
+        }
+
+        if (lang === 'css') {
+            cssParts.push(code);
+        } else if (lang === 'javascript' || lang === 'js') {
+            jsParts.push(code);
+        } else if (lang === 'html' || lang === 'htm' || lang === 'svg' || (code.trim().charAt(0) === '<')) {
+            htmlParts.push(code);
+        } else if (lang === '' || lang === 'code') {
+            // Try to detect type
+            if (code.trim().charAt(0) === '<') htmlParts.push(code);
+            else if (code.indexOf('{') !== -1 && code.indexOf(':') !== -1 && code.indexOf(';') !== -1) cssParts.push(code);
+            else jsParts.push(code);
+        }
+    }
+
+    // Safety check on all combined code
+    var allCode = htmlParts.join('\n') + cssParts.join('\n') + jsParts.join('\n') + (fullHtml || '');
     var isSafe = true;
-    for (var i = 0; i < _dangerPatterns.length; i++) {
-        if (_dangerPatterns[i].test(code)) { isSafe = false; break; }
+    for (var s = 0; s < _dangerPatterns.length; s++) {
+        if (_dangerPatterns[s].test(allCode)) { isSafe = false; break; }
     }
     badge.textContent = isSafe ? '✓ Safe' : '⚠ Warning';
     badge.className = 'preview-badge ' + (isSafe ? 'ok' : 'bad');
 
-    // Build HTML
-    var html = code;
-    var trimmed = code.trim().toLowerCase();
-    if (trimmed.indexOf('<!doctype') !== 0 && trimmed.indexOf('<html') !== 0) {
-        if (trimmed.charAt(0) === '<') {
-            // HTML snippet
-            html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui;padding:20px;background:#fff;color:#333;}</style></head><body>' + code + '</body></html>';
-        } else {
-            // JS code - redirect console.log to page
-            var safeCode = code.replace(/<\/script/gi, '<\\/script');
-            html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:monospace;padding:20px;background:#1a1a2e;color:#e2e2e8;white-space:pre-wrap;}</style></head><body>' +
-                '<scr' + 'ipt>try{var _o=[];var _l=console.log;console.log=function(){var a=Array.prototype.slice.call(arguments);_o.push(a.map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x)}).join(" "));document.body.textContent=_o.join("\\n");};' +
-                safeCode +
-                '}catch(e){document.body.innerHTML="<span style=\\"color:#ef4444\\">Error: "+e.message+"</span>";}</scr' + 'ipt></body></html>';
+    // Build combined HTML
+    var result;
+    if (fullHtml) {
+        // Full HTML document — inject extra CSS and JS into it
+        result = fullHtml;
+        if (cssParts.length > 0) {
+            var cssInsert = '<style>' + cssParts.join('\n') + '</style>';
+            if (result.indexOf('</head>') !== -1) {
+                result = result.replace('</head>', cssInsert + '</head>');
+            } else {
+                result = cssInsert + result;
+            }
         }
+        if (jsParts.length > 0) {
+            var jsInsert = '<scr' + 'ipt>' + jsParts.join('\n') + '</scr' + 'ipt>';
+            if (result.indexOf('</body>') !== -1) {
+                result = result.replace('</body>', jsInsert + '</body>');
+            } else {
+                result = result + jsInsert;
+            }
+        }
+    } else {
+        // No full document — combine all parts
+        var css = cssParts.length > 0 ? '<style>' + cssParts.join('\n') + '</style>' : '';
+        var body = htmlParts.length > 0 ? htmlParts.join('\n') : '';
+        var js = '';
+        if (jsParts.length > 0) {
+            var safeJs = jsParts.join('\n').replace(/<\/script/gi, '<\\/script');
+            if (body.length > 0) {
+                // HTML + JS — run JS normally
+                js = '<scr' + 'ipt>' + safeJs + '</scr' + 'ipt>';
+            } else {
+                // Pure JS only — redirect console.log to page
+                body = '';
+                js = '<scr' + 'ipt>try{var _o=[];console.log=function(){var a=Array.prototype.slice.call(arguments);_o.push(a.map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x)}).join(" "));document.body.textContent=_o.join("\\n");};' +
+                    safeJs + '}catch(e){document.body.innerHTML="<span style=\\"color:#ef4444\\">Error: "+e.message+"</span>";}</scr' + 'ipt>';
+            }
+        }
+        result = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui;padding:20px;background:#fff;color:#333;}</style>' + css + '</head><body>' + body + js + '</body></html>';
     }
 
-    frame.srcdoc = html;
+    frame.srcdoc = result;
     panel.classList.add('open');
-    
 }
 
 function closePreview() {
