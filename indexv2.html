@@ -146,6 +146,7 @@
         /* Legacy compat */
         .typing-dots { display: inline-flex; gap: 4px; padding-left: 38px; }
         .typing-dots span { width: 6px; height: 6px; background: var(--text-mute); border-radius: 50%; animation: thinking-bounce 1.4s ease-in-out infinite; }
+        .typing-label { font-size: 12px; color: var(--text-mute); padding-left: 38px; margin-bottom: 4px; font-style: italic; }
 
         /* ─── INPUT ─── */
         .input-area { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 28px 24px; background: linear-gradient(transparent, var(--bg-deep) 30%); }
@@ -187,6 +188,28 @@
         [data-theme="light"] .code-header { background: #e8e8ec; border-color: #d0d0d8; }
         [data-theme="light"] .hljs { background: #f0f0f5 !important; }
         .input-hint { text-align: center; font-size: 11px; color: var(--text-mute); margin-top: 8px; }
+        .scroll-bottom-btn { position: absolute; bottom: 120px; right: 24px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 50; transition: all var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .scroll-bottom-btn:hover { background: var(--bg-hover); color: var(--text); transform: translateY(2px); }
+        .scroll-bottom-btn.visible { display: flex; }
+        .scroll-bottom-btn svg { width: 18px; height: 18px; }
+        .suggestions { position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 4px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); animation: suggest-in 0.2s ease; z-index: 10; }
+        .suggestions.visible { display: block; }
+        .suggest-item { padding: 10px 16px; font-size: 13px; color: var(--text-dim); cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 10px; }
+        .suggest-item:hover, .suggest-item.active { background: var(--bg-hover); color: var(--text); }
+        .suggest-item svg { width: 14px; height: 14px; color: var(--text-mute); flex-shrink: 0; }
+        @keyframes suggest-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .voice-btn { background: none; border: none; color: var(--text-mute); cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all var(--transition); flex-shrink: 0; }
+        .voice-btn:hover { color: var(--accent); background: var(--accent-soft); }
+        .voice-btn.recording { color: var(--red); animation: pulse-rec 1s ease infinite; }
+        @keyframes pulse-rec { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .voice-btn svg { width: 18px; height: 18px; }
+        .exec-btn { background: none; border: 1px solid #f59e0b; color: #f59e0b; font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 5px; margin-left: 6px; }
+        .exec-btn:hover { background: rgba(245,158,11,0.12); }
+        .exec-btn svg { width: 12px; height: 12px; }
+        .exec-output { margin: 8px 0; padding: 12px; background: #0a0f0a; border: 1px solid #1a3a1a; border-radius: 8px; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; }
+        .exec-output.success { color: #4ade80; border-color: #1a3a1a; }
+        .exec-output.error { color: #f87171; border-color: #3a1a1a; background: #0f0a0a; }
+        .export-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 
         /* ─── GDPR ─── */
         .consent-banner { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-surface); border-top: 1px solid var(--border); padding: 16px 24px; z-index: 200; display: none; }
@@ -249,6 +272,9 @@
 
         /* ─── MOBILE ─── */
         @media (max-width: 768px) {
+            /* Prevent horizontal scroll */
+            html, body { overflow-x: hidden; width: 100%; }
+
             /* Sidebar: full overlay on mobile */
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 85%; max-width: 300px; box-shadow: 4px 0 24px rgba(0,0,0,0.7); z-index: 200; }
             .sidebar.collapsed { margin-left: -100%; }
@@ -258,10 +284,12 @@
             .sidebar:not(.collapsed)::after { content: ''; position: fixed; top: 0; left: 100%; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); }
 
             /* Main area */
-            .chat-inner { padding: 12px 14px 140px; }
-            .msg-body { padding-left: 0; font-size: 14px; }
+            .main { width: 100vw !important; min-width: 0; }
+            .chat-inner { padding: 12px 10px 160px; }
+            .msg-body { padding-left: 0; font-size: 14px; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; }
             .msg-avatar { width: 24px; height: 24px; font-size: 11px; border-radius: 6px; }
             .msg-name { font-size: 12px; }
+            .message { max-width: 100%; overflow: hidden; }
 
             /* Welcome */
             .welcome { padding: 40px 10px 20px; }
@@ -270,28 +298,34 @@
             .quick-actions { flex-direction: column; gap: 6px; }
             .quick-btn { padding: 12px 16px; font-size: 14px; text-align: left; border-radius: 12px; }
 
-            /* Input area */
-            .input-area { padding: 8px 10px 14px; }
-            .input-box { border-radius: 16px; padding: 4px 4px 4px 12px; }
-            .input-field { font-size: 16px; padding: 10px 0; } /* 16px prevents iOS zoom */
-            .send-btn { width: 40px; height: 40px; }
+            /* Input area — fixed at bottom, full width */
+            .input-area { padding: 8px 8px 14px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: var(--bg-deep); }
+            .input-box { border-radius: 16px; padding: 4px 4px 4px 8px; max-width: 100%; }
+            .input-field { font-size: 16px; padding: 10px 0; min-height: 44px; } /* 16px prevents iOS zoom */
+            .send-btn { width: 40px; height: 40px; min-width: 40px; }
+            .stop-btn { width: 40px; height: 40px; min-width: 40px; }
             .input-hint { display: none; }
             .attach-btn { padding: 8px; }
-            .attach-btn svg { width: 22px; height: 22px; }
+            .attach-btn svg { width: 20px; height: 20px; }
 
             /* File indicator */
             .file-indicator { margin-bottom: 4px; padding: 4px 10px; font-size: 11px; }
 
-            /* Code blocks */
-            .code-wrap pre { font-size: 12px; padding: 10px 12px; }
-            .code-header { padding: 4px 10px; }
+            /* Code blocks — scroll horizontal, not overflow */
+            .code-wrap { max-width: calc(100vw - 20px); overflow: hidden; }
+            .code-wrap pre { font-size: 11.5px; padding: 10px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .code-header { padding: 4px 8px; flex-wrap: wrap; }
             .code-lang { font-size: 10px; }
-            .copy-btn { font-size: 10px; padding: 3px 8px; }
-            .run-btn { font-size: 10px; padding: 3px 8px; }
+            .copy-btn { font-size: 10px; padding: 3px 6px; }
+            .run-btn { font-size: 10px; padding: 3px 6px; }
+            .code-btn-inline { padding: 3px 6px; }
+            .exec-btn { font-size: 10px; padding: 3px 6px; }
 
             /* Topbar */
-            .topbar { height: 48px; padding: 0 12px; }
+            .topbar { height: 48px; padding: 0 10px; }
             .topbar-title { font-size: 14px; }
+            .theme-btn { width: 30px; height: 30px; }
+            .status-text { font-size: 11px; }
 
             /* Preview and Code panels: full screen on mobile */
             .preview-panel.open { width: 100%; position: fixed; top: 0; left: 0; z-index: 100; }
@@ -299,20 +333,44 @@
 
             /* Thinking indicator */
             .thinking-indicator { padding-left: 0; }
+            .thinking-step { font-size: 12px; }
+
+            /* Scroll to bottom */
+            .scroll-bottom-btn { bottom: 90px; right: 12px; }
+
+            /* Regen button */
+            .regen-btn { font-size: 11px; padding: 5px 12px; }
+
+            /* Sidebar mode buttons */
+            .mode-btn { padding: 8px 10px; font-size: 12px; }
+
+            /* Tables scroll */
+            .msg-body table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+            /* Markdown headings */
+            .msg-body h1 { font-size: 18px; }
+            .msg-body h2 { font-size: 16px; }
+            .msg-body h3 { font-size: 14px; }
+
+            /* Blockquote */
+            .msg-body blockquote { margin-left: 0; padding: 4px 10px; }
         }
 
         /* Extra small phones */
         @media (max-width: 380px) {
-            .welcome-logo { font-size: 24px; }
-            .chat-inner { padding: 8px 10px 140px; }
-            .msg-body { font-size: 13.5px; line-height: 1.6; }
-            .quick-btn { font-size: 13px; padding: 10px 14px; }
+            .welcome-logo { font-size: 22px; }
+            .chat-inner { padding: 8px 8px 160px; }
+            .msg-body { font-size: 13px; line-height: 1.6; }
+            .quick-btn { font-size: 12px; padding: 10px 12px; }
+            .topbar-title { font-size: 13px; }
+            .sidebar { width: 90%; }
         }
 
         /* Safe area for notched phones (iPhone etc) */
         @supports (padding: env(safe-area-inset-bottom)) {
-            .input-area { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+            .input-area { padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important; }
             .sidebar-footer { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+            .chat-inner { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
         }
 
         /* Touch-friendly: bigger tap targets */
@@ -322,7 +380,38 @@
             .quick-btn { min-height: 48px; }
             .copy-btn, .run-btn { min-height: 32px; padding: 6px 12px; }
             .preview-x { width: 36px; height: 36px; }
+            .code-panel-x { width: 36px; height: 36px; }
         }
+        /* ─── APPLE-LIKE SMOOTH ANIMATIONS ─── */
+        .message { animation: msg-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes msg-appear { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .sidebar { transition: margin-left 350ms cubic-bezier(0.32, 0.72, 0, 1), opacity 300ms ease; }
+        .code-panel { transition: width 400ms cubic-bezier(0.32, 0.72, 0, 1); }
+        .preview-panel { transition: width 400ms cubic-bezier(0.32, 0.72, 0, 1); }
+        .code-wrap { animation: code-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes code-appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .quick-btn { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .quick-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(99,102,241,0.15); }
+        .quick-btn:active { transform: translateY(0) scale(0.98); }
+        .send-btn { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .send-btn:active { transform: scale(0.9); }
+        .new-chat-btn { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .new-chat-btn:active { transform: scale(0.97); }
+        .history-item { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-bottom-btn { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-bottom-btn.visible { animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes bounce-in { from { opacity: 0; transform: scale(0.5) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .regen-btn { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .regen-btn:active { transform: scale(0.95); }
+        .theme-btn { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .theme-btn:active { transform: scale(0.85) rotate(20deg); }
+        .msg-avatar { transition: all 0.2s ease; }
+        .message:hover .msg-avatar { transform: scale(1.05); }
+        .welcome { animation: welcome-in 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes welcome-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-logo { animation: logo-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+        @keyframes logo-in { from { opacity: 0; transform: scale(0.9); filter: blur(4px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+
         /* ─── INTRO GLOW on input bar ─── */
         .input-box { animation: intro-glow 2s ease-out 0.5s; }
         @keyframes intro-glow {
@@ -361,6 +450,7 @@
     <div class="sidebar-footer">
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
+        <a href="#" onclick="clearAllChats();return false;">Clear All</a>
         <span style="font-size:11px;color:var(--text-mute);">© 2026 Monescu Teodor</span>
     </div>
 </aside>
@@ -380,6 +470,9 @@
         <div class="chat-inner" id="messages"></div>
     </div>
 
+    <button class="scroll-bottom-btn" id="scroll-bottom" onclick="scrollBottom()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
     <div class="input-area">
         <div class="input-container">
             <div id="file-indicator" class="file-indicator" style="display:none;">
@@ -398,6 +491,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
                 </button>
             </div>
+            <div class="suggestions" id="suggestions"></div>
             <input type="file" id="file-input" accept=".py,.js,.ts,.jsx,.tsx,.c,.cpp,.h,.java,.go,.rs,.rb,.php,.html,.css,.json,.xml,.yaml,.yml,.toml,.md,.txt,.sql,.sh,.bat,.ps1,.r,.swift,.kt,.dart,.lua,.zig,.csv,.log,.env,.gitignore,.dockerfile" style="display:none" onchange="handleFileAttach(event)">
             <div class="input-hint">Grg AI is a programming assistant.</div>
         </div>
@@ -556,6 +650,33 @@ function removeFile() {
     $input.placeholder = 'Ask anything about programming...';
 }
 
+// Light markdown formatter for streaming (handles incomplete code blocks)
+function formatMsgLive(text) {
+    var h = esc(text);
+    // Complete code blocks
+    h = h.replace(/```(\w*)\n?([\s\S]*?)```/g, function(m, lang, code) {
+        var label = lang || 'code';
+        return '<div class="code-wrap"><div class="code-header"><span class="code-lang">' + label + '</span></div><pre><code>' + code.trim() + '</code></pre></div>';
+    });
+    // Incomplete code block (still being typed) — show as code
+    h = h.replace(/```(\w*)\n?([\s\S]*)$/g, function(m, lang, code) {
+        var label = lang || 'code';
+        return '<div class="code-wrap" style="border-color:var(--accent);opacity:0.8"><div class="code-header"><span class="code-lang">' + label + ' ...</span></div><pre><code>' + code + '</code></pre></div>';
+    });
+    // Headings
+    h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // Lists
+    h = h.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+    h = h.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    // Inline
+    h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+    h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    return h;
+}
+
 function formatMsg(text) {
     var h = esc(text);
     // Code blocks first (protect from other replacements)
@@ -565,6 +686,7 @@ function formatMsg(text) {
         var label = lang || 'code';
         var runnableList = ['html','htm','css','javascript','js','svg'];
         var isRunnable = runnableList.indexOf(label.toLowerCase()) !== -1;
+        var isPython = false;
         var playIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
         var runBtn = isRunnable ? '<button class="run-btn" onclick="runPreview(this)">' + playIcon + '<span>Run</span></button>' : '';
         var codeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
@@ -623,11 +745,31 @@ function renderHistory() {
     if (!chats.length) { $history.innerHTML = '<li class="history-empty">No conversations yet</li>'; return; }
     const sorted = [...chats].sort((a,b) => b.ts - a.ts);
     $history.innerHTML = sorted.map(c => `
-        <li class="history-item ${c.id===currentId?'active':''}" onclick="loadChat('${c.id}')">
+        <li class="history-item ${c.id===currentId?'active':''}" onclick="loadChat('${c.id}')" ondblclick="renameChat('${c.id}', event)">
             ${esc(c.title || 'Untitled')}
             <button class="del-btn" onclick="deleteChat('${c.id}', event)">✕</button>
         </li>
     `).join('');
+}
+
+function renameChat(id, e) {
+    e.stopPropagation();
+    var chat = getChat(id);
+    if (!chat) return;
+    var newTitle = prompt('Rename conversation:', chat.title || 'Untitled');
+    if (newTitle && newTitle.trim()) {
+        chat.title = newTitle.trim();
+        save();
+        renderHistory();
+    }
+}
+
+function clearAllChats() {
+    if (!confirm('Delete ALL conversations? This cannot be undone.')) return;
+    chats.length = 0;
+    currentId = null;
+    save();
+    renderAll();
 }
 
 function renderMessages() {
@@ -854,12 +996,26 @@ async function sendMessage(regenerate) {
                 try {
                     const p = JSON.parse(line.slice(6));
                     if (p.token) {
-                        if (firstToken) { aiBody.innerHTML = ''; firstToken = false; }
+                        if (firstToken) {
+                            aiBody.innerHTML = '<div class="typing-label">Grg is writing...</div>';
+                            firstToken = false;
+                            setTimeout(function() {
+                                var label = aiBody.querySelector('.typing-label');
+                                if (label) label.remove();
+                            }, 500);
+                        }
                         fullResp += p.token;
-                        aiBody.textContent = fullResp;
+                        // Streaming markdown — format every 3 tokens for performance
+                        if (!window._streamCount) window._streamCount = 0;
+                        window._streamCount++;
+                        if (window._streamCount % 3 === 0 || p.token.includes('\n')) {
+                            aiBody.innerHTML = formatMsgLive(fullResp);
+                        } else {
+                            aiBody.textContent = fullResp;
+                        }
                         scrollBottom();
                     }
-                    if (p.done) { aiBody.innerHTML = formatMsg(fullResp); document.querySelectorAll('.code-wrap pre code').forEach(el => hljs.highlightElement(el)); }
+                    if (p.done) { aiBody.innerHTML = formatMsg(fullResp); document.querySelectorAll('.code-wrap pre code').forEach(el => hljs.highlightElement(el)); window._streamCount = 0; }
                     if (p.error) aiBody.innerHTML = `<span style="color:var(--red)">Error: ${p.error}</span>`;
                 } catch(e) {}
             }
@@ -1195,6 +1351,133 @@ formatMsg = function(text) {
     }
     return result;
 };
+
+// ─── CODE EXECUTION ───
+async function executeCode(btn) {
+    var wrap = btn.closest('.code-wrap');
+    var code = wrap.querySelector('code').textContent;
+    var label = btn.querySelector('span');
+    label.textContent = 'Running...';
+    btn.disabled = true;
+
+    // Remove previous output
+    var oldOutput = wrap.nextElementSibling;
+    if (oldOutput && oldOutput.classList.contains('exec-output')) oldOutput.remove();
+
+    try {
+        var res = await fetch('/api/execute', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code: code, language: 'python'})
+        });
+        var data = await res.json();
+        var output = document.createElement('div');
+        if (data.success) {
+            output.className = 'exec-output success';
+            output.textContent = data.output || '(no output)';
+        } else {
+            output.className = 'exec-output error';
+            output.textContent = data.error || data.output || 'Execution failed';
+        }
+        wrap.after(output);
+    } catch(e) {
+        var output = document.createElement('div');
+        output.className = 'exec-output error';
+        output.textContent = 'Error: ' + e.message;
+        wrap.after(output);
+    }
+    label.textContent = 'Execute';
+    btn.disabled = false;
+}
+
+// ─── SCROLL TO BOTTOM BUTTON ───
+var $scrollBtn = document.getElementById('scroll-bottom');
+var _chatAreaEl = document.getElementById('chat-area');
+_chatAreaEl.addEventListener('scroll', function() {
+    var distFromBottom = _chatAreaEl.scrollHeight - _chatAreaEl.scrollTop - _chatAreaEl.clientHeight;
+    if (distFromBottom > 200) {
+        $scrollBtn.classList.add('visible');
+    } else {
+        $scrollBtn.classList.remove('visible');
+    }
+});
+
+// ─── AUTO-SUGGESTIONS ───
+var _suggestions = [
+    'Write a Python web scraper',
+    'Build a REST API with FastAPI',
+    'Create a landing page with HTML and CSS',
+    'Explain async/await in JavaScript',
+    'Write a React component with hooks',
+    'Debug this error',
+    'Build a todo app',
+    'Create a login form with validation',
+    'Write a SQL query to find duplicates',
+    'Implement binary search in Python',
+    'Build a chat app with WebSocket',
+    'Create a responsive navbar',
+    'Write unit tests for this function',
+    'Optimize this code for performance',
+    'Explain how Git rebase works',
+    'Create a dashboard with charts',
+    'Build a file upload component',
+    'Write a Python decorator',
+    'Create an animation with CSS',
+    'Build a dark mode toggle',
+];
+
+var $suggestions = document.getElementById('suggestions');
+var _suggestIdx = -1;
+
+$input.addEventListener('input', function() {
+    var val = $input.value.trim().toLowerCase();
+    if (val.length < 2 || val.length > 40) {
+        $suggestions.classList.remove('visible');
+        return;
+    }
+    var matches = _suggestions.filter(function(s) {
+        return s.toLowerCase().includes(val);
+    }).slice(0, 5);
+    if (matches.length === 0) {
+        $suggestions.classList.remove('visible');
+        return;
+    }
+    var icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+    $suggestions.innerHTML = matches.map(function(s, i) {
+        return '<div class="suggest-item" onclick="useSuggestion(this)" data-text="' + s + '">' + icon + s + '</div>';
+    }).join('');
+    $suggestions.classList.add('visible');
+    _suggestIdx = -1;
+});
+
+$input.addEventListener('keydown', function(e) {
+    if (!$suggestions.classList.contains('visible')) return;
+    var items = $suggestions.querySelectorAll('.suggest-item');
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _suggestIdx = Math.min(_suggestIdx + 1, items.length - 1);
+        items.forEach(function(it, i) { it.classList.toggle('active', i === _suggestIdx); });
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _suggestIdx = Math.max(_suggestIdx - 1, 0);
+        items.forEach(function(it, i) { it.classList.toggle('active', i === _suggestIdx); });
+    } else if (e.key === 'Enter' && _suggestIdx >= 0) {
+        e.preventDefault();
+        useSuggestion(items[_suggestIdx]);
+    } else if (e.key === 'Escape') {
+        $suggestions.classList.remove('visible');
+    }
+});
+
+$input.addEventListener('blur', function() {
+    setTimeout(function() { $suggestions.classList.remove('visible'); }, 200);
+});
+
+function useSuggestion(el) {
+    $input.value = el.getAttribute('data-text');
+    $suggestions.classList.remove('visible');
+    $input.focus();
+}
 
 if (!localStorage.getItem(CONSENT)) { $consent.classList.add('visible'); $input.disabled = true; $send.disabled = true; }
 renderAll();
