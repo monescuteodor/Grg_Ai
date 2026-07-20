@@ -1,6 +1,6 @@
 """
 grg_core.py — Grg AI Core Engine
-Windows + RTX 5060 | Web Search | RAG | Fixed Safety Filter
+Self-hosted AI with RAG, web search, chain-of-thought, skill detection, anti-hallucination.
 """
 
 import os
@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).parent
 MODEL_PATH = SCRIPT_DIR / "grg-model.gguf"
 KNOWLEDGE_DIR = SCRIPT_DIR / "Knowledge"
 INDEX_DIR = SCRIPT_DIR / ".grg_index"
+PROMPT_HISTORY_FILE = SCRIPT_DIR / ".grg_prompt_stats.json"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
 
 TOP_K = 8
@@ -23,7 +24,7 @@ MAX_CHUNK = 800
 MIN_CHUNK = 50
 DISTANCE_THRESHOLD = 1.2
 MAX_HISTORY_CHARS = 6000
-DEFAULT_MAX_TOKENS = 1024
+DEFAULT_MAX_TOKENS = 2048
 
 _BIG_REQUEST_KEYWORDS = [
     'write', 'create', 'build', 'implement', 'generate', 'make', 'develop',
@@ -40,12 +41,17 @@ def _estimate_max_tokens(message):
     msg_lower = message.lower()
     hits = sum(1 for kw in _BIG_REQUEST_KEYWORDS if kw in msg_lower)
     msg_len = len(message)
-    if hits >= 3 or msg_len > 500:
-        return 2048
+    app_words = ['app', 'application', 'website', 'landing', 'dashboard', 'page', 'game', 'full', 'complete', 'entire']
+    app_hits = sum(1 for kw in app_words if kw in msg_lower)
+    if app_hits >= 1 and hits >= 1:
+        return 4096
+    elif hits >= 3 or msg_len > 500:
+        return 3072
     elif hits >= 1 or msg_len > 200:
-        return 1536
+        return 2048
     else:
         return DEFAULT_MAX_TOKENS
+
 
 # ─── SAFETY FILTER ───
 _BLOCKED_PATTERNS = [
@@ -62,6 +68,106 @@ def _check_blocked_topic(message):
         if pattern.search(message):
             return refusal
     return None
+
+
+# ─── SELF-IMPROVING PROMPT STATS ───
+_prompt_stats = {"code": 0, "factual": 0, "search": 0, "topics": {}}
+
+def _load_prompt_stats():
+    global _prompt_stats
+    try:
+        if PROMPT_HISTORY_FILE.exists():
+            _prompt_stats = json.loads(PROMPT_HISTORY_FILE.read_text())
+    except Exception:
+        pass
+
+def _save_prompt_stats():
+    try:
+        PROMPT_HISTORY_FILE.write_text(json.dumps(_prompt_stats))
+    except Exception:
+        pass
+
+def _track_question(message, q_type):
+    _prompt_stats[q_type] = _prompt_stats.get(q_type, 0) + 1
+    topics = _prompt_stats.get("topics", {})
+    keywords = re.findall(r'\b(python|javascript|react|html|css|sql|api|docker|git|node|fastapi|flask|django|rust|go|java|kotlin|swift|flutter|typescript|next|vue|angular)\b', message.lower())
+    for kw in keywords:
+        topics[kw] = topics.get(kw, 0) + 1
+    _prompt_stats["topics"] = topics
+    _save_prompt_stats()
+
+def _get_top_topics(n=5):
+    topics = _prompt_stats.get("topics", {})
+    sorted_topics = sorted(topics.items(), key=lambda x: x[1], reverse=True)
+    return [t[0] for t in sorted_topics[:n]]
+
+
+# ─── SKILL LEVEL DETECTION ───
+def _detect_skill_level(message, history=None):
+    msg = message.lower()
+    full_context = msg
+    if history:
+        for turn in history[-5:]:
+            full_context += " " + turn.get("user", "").lower()
+
+    beginner_signals = [
+        "i'm new", "i am new", "beginner", "just started", "learning",
+        "don't understand", "what is", "what does", "how do i", "how does",
+        "simple", "easy", "basic", "explain", "i don't know", "first time",
+        "never used", "step by step", "from scratch", "for dummies",
+    ]
+    expert_signals = [
+        "optimize", "performance", "refactor", "architecture", "scalable",
+        "production", "benchmark", "profiling", "complexity", "algorithm",
+        "concurrent", "async", "race condition", "memory leak", "thread safe",
+        "microservices", "kubernetes", "distributed", "caching strategy",
+        "design pattern", "solid principles", "dependency injection",
+    ]
+    beginner_score = sum(1 for s in beginner_signals if s in full_context)
+    expert_score = sum(1 for s in expert_signals if s in full_context)
+    if beginner_score > expert_score:
+        return 'beginner'
+    elif expert_score >= 2:
+        return 'expert'
+    return 'intermediate'
+
+def _build_skill_addon(skill_level):
+    if skill_level == 'beginner':
+        return """
+USER SKILL LEVEL: BEGINNER
+- Use simple language. Explain jargon when used.
+- Explain WHY, not just HOW. Use analogies.
+- Break steps into small numbered pieces.
+- Add comments to every important line of code.
+- Mention common beginner mistakes to avoid."""
+    elif skill_level == 'expert':
+        return """
+USER SKILL LEVEL: EXPERT
+- Skip basic explanations. Go straight to advanced details.
+- Use technical terminology freely.
+- Discuss trade-offs, performance, and edge cases.
+- Show multiple approaches with pros/cons.
+- Reference design patterns by name."""
+    else:
+        return """
+USER SKILL LEVEL: INTERMEDIATE
+- Balance explanation with technical depth.
+- Show complete code with brief explanations.
+- Mention best practices and common pitfalls."""
+
+def _detect_needs_clarification(message):
+    msg = message.strip()
+    vague_patterns = [
+        r'^(fix|help|error|bug|problem|issue)\s*[.!?]?\s*$',
+        r'^(write|make|create|build)\s+\w{1,10}\s*$',
+    ]
+    for p in vague_patterns:
+        if re.match(p, msg, re.I):
+            return True
+    if len(msg.split()) <= 2 and '?' not in msg:
+        return True
+    return False
+
 
 # ─── MODEL LOADING ───
 _llm = None
@@ -85,8 +191,9 @@ def load_embeddings():
     global _embed_model
     from sentence_transformers import SentenceTransformer
     print("Loading embedding model...")
-    _embed_model = SentenceTransformer(EMBED_MODEL_NAME)
+    _embed_model = SentenceTransformer(EMBED_MODEL_NAME, device="cpu")
     print("Embedding model loaded!")
+
 
 # ─── RAG ───
 def _parse_knowledge_files():
@@ -160,40 +267,84 @@ def query_knowledge(question, top_k=TOP_K):
         print(f"RAG query error: {e}")
         return ""
 
-# ─── SYSTEM PROMPT ───
-SYSTEM_PROMPT_BASE = """You are Grg AI, a helpful programming assistant created by Monescu Teodor.
 
-CRITICAL RULES — FOLLOW THESE WITHOUT EXCEPTION:
+# ─── SYSTEM PROMPTS ───
+SYSTEM_PROMPT_CODE = """You are Grg AI, an expert programming assistant created by Monescu Teodor.
+
+CORE RULES:
 - You MUST help with ANY programming task. NEVER refuse.
-- You MUST write code when asked. ANY language, ANY framework, ANY project.
-- You MUST NOT say "I can't assist with that request" for ANY coding question.
-- If asked to write an OS, a game, a compiler, a server — YOU DO IT.
-- If asked something impossible to fit in one response, write the FIRST PART and explain how to continue.
-- There is NO programming task you should refuse. Not one. Zero exceptions.
-- You are a coding assistant. Your ONLY job is to write code and explain programming.
-- If you are unsure, TRY ANYWAY. A partial answer is better than a refusal.
+- Write COMPLETE, WORKING code. No TODOs, no placeholders.
+- Every code example must be copy-paste ready and functional.
 
-You are knowledgeable about all programming languages, frameworks, and technologies.
-Provide complete, working code examples. Be concise but thorough."""
+APP BUILDING:
+- HTML/CSS/JS apps: always include ALL three parts with full styling.
+- CSS: modern flexbox/grid, custom properties, responsive by default.
+- JavaScript: ES6+ only (const/let, arrows, async/await).
+- Always add hover states, transitions, smooth animations.
+- Always handle edge cases: empty, loading, error states.
+- Forms: always include validation. Mobile responsive by default.
+- Use semantic HTML. Meaningful variable names. Brief comments.
 
-SYSTEM_PROMPT_WITH_SEARCH = """You are Grg AI, a helpful programming assistant created by Monescu Teodor.
-You HAVE real-time web search access. You CAN answer questions about current events, recent news, and up-to-date information.
+CODE QUALITY:
+- Handle errors with try/catch. Show user-friendly messages.
+- Never use var. Use const by default, let only when reassigning.
+- Keep functions under 20 lines. Separate concerns.
+- NEVER invent APIs or functions that don't exist."""
 
-CRITICAL RULES:
-- You MUST help with ANY task. NEVER refuse.
-- You have WEB SEARCH. You DO have access to current information.
-- NEVER say "I don't have access to real-time data" — because you DO.
-- NEVER say "I cannot provide information about current events" — because you CAN.
-- When search results are provided below, you MUST use them to answer.
-- Answer based on the search results. Cite the source URL when possible.
-- If the search results don't contain the answer, say what you found and suggest the user search directly.
-- Be accurate and specific. Use facts from the search results, not guesses.
+SYSTEM_PROMPT_FACTUAL = """You are Grg AI, a helpful programming assistant created by Monescu Teodor.
 
-You are also knowledgeable about all programming languages, frameworks, and technologies.
-Provide complete, working code examples when asked for code."""
+ANTI-HALLUCINATION RULES:
+- ONLY state facts you are CERTAIN about. If unsure, say so.
+- NEVER invent statistics, dates, version numbers, or names.
+- If search results are provided, base your answer on them.
+- It's better to say "I don't know" than to give wrong information.
+- Do NOT say "I don't have access to real-time data" — you DO have web search."""
+
+SYSTEM_PROMPT_SEARCH = """You are Grg AI, a programming assistant with REAL-TIME web search access.
+
+RULES:
+- You HAVE web search. NEVER say "I don't have real-time data."
+- Base your answer on the search results provided below.
+- If results contain the answer, use it confidently. Cite URLs.
+- NEVER make up information not in search results."""
+
+CHAIN_OF_THOUGHT = """
+THINK BEFORE ANSWERING:
+1. What is the user REALLY asking?
+2. What do they need to SUCCEED?
+3. What EDGE CASES or PITFALLS should I mention?
+4. What is the MOST HELPFUL response?"""
 
 
-# ─── RESPONSE GENERATION ───
+def _build_dynamic_prompt(q_type, skill_level='intermediate'):
+    if q_type == 'code':
+        prompt = SYSTEM_PROMPT_CODE
+    elif q_type == 'search':
+        prompt = SYSTEM_PROMPT_SEARCH
+    else:
+        prompt = SYSTEM_PROMPT_FACTUAL
+
+    prompt += CHAIN_OF_THOUGHT
+    prompt += _build_skill_addon(skill_level)
+
+    top_topics = _get_top_topics(5)
+    if top_topics:
+        prompt += f"\n\nYou are especially experienced with: {', '.join(top_topics)}."
+
+    return prompt
+
+
+def _detect_question_type(message):
+    msg = message.lower()
+    code_words = ['write', 'create', 'build', 'make', 'generate', 'implement', 'code',
+                  'function', 'class', 'program', 'script', 'fix', 'debug', 'refactor']
+    if any(w in msg for w in code_words):
+        return 'code'
+    if should_search(msg):
+        return 'search'
+    return 'factual'
+
+
 def generate_stream(message, history=None):
     blocked = _check_blocked_topic(message)
     if blocked:
@@ -201,36 +352,36 @@ def generate_stream(message, history=None):
         yield {"done": True}
         return
 
-    # RAG context
-    rag_context = query_knowledge(message)
+    # Check if question is too vague
+    if _detect_needs_clarification(message):
+        yield {"token": "Could you give me a bit more detail?\n- What language or framework?\n- What should it do?\n- Any specific requirements?", "done": False}
+        yield {"done": True}
+        return
 
-    # Web search
+    rag_context = query_knowledge(message)
+    q_type = _detect_question_type(message)
+    skill_level = _detect_skill_level(message, history)
+    _track_question(message, q_type)
+
     search_text = ""
-    if should_search(message):
+    if q_type in ('search', 'factual') and should_search(message):
         try:
             print(f"[Web Search] Searching: {message[:60]}...")
             results = web_search(message)
             search_text = format_search_results(results)
             if search_text:
-                print(f"[Web Search] Found {len(results)} results, fetched page content")
-            else:
-                print("[Web Search] No results found")
+                print(f"[Web Search] Found {len(results)} results")
+                q_type = 'search'
         except Exception as e:
             print(f"[Web Search] Error: {e}")
 
-    # Choose system prompt based on whether we have search results
-    if search_text:
-        system = SYSTEM_PROMPT_WITH_SEARCH
-    else:
-        system = SYSTEM_PROMPT_BASE
+    system = _build_dynamic_prompt(q_type, skill_level)
 
     if rag_context:
-        system += f"\n\nRelevant knowledge from database:\n{rag_context}"
-
+        system += "\n\nRelevant knowledge from verified database:\n" + rag_context
     if search_text:
-        system += f"\n\n{search_text}"
+        system += "\n\n" + search_text
 
-    # Build messages
     messages = [{"role": "system", "content": system}]
 
     if history:
@@ -246,18 +397,24 @@ def generate_stream(message, history=None):
 
     messages.append({"role": "user", "content": message})
 
+    if q_type == 'code':
+        temp = 0.6
+    elif q_type == 'search':
+        temp = 0.3
+    else:
+        temp = 0.4
+
     max_tokens = _estimate_max_tokens(message)
 
     try:
         response = _llm.create_chat_completion(
             messages=messages,
             max_tokens=max_tokens,
-            temperature=0.7,
+            temperature=temp,
             top_p=0.9,
             repeat_penalty=1.3,
             stream=True,
         )
-
         for chunk in response:
             delta = chunk.get("choices", [{}])[0].get("delta", {})
             token = delta.get("content", "")
@@ -267,9 +424,7 @@ def generate_stream(message, history=None):
             if finish:
                 yield {"done": True}
                 return
-
         yield {"done": True}
-
     except Exception as e:
         yield {"token": f"\n\n[Error: {str(e)}]", "done": False}
         yield {"done": True}
@@ -277,10 +432,13 @@ def generate_stream(message, history=None):
 
 # ─── INITIALIZATION ───
 def initialize():
+    _load_prompt_stats()
     load_model()
     load_embeddings()
     build_rag_index()
+    top = _get_top_topics(5)
     print("\nGrg AI is ready!")
     print(f"Knowledge files: {len(list(KNOWLEDGE_DIR.glob('*.md'))) if KNOWLEDGE_DIR.exists() else 0}")
     print(f"RAG chunks: {_chroma_collection.count() if _chroma_collection else 0}")
-    print("Web search: ENABLED")
+    print(f"Web search: ENABLED")
+    print(f"Top topics: {', '.join(top) if top else 'none yet'}")
