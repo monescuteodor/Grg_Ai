@@ -24,8 +24,6 @@ Model architecture: Qwen 2.5 1.5B (GGUF)
 System: minimum 8GB of RAM requiered and minimum 4 cores CPU
 GPU is recomanded for higher performance.
 
-In all the versions all your data stores only into local memory!
-
 The web page is hosted by cloudflare and the server were the AI runs is an old laptop in my room:
 https://grg-ai.com/
 
