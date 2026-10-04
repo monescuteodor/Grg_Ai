@@ -1,0 +1,22 @@
+{
+  "name": "python-cli",
+  "description": "Python CLI using Typer (subcommands, options, --help).",
+  "run": [
+    "pip install -r requirements.txt",
+    "python cli.py hello World"
+  ],
+  "files": [
+    {
+      "path": "requirements.txt",
+      "content": "typer>=0.12\n"
+    },
+    {
+      "path": "cli.py",
+      "content": "import typer\napp = typer.Typer(help='A friendly CLI.')\n@app.command()\ndef hello(name: str, loud: bool = typer.Option(False, '--loud','-l')):\n    msg = f'HI {name.upper()}!' if loud else f'hi {name}'\n    typer.echo(msg)\n@app.command()\ndef add(a: int, b: int):\n    typer.echo(a + b)\nif __name__ == '__main__':\n    app()\n"
+    },
+    {
+      "path": ".gitignore",
+      "content": "__pycache__\n.venv\n"
+    }
+  ]
+}

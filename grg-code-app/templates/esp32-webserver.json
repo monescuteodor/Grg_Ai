@@ -1,0 +1,19 @@
+{
+  "name": "esp32-webserver",
+  "description": "ESP32 WiFi web server: serves a page and toggles the LED from the browser. arduino-cli/esp32 core.",
+  "run": [
+    "arduino-cli core install esp32:esp32",
+    "arduino-cli compile --fqbn esp32:esp32:esp32 esp32_web",
+    "arduino-cli upload -p COM5 --fqbn esp32:esp32:esp32 esp32_web"
+  ],
+  "files": [
+    {
+      "path": "esp32_web/esp32_web.ino",
+      "content": "#include <WiFi.h>\n#include <WebServer.h>\n\nconst char* SSID = \"YOUR_WIFI\";\nconst char* PASS = \"YOUR_PASS\";\nconst int LED = 2;            // on-board LED on many ESP32 devkits\nWebServer server(80);\nbool ledOn = false;\n\nString page() {\n  return \"<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>\"\n         \"<h1>ESP32</h1><p>LED is \" + String(ledOn ? \"ON\" : \"OFF\") + \"</p>\"\n         \"<p><a href='/toggle'><button style='padding:12px 20px;font-size:18px'>Toggle</button></a></p>\";\n}\nvoid handleRoot()   { server.send(200, \"text/html\", page()); }\nvoid handleToggle() { ledOn = !ledOn; digitalWrite(LED, ledOn); server.sendHeader(\"Location\", \"/\"); server.send(303); }\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(LED, OUTPUT);\n  WiFi.begin(SSID, PASS);\n  Serial.print(\"Connecting\");\n  while (WiFi.status() != WL_CONNECTED) { delay(300); Serial.print('.'); }\n  Serial.println(); Serial.print(\"Open http://\"); Serial.println(WiFi.localIP());\n  server.on(\"/\", handleRoot);\n  server.on(\"/toggle\", handleToggle);\n  server.begin();\n}\nvoid loop() { server.handleClient(); }\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# ESP32 Web Server\n\n1. Add the ESP32 board URL in arduino-cli config, then `arduino-cli core install esp32:esp32`.\n2. Set `SSID`/`PASS` in the sketch.\n3. Compile: `arduino-cli compile --fqbn esp32:esp32:esp32 esp32_web`\n4. Upload: `arduino-cli upload -p COM5 --fqbn esp32:esp32:esp32 esp32_web`\n5. Open the Serial Monitor (115200) to see the IP, then browse to it.\n\nESP32 is 3.3V. For many clients use ESPAsyncWebServer.\n"
+    }
+  ]
+}

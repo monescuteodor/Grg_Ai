@@ -1,0 +1,18 @@
+{
+  "name": "node-cli",
+  "description": "Node CLI using commander, installable via npm bin.",
+  "run": [
+    "npm install",
+    "node cli.js greet World -l"
+  ],
+  "files": [
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"greet\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"bin\": {\n    \"greet\": \"./cli.js\"\n  },\n  \"dependencies\": {\n    \"commander\": \"^12.1.0\"\n  }\n}"
+    },
+    {
+      "path": "cli.js",
+      "content": "#!/usr/bin/env node\nimport { program } from 'commander'\nprogram.name('greet').argument('<name>').option('-l, --loud','shout it')\n  .action((name,o)=> console.log(o.loud ? `HI ${name.toUpperCase()}!` : `hi ${name}`))\nprogram.parse()\n"
+    }
+  ]
+}

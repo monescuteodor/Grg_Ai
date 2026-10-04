@@ -1,0 +1,22 @@
+{
+  "name": "opencv-robot-tracker",
+  "description": "OpenCV visual-servoing: track a colored object (webcam/Pi cam), output a PID steering + forward command to drive a robot toward it.",
+  "run": [
+    "pip install -r requirements.txt",
+    "python tracker.py"
+  ],
+  "files": [
+    {
+      "path": "tracker.py",
+      "content": "\"\"\"Color-tracking visual servoing: find a colored target, output a steering command.\nWorks with a USB webcam (default) or a Raspberry Pi camera (Picamera2). Press Esc to quit.\nFeed `steer` (and `forward`) to your motors (see the robotics/pid-control skills).\"\"\"\nimport cv2\nimport numpy as np\n\n# --- target colour range in HSV (default: green). Tune for your object/lighting. ---\nLOW = np.array([35, 80, 80])\nHIGH = np.array([85, 255, 255])\nMIN_AREA = 500\n\n# --- simple PID on the horizontal pixel error ---\nclass PID:\n    def __init__(self, kp, ki, kd):\n        self.kp, self.ki, self.kd = kp, ki, kd\n        self.i = 0.0; self.prev = 0.0\n    def step(self, err, dt):\n        self.i += err * dt; self.i = max(-100, min(100, self.i))\n        d = (err - self.prev) / dt if dt > 0 else 0.0\n        self.prev = err\n        return self.kp * err + self.ki * self.i + self.kd * d\n\ndef open_camera():\n    try:\n        from picamera2 import Picamera2         # Raspberry Pi camera\n        pc = Picamera2(); pc.configure(pc.create_preview_configuration(main={\"size\": (320, 240)})); pc.start()\n        return (\"picam\", pc)\n    except Exception:\n        cap = cv2.VideoCapture(0)\n        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320); cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)\n        return (\"cv\", cap)\n\ndef read(kind, cam):\n    if kind == \"picam\":\n        return True, cv2.cvtColor(cam.capture_array(), cv2.COLOR_RGB2BGR)\n    return cam.read()\n\ndef main():\n    kind, cam = open_camera()\n    pid = PID(0.4, 0.0, 0.1)\n    import time; last = time.time()\n    while True:\n        ok, frame = read(kind, cam)\n        if not ok: break\n        h, w = frame.shape[:2]\n        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)\n        mask = cv2.inRange(hsv, LOW, HIGH)\n        mask = cv2.erode(mask, None, 2); mask = cv2.dilate(mask, None, 2)\n        cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)\n        now = time.time(); dt = now - last; last = now\n        steer, forward = 0.0, 0.0\n        if cnts:\n            c = max(cnts, key=cv2.contourArea)\n            if cv2.contourArea(c) > MIN_AREA:\n                x, y, bw, bh = cv2.boundingRect(c)\n                cx = x + bw / 2\n                err = cx - w / 2                    # + => target right of center\n                steer = pid.step(err, dt)\n                forward = max(0.0, 1.0 - (bw * bh) / (w * h) * 3)   # slow as it fills the frame\n                cv2.rectangle(frame, (x, y), (x + bw, y + bh), (0, 255, 0), 2)\n                cv2.putText(frame, \"steer=%.1f fwd=%.2f\" % (steer, forward), (10, 20),\n                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)\n        else:\n            cv2.putText(frame, \"target lost\", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)\n        # TODO: send steer/forward to your motors here (serial to Arduino, GPIO, or ROS 2 /cmd_vel)\n        cv2.imshow(\"tracker\", frame)\n        if cv2.waitKey(1) == 27: break\n    cv2.destroyAllWindows()\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "requirements.txt",
+      "content": "opencv-python>=4.9\nnumpy>=1.26\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# OpenCV Robot Tracker (visual servoing)\n\nTracks a colored object and computes a `steer` (PID on horizontal pixel error) + `forward` speed to drive a robot toward it. See the `robot-vision` and `pid-control` skills.\n\n## Run\n```bash\npip install -r requirements.txt\npython tracker.py            # Esc to quit\n```\nWorks with a USB webcam by default; auto-uses Picamera2 on a Raspberry Pi if installed.\n\n## Wire it to your robot\nReplace the `TODO` with your output: send `steer/forward` over Serial to an Arduino (H-bridge motors), toggle GPIO on a Pi, or publish a `geometry_msgs/Twist` on `/cmd_vel` in a ROS 2 node (cv_bridge). Tune `LOW`/`HIGH` (HSV) for your object + lighting, and the PID gains. For robust detection under changing light use ArUco markers or a YOLO model (see `robot-vision`).\n"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "ros2-python-pkg",
+  "description": "ROS 2 (rclpy) Python package: a node publishing heartbeat + /cmd_vel with a launch file. Build with colcon.",
+  "run": [
+    "colcon build --symlink-install",
+    "source install/setup.bash",
+    "ros2 launch my_robot robot_node.launch.py"
+  ],
+  "files": [
+    {
+      "path": "my_robot/package.xml",
+      "content": "<?xml version=\"1.0\"?>\n<?xml-model href=\"http://download.ros.org/schema/package_format3.xsd\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>\n<package format=\"3\">\n  <name>my_robot</name>\n  <version>0.0.1</version>\n  <description>Grg Code ROS 2 starter node.</description>\n  <maintainer email=\"you@example.com\">you</maintainer>\n  <license>MIT</license>\n\n  <exec_depend>rclpy</exec_depend>\n  <exec_depend>std_msgs</exec_depend>\n  <exec_depend>geometry_msgs</exec_depend>\n\n  <test_depend>ament_copyright</test_depend>\n  <test_depend>ament_flake8</test_depend>\n  <test_depend>ament_pep257</test_depend>\n\n  <export>\n    <build_type>ament_python</build_type>\n  </export>\n</package>\n"
+    },
+    {
+      "path": "my_robot/setup.py",
+      "content": "from setuptools import setup\nimport os\nfrom glob import glob\n\npackage_name = \"my_robot\"\n\nsetup(\n    name=package_name,\n    version=\"0.0.1\",\n    packages=[package_name],\n    data_files=[\n        (\"share/ament_index/resource_index/packages\", [\"resource/\" + package_name]),\n        (\"share/\" + package_name, [\"package.xml\"]),\n        (os.path.join(\"share\", package_name, \"launch\"), glob(\"launch/*.launch.py\")),\n    ],\n    install_requires=[\"setuptools\"],\n    zip_safe=True,\n    maintainer=\"you\",\n    maintainer_email=\"you@example.com\",\n    description=\"Grg Code ROS 2 starter node (heartbeat + cmd_vel).\",\n    license=\"MIT\",\n    entry_points={\n        \"console_scripts\": [\n            \"robot_node = my_robot.robot_node:main\",\n        ],\n    },\n)\n"
+    },
+    {
+      "path": "my_robot/setup.cfg",
+      "content": "[develop]\nscript_dir=$base/lib/my_robot\n[install]\ninstall_scripts=$base/lib/my_robot\n"
+    },
+    {
+      "path": "my_robot/resource/my_robot",
+      "content": ""
+    },
+    {
+      "path": "my_robot/my_robot/__init__.py",
+      "content": ""
+    },
+    {
+      "path": "my_robot/my_robot/robot_node.py",
+      "content": "import rclpy\nfrom rclpy.node import Node\nfrom geometry_msgs.msg import Twist\nfrom std_msgs.msg import String\n\n\nclass RobotNode(Node):\n    \"\"\"Publishes a heartbeat and a demo /cmd_vel; subscribes to /cmd_vel to log it.\"\"\"\n\n    def __init__(self):\n        super().__init__(\"robot_node\")\n        self.declare_parameter(\"rate\", 2.0)\n        rate = self.get_parameter(\"rate\").value\n        self.hb = self.create_publisher(String, \"heartbeat\", 10)\n        self.cmd = self.create_publisher(Twist, \"cmd_vel\", 10)\n        self.create_subscription(Twist, \"cmd_vel\", self.on_cmd, 10)\n        self.create_timer(1.0 / rate, self.tick)\n        self.get_logger().info(\"robot_node up at %.1f Hz\" % rate)\n\n    def tick(self):\n        m = String(); m.data = \"alive\"; self.hb.publish(m)\n        t = Twist(); t.linear.x = 0.1; t.angular.z = 0.0; self.cmd.publish(t)\n\n    def on_cmd(self, msg: Twist):\n        self.get_logger().info(\"cmd_vel v=%.2f w=%.2f\" % (msg.linear.x, msg.angular.z))\n\n\ndef main(args=None):\n    rclpy.init(args=args)\n    node = RobotNode()\n    try:\n        rclpy.spin(node)\n    except KeyboardInterrupt:\n        pass\n    finally:\n        node.destroy_node()\n        rclpy.shutdown()\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "my_robot/launch/robot_node.launch.py",
+      "content": "from launch import LaunchDescription\nfrom launch_ros.actions import Node\n\n\ndef generate_launch_description():\n    return LaunchDescription([\n        Node(\n            package=\"my_robot\",\n            executable=\"robot_node\",\n            name=\"robot_node\",\n            parameters=[{\"rate\": 2.0}],\n            output=\"screen\",\n        ),\n    ])\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# my_robot - ROS 2 Python package\n\nA minimal ament_python package: a node that publishes a heartbeat + a demo `/cmd_vel` and logs `/cmd_vel`. See the `ros2` skill.\n\n## Build & run (ROS 2 Humble/Jazzy on Ubuntu)\n```bash\n# put this folder in a workspace: ros2_ws/src/my_robot\ncd ros2_ws\nsource /opt/ros/$ROS_DISTRO/setup.bash\ncolcon build --symlink-install\nsource install/setup.bash\nros2 launch my_robot robot_node.launch.py       # or: ros2 run my_robot robot_node\n```\nInspect it: `ros2 topic list`, `ros2 topic echo /cmd_vel`, `ros2 topic hz /heartbeat`, `rqt_graph`.\n\nWire it to a real base with `ros2_control` (diff_drive_controller) or micro-ROS on an ESP32/STM32. For vision, add a node using the `robot-vision` template + `cv_bridge`.\n"
+    }
+  ]
+}

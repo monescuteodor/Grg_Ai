@@ -1,0 +1,23 @@
+{
+  "name": "fastapi-api",
+  "description": "FastAPI REST API with pydantic models, health + items endpoints.",
+  "run": [
+    "python -m venv .venv",
+    "pip install -r requirements.txt",
+    "uvicorn main:app --reload"
+  ],
+  "files": [
+    {
+      "path": "requirements.txt",
+      "content": "fastapi>=0.115\nuvicorn[standard]>=0.30\npydantic>=2.8\n"
+    },
+    {
+      "path": "main.py",
+      "content": "from fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom pydantic import BaseModel\napp = FastAPI(title='API')\napp.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])\nitems: list = []\nclass Item(BaseModel):\n    name: str\n    qty: int = 1\n@app.get('/health')\ndef health():\n    return {'ok': True}\n@app.get('/items')\ndef list_items():\n    return items\n@app.post('/items', status_code=201)\ndef create(i: Item):\n    row = {'id': len(items)+1, **i.model_dump()}\n    items.append(row); return row\n"
+    },
+    {
+      "path": ".gitignore",
+      "content": ".venv\n__pycache__\n.env\n"
+    }
+  ]
+}

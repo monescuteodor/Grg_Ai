@@ -1,0 +1,30 @@
+{
+  "name": "electron-app",
+  "description": "Minimal, secure Electron desktop app (main + preload + renderer).",
+  "run": [
+    "npm install",
+    "npm start"
+  ],
+  "files": [
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"desktop\",\n  \"version\": \"1.0.0\",\n  \"main\": \"main.js\",\n  \"scripts\": {\n    \"start\": \"electron .\"\n  },\n  \"devDependencies\": {\n    \"electron\": \"^32.0.0\"\n  }\n}"
+    },
+    {
+      "path": "main.js",
+      "content": "const { app, BrowserWindow } = require('electron')\nconst path = require('path')\nfunction createWindow(){\n  const win = new BrowserWindow({ width:900, height:640, webPreferences:{ preload: path.join(__dirname,'preload.js'), contextIsolation:true, nodeIntegration:false } })\n  win.loadFile('index.html')\n}\napp.whenReady().then(()=>{ createWindow(); app.on('activate',()=>{ if(BrowserWindow.getAllWindows().length===0) createWindow() }) })\napp.on('window-all-closed',()=>{ if(process.platform!=='darwin') app.quit() })\n"
+    },
+    {
+      "path": "preload.js",
+      "content": "const { contextBridge } = require('electron')\ncontextBridge.exposeInMainWorld('api', { ping: ()=>'pong' })\n"
+    },
+    {
+      "path": "index.html",
+      "content": "<!doctype html><html><head><meta charset='utf-8'><title>Desktop</title></head><body style='font-family:system-ui;padding:24px'><h1>Electron + Grg Code</h1><button onclick=\"document.getElementById('o').textContent=window.api.ping()\">Ping</button><pre id='o'></pre></body></html>\n"
+    },
+    {
+      "path": ".gitignore",
+      "content": "node_modules\ndist\n"
+    }
+  ]
+}

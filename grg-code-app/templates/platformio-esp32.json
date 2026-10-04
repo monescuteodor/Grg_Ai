@@ -1,0 +1,23 @@
+{
+  "name": "platformio-esp32",
+  "description": "PlatformIO project for ESP32 (Arduino framework): blink + serial. Build/upload with pio.",
+  "run": [
+    "pio run",
+    "pio run -t upload",
+    "pio device monitor -b 115200"
+  ],
+  "files": [
+    {
+      "path": "platformio.ini",
+      "content": "[env:esp32dev]\nplatform = espressif32\nboard = esp32dev\nframework = arduino\nmonitor_speed = 115200\n; lib_deps =\n;   knolleary/PubSubClient\n"
+    },
+    {
+      "path": "src/main.cpp",
+      "content": "#include <Arduino.h>\nconst int LED = 2;\nunsigned long last = 0;\nbool on = false;\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(LED, OUTPUT);\n  Serial.println(\"PlatformIO ESP32 up\");\n}\nvoid loop() {\n  if (millis() - last >= 500) {\n    last = millis();\n    on = !on;\n    digitalWrite(LED, on);\n    Serial.println(on ? \"on\" : \"off\");\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# PlatformIO ESP32\n\nInstall PlatformIO (`pip install platformio` or the VS Code extension).\n\n- Build: `pio run`\n- Upload: `pio run -t upload`\n- Monitor: `pio device monitor -b 115200`\n\nChange `board` in platformio.ini for other targets: `nanoatmega328` (Uno/Nano), `nodemcuv2` (ESP8266), `pico` (RP2040), `nucleo_f411re` (STM32). Add libraries under `lib_deps`.\n"
+    }
+  ]
+}

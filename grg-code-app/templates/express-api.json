@@ -1,0 +1,26 @@
+{
+  "name": "express-api",
+  "description": "Express REST API (Node, ESM) with health + items routes and JSON body parsing.",
+  "run": [
+    "npm install",
+    "npm run dev"
+  ],
+  "files": [
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"api\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\"\n  },\n  \"dependencies\": {\n    \"express\": \"^4.19.2\",\n    \"cors\": \"^2.8.5\"\n  }\n}"
+    },
+    {
+      "path": "src/index.js",
+      "content": "import express from 'express'\nimport cors from 'cors'\nconst app = express()\napp.use(cors()); app.use(express.json())\nconst items = []\napp.get('/health', (_,res)=>res.json({ok:true}))\napp.get('/items', (_,res)=>res.json(items))\napp.post('/items', (req,res)=>{ const it={id:items.length+1,...req.body}; items.push(it); res.status(201).json(it) })\nconst port = process.env.PORT||3000\napp.listen(port, ()=>console.log('API on :'+port))\n"
+    },
+    {
+      "path": ".env.example",
+      "content": "PORT=3000\n"
+    },
+    {
+      "path": ".gitignore",
+      "content": "node_modules\n.env\n"
+    }
+  ]
+}

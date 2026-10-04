@@ -1,0 +1,49 @@
+'use strict';
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('grg', {
+    getState: () => ipcRenderer.invoke('get-state'),
+    pickFolder: () => ipcRenderer.invoke('pick-folder'),
+    listTree: () => ipcRenderer.invoke('list-tree'),
+    readFileDirect: (p) => ipcRenderer.invoke('read-file-direct', p),
+    writeFileDirect: (p, content) => ipcRenderer.invoke('write-file-direct', p, content),
+    termStart: () => ipcRenderer.send('term-start'),
+    termInput: (line) => ipcRenderer.send('term-input', line),
+    termKill: () => ipcRenderer.send('term-kill'),
+    billAccount: (uid) => ipcRenderer.invoke('bill-account', uid),
+    billPost: (apiPath, body) => ipcRenderer.invoke('bill-post', apiPath, body),
+    setUid: (uid) => ipcRenderer.send('set-uid', uid),
+    send: (text) => ipcRenderer.send('send-message', text),
+    stop: () => ipcRenderer.send('stop'),
+    newSession: () => ipcRenderer.send('new-session'),
+    getConversation: () => ipcRenderer.invoke('get-conversation'),
+    setConversation: (conv) => ipcRenderer.send('set-conversation', conv),
+    setFolder: (p) => ipcRenderer.send('set-folder', p),
+    setApproveMode: (auto) => ipcRenderer.send('set-approve-mode', auto),
+    setModel: (m) => ipcRenderer.send('set-model', m),
+    approve: (id, ok) => ipcRenderer.send('approval-response', { id, ok }),
+    openExternal: (url) => ipcRenderer.send('open-external', url),
+    openPreview: (html) => ipcRenderer.invoke('open-preview', html),
+    listCommands: () => ipcRenderer.invoke('list-commands'),
+    listFiles: () => ipcRenderer.invoke('list-files'),
+    listCheckpoints: () => ipcRenderer.invoke('list-checkpoints'),
+    revertCheckpoint: (id) => ipcRenderer.invoke('revert-checkpoint', id),
+    mcpGet: () => ipcRenderer.invoke('mcp-get'),
+    mcpSave: (scope, config) => ipcRenderer.invoke('mcp-save', { scope, config }),
+    mcpReconnect: () => ipcRenderer.invoke('mcp-reconnect'),
+    commandsGet: () => ipcRenderer.invoke('commands-get'),
+    commandSave: (scope, name, body) => ipcRenderer.invoke('command-save', { scope, name, body }),
+    commandDelete: (scope, name) => ipcRenderer.invoke('command-delete', { scope, name }),
+    knowledgeGet: () => ipcRenderer.invoke('knowledge-get'),
+    knowledgeSave: (scope, name, body) => ipcRenderer.invoke('knowledge-save', { scope, name, body }),
+    knowledgeDelete: (scope, name) => ipcRenderer.invoke('knowledge-delete', { scope, name }),
+    templatesGet: () => ipcRenderer.invoke('templates-get'),
+    templateSave: (scope, name, json) => ipcRenderer.invoke('template-save', { scope, name, json }),
+    templateDelete: (scope, name) => ipcRenderer.invoke('template-delete', { scope, name }),
+    memoryGet: () => ipcRenderer.invoke('memory-get'),
+    memorySave: (content) => ipcRenderer.invoke('memory-save', { content }),
+    on: (channel, cb) => {
+        const allowed = ['assistant-text', 'assistant-token', 'assistant-reasoning', 'assistant-flush', 'tool-call', 'tool-result', 'approval-request', 'auto-approved', 'agent-status', 'agent-compacted', 'agent-done', 'agent-error', 'agent-stopped', 'agent-idle', 'agent-plan', 'subagent-start', 'subagent-tool', 'subagent-tool-result', 'subagent-end', 'checkpoint', 'term-output', 'term-exit'];
+        if (allowed.includes(channel)) ipcRenderer.on(channel, (e, data) => cb(data));
+    }
+});

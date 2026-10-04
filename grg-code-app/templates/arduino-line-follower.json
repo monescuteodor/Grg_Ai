@@ -1,0 +1,18 @@
+{
+  "name": "arduino-line-follower",
+  "description": "PID line-following robot: 5-sensor IR array + 2 DC motors (L298N/TB6612). Differential drive with PID steering.",
+  "run": [
+    "arduino-cli compile --fqbn arduino:avr:uno line_follower",
+    "arduino-cli upload -p COM5 --fqbn arduino:avr:uno line_follower"
+  ],
+  "files": [
+    {
+      "path": "line_follower/line_follower.ino",
+      "content": "// PID line follower: 5 IR sensors (A0..A4) + 2 DC motors via an H-bridge.\n// Sensors read HIGH/analog over a dark line on light floor (flip LINE_IS_DARK if reversed).\n\n// --- motor pins (H-bridge: 2 dir + 1 PWM per motor) ---\nconst int L_IN1=7, L_IN2=8, L_PWM=9;\nconst int R_IN1=4, R_IN2=5, R_PWM=6;\n\n// --- sensor pins ---\nconst int SENS[5] = {A0, A1, A2, A3, A4};\nconst int WEIGHT[5] = {-2, -1, 0, 1, 2};   // position weighting\nconst bool LINE_IS_DARK = true;\nconst int THRESHOLD = 500;                  // analog threshold\n\n// --- tuning ---\nfloat Kp = 60, Ki = 0, Kd = 400;\nint BASE = 120;                             // base speed 0..255\nfloat integ = 0, prevErr = 0;\nunsigned long last = 0;\n\nvoid motor(int in1, int in2, int pwm, int speed){\n  bool fwd = speed >= 0; int p = constrain(abs(speed), 0, 255);\n  digitalWrite(in1, fwd); digitalWrite(in2, !fwd); analogWrite(pwm, p);\n}\n\n// returns line position error (-2..+2), or 999 if line lost\nfloat readError(){\n  long sum = 0, active = 0;\n  for (int i = 0; i < 5; i++){\n    int v = analogRead(SENS[i]);\n    bool on = LINE_IS_DARK ? (v > THRESHOLD) : (v < THRESHOLD);\n    if (on){ sum += WEIGHT[i]; active++; }\n  }\n  if (active == 0) return 999;              // lost the line\n  return (float)sum / active;\n}\n\nvoid setup(){\n  int mp[] = {L_IN1,L_IN2,L_PWM,R_IN1,R_IN2,R_PWM};\n  for (int i=0;i<6;i++) pinMode(mp[i], OUTPUT);\n  Serial.begin(115200);\n}\n\nvoid loop(){\n  if (millis() - last < 5) return;          // ~200 Hz\n  float dt = (millis() - last) / 1000.0; last = millis();\n\n  float err = readError();\n  if (err == 999){                          // line lost: spin toward last seen side\n    int dir = prevErr >= 0 ? 1 : -1;\n    motor(L_IN1,L_IN2,L_PWM,  dir*BASE);\n    motor(R_IN1,R_IN2,R_PWM, -dir*BASE);\n    return;\n  }\n  integ += err * dt; integ = constrain(integ, -50, 50);\n  float deriv = (err - prevErr) / dt; prevErr = err;\n  float steer = Kp*err + Ki*integ + Kd*deriv;\n\n  motor(L_IN1,L_IN2,L_PWM, constrain(BASE + steer, -255, 255));\n  motor(R_IN1,R_IN2,R_PWM, constrain(BASE - steer, -255, 255));\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# PID Line Follower\n\nHardware: Arduino Uno/Nano, a 5-channel IR sensor array (A0..A4), an H-bridge (L298N/TB6612), 2 geared DC motors, a battery for the motors (separate from logic, COMMON GROUND).\n\nTune (see the `pid-control` skill):\n1. Set `Ki=0, Kd=0`, raise `Kp` until it follows but wobbles; back off ~30%.\n2. Add `Kd` to smooth the wobble.\n3. Add a little `Ki` only if it drifts off-center.\nAdjust `BASE` for speed, `THRESHOLD` for your surface, and flip `LINE_IS_DARK` if your line is light on dark.\n\nBuild: `arduino-cli compile --fqbn arduino:avr:uno line_follower` then `... upload -p COM5 ...`.\n"
+    }
+  ]
+}

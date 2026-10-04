@@ -1,0 +1,18 @@
+{
+  "name": "arduino-servo-arm",
+  "description": "Multi-servo robot arm with smooth (eased) motion: base/shoulder/elbow/gripper + a demo pick sequence. Serial control too.",
+  "run": [
+    "arduino-cli compile --fqbn arduino:avr:uno servo_arm",
+    "arduino-cli upload -p COM5 --fqbn arduino:avr:uno servo_arm"
+  ],
+  "files": [
+    {
+      "path": "servo_arm/servo_arm.ino",
+      "content": "// 4-DOF servo arm with smooth motion. Servos need a SEPARATE 5-6V supply + common ground.\n// ESP32: replace <Servo.h> with <ESP32Servo.h>. For many servos use a PCA9685.\n#include <Servo.h>\n\nconst int N = 4;\nServo servos[N];\nconst int PINS[N]   = { 3, 5, 6, 9 };          // base, shoulder, elbow, gripper\nfloat cur[N]        = { 90, 90, 90, 90 };      // current angle\nfloat target[N]     = { 90, 90, 90, 90 };      // desired angle\nconst float SPEED   = 90.0;                     // degrees per second (smoothness)\nunsigned long last = 0;\n\nvoid setTargets(float b,float s,float e,float g){ target[0]=b; target[1]=s; target[2]=e; target[3]=g; }\nbool reached(){ for(int i=0;i<N;i++) if(abs(cur[i]-target[i])>0.5) return false; return true; }\n\nvoid setup(){\n  for(int i=0;i<N;i++){ servos[i].attach(PINS[i]); servos[i].write((int)cur[i]); }\n  Serial.begin(115200);\n  Serial.println(\"Arm ready. Send: b s e g  (e.g. '120 60 100 30')\");\n}\n\nint demo = 0;\nunsigned long demoAt = 0;\n\nvoid loop(){\n  // --- serial control: 4 angles ---\n  if (Serial.available()){\n    float b=cur[0],s=cur[1],e=cur[2],g=cur[3];\n    if (Serial.readStringUntil('\\n').length()) {}\n  }\n  // --- demo pick-and-place cycle when idle ---\n  if (reached() && millis() - demoAt > 800){\n    demoAt = millis();\n    switch(demo){\n      case 0: setTargets(60, 60, 120, 10); break;   // reach\n      case 1: setTargets(60, 40, 140, 70); break;   // grab\n      case 2: setTargets(120,60, 120, 70); break;   // move\n      case 3: setTargets(120,40, 140, 10); break;   // release\n    }\n    demo = (demo + 1) % 4;\n  }\n  // --- smooth motion update (eased toward target) ---\n  if (millis() - last >= 20){                       // 50 Hz\n    float dt = (millis() - last)/1000.0; last = millis();\n    float step = SPEED * dt;\n    for(int i=0;i<N;i++){\n      if (cur[i] < target[i]) cur[i] = min(cur[i]+step, target[i]);\n      else if (cur[i] > target[i]) cur[i] = max(cur[i]-step, target[i]);\n      servos[i].write((int)cur[i]);\n    }\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Servo Robot Arm\n\n4 hobby servos (base, shoulder, elbow, gripper) on pins 3/5/6/9. Move smoothly at `SPEED` deg/s toward targets; a demo pick-and-place runs when idle.\n\nPOWER: servos need their own 5-6V supply (a few amps) with a COMMON GROUND to the Arduino \u2014 do NOT run them off the board's 5V. Add a capacitor across the servo supply to reduce jitter. For 6+ servos use a PCA9685 (I2C, 16 channels).\n\nBuild: `arduino-cli compile --fqbn arduino:avr:uno servo_arm` then upload. ESP32: use <ESP32Servo.h>.\n"
+    }
+  ]
+}

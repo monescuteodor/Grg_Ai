@@ -1,0 +1,26 @@
+{
+  "name": "expo-app",
+  "description": "Expo (React Native) app \u2014 runs on iOS, Android and web from one codebase.",
+  "run": [
+    "npm install",
+    "npx expo start"
+  ],
+  "files": [
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"mobile\",\n  \"version\": \"1.0.0\",\n  \"main\": \"node_modules/expo/AppEntry.js\",\n  \"scripts\": {\n    \"start\": \"expo start\",\n    \"android\": \"expo start --android\",\n    \"ios\": \"expo start --ios\",\n    \"web\": \"expo start --web\"\n  },\n  \"dependencies\": {\n    \"expo\": \"~51.0.0\",\n    \"react\": \"18.2.0\",\n    \"react-native\": \"0.74.5\"\n  }\n}"
+    },
+    {
+      "path": "app.json",
+      "content": "{\n  \"expo\": {\n    \"name\": \"mobile\",\n    \"slug\": \"mobile\",\n    \"version\": \"1.0.0\",\n    \"orientation\": \"portrait\",\n    \"platforms\": [\n      \"ios\",\n      \"android\",\n      \"web\"\n    ]\n  }\n}"
+    },
+    {
+      "path": "App.js",
+      "content": "import { useState } from 'react'\nimport { View, Text, Pressable, StyleSheet } from 'react-native'\nexport default function App(){\n  const [n,setN]=useState(0)\n  return (<View style={s.c}><Text style={s.h}>Hello from Grg Code</Text>\n    <Pressable style={s.b} onPress={()=>setN(n+1)}><Text style={s.t}>Count: {n}</Text></Pressable></View>)\n}\nconst s = StyleSheet.create({ c:{flex:1,alignItems:'center',justifyContent:'center',gap:16}, h:{fontSize:22,fontWeight:'700',color:'#4f46e5'}, b:{backgroundColor:'#4f46e5',padding:12,borderRadius:10}, t:{color:'#fff'} })\n"
+    },
+    {
+      "path": ".gitignore",
+      "content": "node_modules\n.expo\n"
+    }
+  ]
+}

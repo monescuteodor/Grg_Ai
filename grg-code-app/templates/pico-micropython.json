@@ -1,0 +1,18 @@
+{
+  "name": "pico-micropython",
+  "description": "Raspberry Pi Pico (RP2040) MicroPython: blink + button + ADC temp. Copy main.py with mpremote.",
+  "run": [
+    "mpremote connect COM5 fs cp main.py :main.py",
+    "mpremote connect COM5 reset"
+  ],
+  "files": [
+    {
+      "path": "main.py",
+      "content": "# Raspberry Pi Pico - MicroPython. Blink, read a button (GP15 -> GND), print the on-chip temperature.\nfrom machine import Pin, ADC\nimport time\n\nled = Pin(\"LED\", Pin.OUT)          # Pico / Pico W on-board LED\nbtn = Pin(15, Pin.IN, Pin.PULL_UP)  # button from GP15 to GND\ntemp = ADC(4)                       # internal temperature sensor\n\ndef read_temp_c():\n    v = temp.read_u16() * 3.3 / 65535\n    return 27 - (v - 0.706) / 0.001721\n\nwhile True:\n    if btn.value() == 0:            # held = pause blinking\n        time.sleep(0.05)\n        continue\n    led.toggle()\n    print(\"temp: %.1f C\" % read_temp_c())\n    time.sleep(0.5)\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Pico MicroPython\n\n1. Flash MicroPython: hold BOOTSEL, plug in the Pico, drop the MicroPython `.uf2` (from micropython.org) onto the RPI-RP2 drive.\n2. Install the tool: `pip install mpremote`.\n3. Find the port: `mpremote connect list` (e.g. COM5 / /dev/ttyACM0).\n4. Copy the code: `mpremote connect COM5 fs cp main.py :main.py`\n5. Run/REPL: `mpremote connect COM5 run main.py` or open the REPL with `mpremote`.\n\nAlso works on ESP32/STM32 with their MicroPython firmware. Thonny is a friendly GUI alternative.\n"
+    }
+  ]
+}

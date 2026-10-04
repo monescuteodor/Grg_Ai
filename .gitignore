@@ -1,0 +1,39 @@
+# ─── Secrets — NEVER commit ───
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_ed25519*
+id_rsa*
+*_ed25519
+secrets.json
+serviceAccount*.json
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ─── Node / Electron ───
+node_modules/
+dist/
+out/
+build/
+*.tgz
+*.log
+npm-debug.log*
+
+# ─── Packaged downloads / big binaries ───
+*.zip
+grgai/static/downloads/
+grg-code-app/renderer/*.map
+
+# ─── OS / editor ───
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

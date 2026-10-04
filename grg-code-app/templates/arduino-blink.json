@@ -1,0 +1,18 @@
+{
+  "name": "arduino-blink",
+  "description": "Arduino (AVR Uno/Nano) sketch: blink + button + serial. Build/flash with arduino-cli.",
+  "run": [
+    "arduino-cli compile --fqbn arduino:avr:uno blink",
+    "arduino-cli upload -p COM5 --fqbn arduino:avr:uno blink"
+  ],
+  "files": [
+    {
+      "path": "blink/blink.ino",
+      "content": "// Blink the on-board LED, print state, and let a button (pin 2 -> GND) pause it.\nconst int LED = LED_BUILTIN;\nconst int BTN = 2;\nunsigned long last = 0;\nconst unsigned long PERIOD = 500;\nbool on = false;\n\nvoid setup() {\n  pinMode(LED, OUTPUT);\n  pinMode(BTN, INPUT_PULLUP);\n  Serial.begin(115200);\n  Serial.println(\"Grg Code blink starting\");\n}\n\nvoid loop() {\n  bool paused = digitalRead(BTN) == LOW;   // button held = pause\n  if (!paused && millis() - last >= PERIOD) {\n    last = millis();\n    on = !on;\n    digitalWrite(LED, on ? HIGH : LOW);\n    Serial.println(on ? \"LED on\" : \"LED off\");\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Arduino Blink\n\n1. Install the AVR core: `arduino-cli core update-index && arduino-cli core install arduino:avr`\n2. Find your port: `arduino-cli board list` (e.g. COM5 or /dev/ttyUSB0)\n3. Compile: `arduino-cli compile --fqbn arduino:avr:uno blink`\n4. Upload: `arduino-cli upload -p COM5 --fqbn arduino:avr:uno blink`\n5. Monitor: `arduino-cli monitor -p COM5 -c baudrate=115200`\n\nNano: use `arduino:avr:nano` (old bootloader: `arduino:avr:nano:cpu=atmega328old`). Button: pin 2 to GND.\n"
+    }
+  ]
+}
