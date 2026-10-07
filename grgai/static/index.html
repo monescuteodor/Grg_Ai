@@ -705,6 +705,7 @@
             .input-field { font-size: 16px; padding: 10px 0; } /* 16px prevents iOS zoom */
             .send-btn, .stop-btn { width: 40px; height: 40px; }
             .input-hint { display: none; }
+            .token-counter { display: none; } /* overlapped the effort pills on phones */
             .attach-btn { padding: 8px; }
             .attach-btn svg { width: 22px; height: 22px; }
             /* Footer must wrap so the send button is never pushed off-screen */
@@ -727,8 +728,14 @@
             .run-btn { font-size: 10px; padding: 3px 8px; }
 
             /* Topbar */
-            .topbar { height: 48px; padding: 0 12px; }
+            .topbar { height: 48px; padding: 0 10px; gap: 6px; }
             .topbar-title { font-size: 14px; }
+            /* Command palette needs a keyboard — hide it on phones to free space */
+            .topbar button[onclick="openCmdk()"] { display: none; }
+            /* Keep icon buttons compact so the row never overflows */
+            .topbar .theme-btn, .topbar #theme-btn { width: 36px; height: 36px; flex-shrink: 0; }
+            .topbar-signin-btn { flex-shrink: 0; padding: 7px 12px; font-size: 13px; }
+            .topbar-credit { flex-shrink: 0; }
 
             /* Preview and Code panels: full screen on mobile */
             .preview-panel.open { width: 100%; position: fixed; top: 0; left: 0; z-index: 100; }
@@ -750,6 +757,14 @@
         @supports (padding: env(safe-area-inset-bottom)) {
             .input-area { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
             .sidebar-footer { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        }
+        /* Top notch / Dynamic Island: push the top bar below the status bar so its
+           buttons aren't hidden under the notch (viewport-fit=cover extends into it). */
+        @supports (padding: env(safe-area-inset-top)) {
+            .topbar { height: calc(52px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); }
+            .privacy-banner.visible { padding-top: calc(6px + env(safe-area-inset-top)); }
+            .sidebar { padding-top: env(safe-area-inset-top); }
+            .preview-panel.open, .code-panel.open { padding-top: env(safe-area-inset-top); }
         }
 
         /* Touch-friendly: bigger tap targets */
@@ -4385,7 +4400,8 @@ async function loadNhashStats(){
   #gm-mascot.gm-say .gm-bubble{animation:gm-say 2.1s ease}
   @keyframes gm-say{0%{opacity:0;transform:translateY(3px) scale(.8)}14%,80%{opacity:1;transform:none}100%{opacity:0}}
   @media (prefers-reduced-motion:reduce){.gm-frog,.gm-lid,.gm-key.gm-lit{animation:none}}
-  @media (max-width:720px){#gm-mascot{width:80px;height:68px;right:10px;bottom:86px}}
+  /* On phones there's no room for the mascot — it overlapped the composer, so hide it. */
+  @media (max-width:768px){#gm-mascot{display:none !important}}
 </style>
 <div id="gm-mascot" title="Grg is coding…" aria-hidden="true"></div>
 <script>
