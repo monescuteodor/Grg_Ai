@@ -4443,8 +4443,10 @@ async function loadNhashStats(){
   #gm-mascot.gm-say .gm-bubble{animation:gm-say 2.1s ease}
   @keyframes gm-say{0%{opacity:0;transform:translateY(3px) scale(.8)}14%,80%{opacity:1;transform:none}100%{opacity:0}}
   @media (prefers-reduced-motion:reduce){.gm-frog,.gm-lid,.gm-key.gm-lit{animation:none}}
-  /* On phones there's no room for the mascot — it overlapped the composer, so hide it. */
-  @media (max-width:768px){#gm-mascot{display:none !important}}
+  /* On phones: keep the frog but small and tucked just ABOVE the composer so it
+     never overlaps the input or the conversation. (Composer ≈156px tall; add the
+     iPhone home-indicator safe area so it clears the taller composer there too.) */
+  @media (max-width:768px){#gm-mascot{width:54px;height:46px;right:8px;bottom:calc(164px + env(safe-area-inset-bottom))}}
 </style>
 <div id="gm-mascot" title="Grg is coding…" aria-hidden="true"></div>
 <script>
