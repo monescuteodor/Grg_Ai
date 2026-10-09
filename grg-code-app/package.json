@@ -17,12 +17,12 @@
     "appId": "com.grg.code",
     "productName": "Grg Code",
     "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "renderer/**/*"],
+    "files": ["main.js", "preload.js", "renderer/**/*", "knowledge/**/*", "templates/**/*"],
     "win": {
       "target": "portable",
-      "artifactName": "GrgCode-${version}.exe",
+      "artifactName": "GrgCode-win-x64-v32.exe",
       "icon": "renderer/icon.ico"
     },
-    "portable": { "artifactName": "GrgCode-${version}.exe" }
+    "portable": { "artifactName": "GrgCode-win-x64-v32.exe", "unicode": true }
   }
 }
