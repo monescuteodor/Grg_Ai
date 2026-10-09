@@ -95,6 +95,135 @@ MODEL_PRICE_DEFAULT = 6.0
 # Flat € per image for premium image models (charged * MARKUP).
 IMAGE_PRICE_EUR = 0.04
 
+# ─────────────── PER-MESSAGE CREDITS — TWO BUCKETS (usage + effort, margin-safe) ───────────────
+# Credits are spent PER MESSAGE (by model weight × effort), not per word. There are TWO buckets:
+#   1) FREE bucket  — pays for FREE models (Groq/:free). Costs us ~nothing, so it's generous and
+#      refills: GrgFree 100/WEEK, GrgPro 500/DAY, GrgUltra 2000/DAY.
+#   2) PREMIUM bucket — pays for PREMIUM models (paid OpenRouter). A MONTHLY budget sized to the
+#      plan's money so MARGIN IS GUARANTEED: each premium message costs real_cost×MARKUP credits,
+#      so spending the whole bucket can never cost more real API than the plan paid for.
+# Bought wallet credits can pay either bucket. All numbers are tunable.
+FREE_WEEKLY_CREDITS = 100        # GrgFree free-model bucket, reset WEEKLY (NOT shown on the plans card)
+PRO_DAILY_CREDITS = 500          # GrgPro free-model bucket, reset DAILY
+ULTRA_DAILY_CREDITS = 2000       # GrgUltra free-model bucket, reset DAILY (4x Pro)
+FREE_PERIOD = 7 * 86400          # free bucket: GrgFree resets every 7 days
+PRO_PERIOD = 86400               # free bucket: paid plans reset every day
+PAID_PLANS = ("pro", "ultra")    # plans that unlock premium models
+# PREMIUM bucket (credits/MONTH) — sized to the plan price (1 credit = €0.01 ⇒ €5 → 500, €20 → 2000).
+PREMIUM_MONTHLY = {"free": 0, "pro": 500, "ultra": 2000}
+PREMIUM_PERIOD = 30 * 86400
+EFFORT_MULT = {"low": 1.0, "mid": 1.5, "high": 2.0, "ultra": 3.0}   # free-model effort weighting
+# Assumed tokens per message by effort — this makes the PREMIUM price FLAT per message (not per
+# word) while still reflecting real cost. If a real message uses fewer tokens you profit more;
+# output is capped ~8k so it can't blow far past the 'ultra' assumption.
+EFFORT_TOKENS = {"low": 1500, "mid": 3000, "high": 6000, "ultra": 10000}
+FREE_MSG_CREDITS = 1
+MSG_CREDITS_MIN = 1
+
+def _is_free_model(model: str) -> bool:
+    m = (model or "")
+    return (m.endswith(":free") or m.startswith("openai/gpt-oss")
+            or m.startswith("groq/") or m == "qwen/qwen3.8-27b"
+            or m not in MODEL_PRICE_EUR)
+
+def free_msg_credits(effort: str = "low") -> int:
+    return max(1, int(round(FREE_MSG_CREDITS * EFFORT_MULT.get(str(effort or "low").lower(), 1.0))))
+
+def premium_msg_credits(model: str, effort: str = "low") -> int:
+    """Flat per-message premium price = real_cost(assumed tokens) × MARKUP, in credits.
+    Guarantees the 25% margin: the credits charged are the real API cost + margin."""
+    toks = EFFORT_TOKENS.get(str(effort or "low").lower(), 1500)
+    real = toks / 1_000_000.0 * model_price_eur(model)      # EUR real API cost for a typical msg
+    return max(1, int(round(real * MARKUP / CREDIT_EUR)))
+
+def message_cost_credits(model: str, effort: str = "low", images: int = 0) -> int:
+    c = free_msg_credits(effort) if _is_free_model(model) else premium_msg_credits(model, effort)
+    return max(MSG_CREDITS_MIN, c + int(images) * 2)
+
+def _roll_daily(data: dict) -> dict:
+    """Refill the FREE-model bucket on the plan's cycle (paid=daily, free=weekly)."""
+    plan = data.get("plan")
+    period_len = PRO_PERIOD if plan in PAID_PLANS else FREE_PERIOD
+    grant = (ULTRA_DAILY_CREDITS if plan == "ultra"
+             else PRO_DAILY_CREDITS if plan == "pro" else FREE_WEEKLY_CREDITS)
+    cycle = int(time.time() // period_len)
+    if int(data.get("daily_credits_day", -1)) != cycle:
+        return {"daily_credits": grant, "daily_credits_day": cycle, "_reset": True}
+    return {"daily_credits": int(data.get("daily_credits", 0)), "daily_credits_day": cycle}
+
+def _roll_premium(data: dict) -> dict:
+    """Refill the PREMIUM bucket (monthly) to the plan's budget."""
+    grant = PREMIUM_MONTHLY.get(data.get("plan", "free"), 0)
+    period = int(time.time() // PREMIUM_PERIOD)
+    if int(data.get("premium_credits_period", -1)) != period:
+        return {"premium_credits": grant, "premium_credits_period": period, "_reset": True}
+    return {"premium_credits": int(data.get("premium_credits", 0)), "premium_credits_period": period}
+
+def message_rates() -> dict:
+    """{model_id: credits_per_message at low effort} for the UI."""
+    ids = list(MODEL_PRICE_EUR.keys()) + ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+    return {m: message_cost_credits(m, "low") for m in ids}
+
+def charge_message(uid: str, model: str, effort: str = "low", images: int = 0) -> dict:
+    """Spend credits for ONE message from the right bucket (free-model→free bucket,
+    premium→premium bucket), then bought wallet. Anonymous is never charged/blocked.
+    Returns {allowed, cost, balance, charged, reason}. Fail-OPEN on any backend error."""
+    cost = message_cost_credits(model, effort, images)
+    if not uid or not FIREBASE_AVAILABLE:
+        return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "anon": True}
+    try:
+        ref = _get_user_ref(uid)
+        if not ref:
+            return {"allowed": True, "cost": cost, "charged": 0, "balance": None}
+        data = ref.get().to_dict() or {}
+        daily = _roll_daily(data)
+        prem = _roll_premium(data)
+        wallet = float(data.get("wallet_eur", 0.0))
+        daily_credits = int(daily["daily_credits"])
+        premium_credits = int(prem["premium_credits"])
+        wallet_credits = eur_to_credits(wallet)
+        is_free = _is_free_model(model)
+        bucket = daily_credits if is_free else premium_credits    # which bucket pays
+        usable = bucket + wallet_credits
+        total_all = daily_credits + premium_credits + wallet_credits
+        if usable < cost:
+            if is_free:
+                reason = "out_of_credits"
+            else:
+                reason = "needs_pro" if data.get("plan") not in PAID_PLANS else "out_of_premium"
+            return {"allowed": False, "cost": cost, "balance": total_all, "reason": reason}
+        use_bucket = min(bucket, cost)
+        use_wallet = cost - use_bucket
+        um = dict(data.get("usage_models", {}))
+        cur = um.get(model, {})
+        um[model] = {"messages": int(cur.get("messages", 0)) + 1,
+                     "credits": int(cur.get("credits", 0)) + cost,
+                     "tokens": int(cur.get("tokens", 0))}
+        updates = {
+            "wallet_eur": max(0.0, wallet - use_wallet * CREDIT_EUR),
+            "usage_models": um,
+            "msgs_used": firestore.Increment(1) if firestore else int(data.get("msgs_used", 0)) + 1,
+            "credits_spent_total": firestore.Increment(cost) if firestore else int(data.get("credits_spent_total", 0)) + cost,
+            "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+        }
+        if is_free:
+            updates["daily_credits"] = daily_credits - use_bucket
+            updates["daily_credits_day"] = daily["daily_credits_day"]
+            if prem.get("_reset"):   # also persist a just-refilled premium bucket
+                updates["premium_credits"] = premium_credits
+                updates["premium_credits_period"] = prem["premium_credits_period"]
+        else:
+            updates["premium_credits"] = premium_credits - use_bucket
+            updates["premium_credits_period"] = prem["premium_credits_period"]
+            if daily.get("_reset"):
+                updates["daily_credits"] = daily_credits
+                updates["daily_credits_day"] = daily["daily_credits_day"]
+        ref.set(updates, merge=True)
+        return {"allowed": True, "cost": cost, "charged": cost, "balance": total_all - cost}
+    except Exception as e:  # noqa: BLE001 — never block a message on a billing error
+        print(f"[charge_message ERROR] {e}")
+        return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "error": str(e)[:120]}
+
 
 def model_price_eur(model: str) -> float:
     """€ per 1M tokens for a model (blended)."""
@@ -143,29 +272,51 @@ def get_account(uid: str) -> dict:
     rate = check_rate_limit(uid)
     data = _user_data(uid)
     pro = _roll_pro_period(data)
-    if pro.get("_reset") and FIREBASE_AVAILABLE:
+    daily = _roll_daily(data)
+    prem = _roll_premium(data)
+    if FIREBASE_AVAILABLE and (pro.get("_reset") or daily.get("_reset") or prem.get("_reset")):
         ref = _get_user_ref(uid)
         if ref:
-            ref.set({"plan_eur": pro["plan_eur"],
-                     "plan_period_end": pro["plan_period_end"]}, merge=True)
+            _w = {}
+            if pro.get("_reset"):
+                _w["plan_eur"] = pro["plan_eur"]; _w["plan_period_end"] = pro["plan_period_end"]
+            if daily.get("_reset"):
+                _w["daily_credits"] = daily["daily_credits"]; _w["daily_credits_day"] = daily["daily_credits_day"]
+            if prem.get("_reset"):
+                _w["premium_credits"] = prem["premium_credits"]; _w["premium_credits_period"] = prem["premium_credits_period"]
+            if _w:
+                ref.set(_w, merge=True)
     plan = data.get("plan", "free")
     wallet = float(data.get("wallet_eur", 0.0))
-    plan_eur = float(pro.get("plan_eur", 0.0)) if plan == "pro" else 0.0
     has_credit = wallet > 0.0005
+    daily_credits = int(daily.get("daily_credits", 0))
+    premium_credits = int(prem.get("premium_credits", 0))
+    daily_total = (ULTRA_DAILY_CREDITS if plan == "ultra"
+                   else PRO_DAILY_CREDITS if plan == "pro" else FREE_WEEKLY_CREDITS)
+    premium_total = PREMIUM_MONTHLY.get(plan, 0)
     return {
         "plan": plan,
         "currency": CURRENCY,
         "has_credit": has_credit,
         "wallet_eur": round(wallet, 4),          # internal only; never shown as a € balance
-        "credits_balance": eur_to_credits(plan_eur + wallet),
-        "plan_credits": eur_to_credits(plan_eur),
-        "plan_credits_total": eur_to_credits(PRO_MONTHLY_EUR),
+        # Spendable now = free-model bucket + premium bucket + bought wallet.
+        "credits_balance": daily_credits + premium_credits + eur_to_credits(wallet),
+        "daily_credits": daily_credits,
+        "daily_credits_total": daily_total,
+        "premium_credits": premium_credits,
+        "premium_credits_total": premium_total,
+        "plan_credits": premium_credits,          # back-compat alias for the UI
+        "plan_credits_total": premium_total,
         "wallet_credits": eur_to_credits(wallet),
         "plan_period_end": pro.get("plan_period_end", 0),
-        "premium_available": (plan_eur > 0.0005) or has_credit,
+        "premium_available": (premium_credits > 0) or has_credit,
         "tokens_used": int(data.get("tokens_used", 0)),
+        "msgs_used": int(data.get("msgs_used", 0)),
+        "credits_spent_total": int(data.get("credits_spent_total", 0)),
         "usage_models": data.get("usage_models", {}),
         "model_rates": model_rates(),
+        "message_rates": message_rates(),
+        "effort_mult": EFFORT_MULT,
         "credit_eur": CREDIT_EUR,
         "email": data.get("email"),
         "daily_used": rate.get("used", 0),
@@ -180,11 +331,11 @@ def premium_allowed(uid: str) -> dict:
     if not uid:
         return {"allowed": False, "reason": "sign_in"}
     data = _user_data(uid)
-    pro = _roll_pro_period(data)
-    plan = data.get("plan", "free")
-    plan_eur = float(pro.get("plan_eur", 0.0)) if plan == "pro" else 0.0
+    prem = _roll_premium(data)
     wallet = float(data.get("wallet_eur", 0.0))
-    if plan_eur > 0.0005 or wallet > 0.0005:
+    # Premium is paid from the monthly PREMIUM bucket (GrgPro 500 / GrgUltra 2000)
+    # or from bought wallet credits.
+    if int(prem.get("premium_credits", 0)) > 0 or wallet > 0.0005:
         return {"allowed": True}
     return {"allowed": False, "reason": "no_funds"}
 
@@ -272,12 +423,29 @@ def credit_topup_once(uid: str, session_id: str, eur: float) -> bool:
     return True
 
 
-def grant_pro_budget(uid: str):
-    """Give a Pro user their monthly allowance (charge-budget, on activation/renewal)."""
+def grant_plan(uid: str, plan: str = "pro"):
+    """On subscribe/renew: set the plan and immediately fill BOTH credit buckets
+    (free-model daily/weekly + premium monthly) for GrgPro or GrgUltra."""
     if not uid or not FIREBASE_AVAILABLE:
         return
     ref = _get_user_ref(uid)
     if not ref:
         return
-    ref.set({"plan_eur": PRO_MONTHLY_EUR,
-             "plan_period_end": int(time.time() + 30 * 86400)}, merge=True)
+    if plan not in PAID_PLANS:
+        plan = "pro"
+    now = time.time()
+    daily_grant = ULTRA_DAILY_CREDITS if plan == "ultra" else PRO_DAILY_CREDITS
+    ref.set({
+        "plan": plan,
+        "daily_credits": daily_grant,
+        "daily_credits_day": int(now // PRO_PERIOD),
+        "premium_credits": PREMIUM_MONTHLY.get(plan, 0),
+        "premium_credits_period": int(now // PREMIUM_PERIOD),
+        "plan_eur": PRO_MONTHLY_EUR,            # legacy field, harmless
+        "plan_period_end": int(now + 30 * 86400),
+        "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(now),
+    }, merge=True)
+
+def grant_pro_budget(uid: str):
+    """Back-compat wrapper — grants the GrgPro plan."""
+    grant_plan(uid, "pro")

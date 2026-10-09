@@ -26,7 +26,41 @@
         const db = getFirestore(app);
         window._fb = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy };
     </script>
-    <title>Grg AI</title>
+    <title>Grg AI — Free AI Assistant for Code, Apps &amp; Documents | Claude, GPT-5, Gemini</title>
+    <meta name="description" content="Grg AI is a free AI assistant that writes code, builds apps and websites, creates documents and images, and helps with hardware, Arduino and robotics. Powered by Claude, GPT-5, Gemini and more — AutoGrg automatically picks the best model for you.">
+    <meta name="keywords" content="Grg AI, free AI assistant, AI coding assistant, AI chat, code generator, app builder, website builder, Claude, GPT-5, Gemini, AI chatbot, GrgCode, AI pair programmer, build apps with AI">
+    <meta name="author" content="Monescu Teodor">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://grg-ai.com/">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Grg AI">
+    <meta property="og:title" content="Grg AI — Free AI Assistant for Code, Apps &amp; Documents">
+    <meta property="og:description" content="Write code, build apps &amp; websites, create documents and images, and tackle hardware &amp; robotics — free. Powered by Claude, GPT-5, Gemini. AutoGrg picks the best model for you.">
+    <meta property="og:url" content="https://grg-ai.com/">
+    <meta property="og:image" content="https://grg-ai.com/static/logo.png">
+    <meta property="og:locale" content="en_US">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Grg AI — Free AI Assistant for Code, Apps &amp; Documents">
+    <meta name="twitter:description" content="Write code, build apps &amp; websites, create documents and images, and tackle hardware &amp; robotics — free. Powered by Claude, GPT-5, Gemini.">
+    <meta name="twitter:image" content="https://grg-ai.com/static/logo.png">
+    <!-- Structured data for rich results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Grg AI",
+      "alternateName": "GrgAI",
+      "url": "https://grg-ai.com/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web, Windows",
+      "description": "Free AI assistant that writes code, builds apps and websites, creates documents and images, and helps with hardware and robotics. Powered by Claude, GPT-5, Gemini and more.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "author": { "@type": "Person", "name": "Monescu Teodor" },
+      "featureList": ["AI code generation", "App and website builder", "Document and image generation", "Arduino, microcontrollers and robotics help", "Claude, GPT-5 and Gemini models"]
+    }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
     <style>
@@ -439,31 +473,36 @@
         .nhash-status.expired { color: #ef4444; }
         .plans-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); z-index: 8000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .plans-overlay.visible { opacity: 1; pointer-events: auto; }
-        .plans-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; max-width: 760px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .plans-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 24px; padding: 22px 24px; max-width: 1060px; width: 96%; max-height: 94vh; overflow-y: auto; position: relative; }
         .plans-close { position: absolute; top: 16px; right: 18px; background: none; border: 1px solid var(--border); color: var(--text-mute); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .plans-close:hover { color: var(--text); background: var(--bg-hover); }
-        .plans-header { text-align: center; margin-bottom: 28px; }
+        .plans-header { text-align: center; margin-bottom: 16px; }
         .plans-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
         .plans-sub { font-size: 14px; color: var(--text-mute); margin-bottom: 16px; }
         .billing-toggle { display: inline-flex; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-top: 4px; }
         .billing-btn { padding: 6px 16px; border-radius: 16px; border: none; background: none; color: var(--text-mute); font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .billing-btn.active { background: var(--bg-surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
         .billing-save { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
-        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 600px) { .plans-grid { grid-template-columns: 1fr; } .plans-card { padding: 20px; } }
-        .plan-col { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; position: relative; }
+        .plans-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media (max-width: 920px) { .plans-grid { grid-template-columns: 1fr; } .plans-card { padding: 20px; } }
+        .plan-col { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; position: relative; }
         .plan-col.pro { border-color: var(--accent); background: rgba(139,92,246,0.04); }
+        .plan-col.ultra { border-color: #f5a623; background: rgba(245,166,35,0.05); }
+        .plan-col-badge.ultra-badge { background: linear-gradient(135deg,#f5a623,#e8890b); }
         .plan-col-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,var(--accent),#8b5cf6); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 20px; white-space: nowrap; }
-        .plan-col-header { margin-bottom: 20px; }
+        .plan-col-header { margin-bottom: 12px; }
         .plan-col-name { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
         .plan-col-price { font-size: 36px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
         .plan-col-price span { font-size: 14px; color: var(--text-mute); font-weight: 400; }
         .plan-col-desc { font-size: 12px; color: var(--text-mute); }
         .plan-current-badge { display: inline-block; margin-top: 8px; background: var(--bg-hover); color: var(--text-mute); font-size: 11px; padding: 2px 10px; border-radius: 20px; }
-        .plan-col-features { flex: 1; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
-        .plan-feature { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-dim); }
-        .plan-feature-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-mute); margin-top: 10px; margin-bottom: 2px; }
-        .plan-model-item { padding-left: 4px; }
+        /* 2-column feature/model grid so every plan fits without scrolling.
+           Normal features + section headers span the full width; model rows go 2 per row. */
+        .plan-col-features { flex: 1; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 14px; align-content: start; }
+        .plan-feature { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: var(--text-dim); }
+        .plan-col-features > .plan-feature:not(.plan-model-item) { grid-column: 1 / -1; }
+        .plan-feature-section { grid-column: 1 / -1; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-mute); margin-top: 8px; margin-bottom: 1px; }
+        .plan-model-item { padding-left: 0; font-size: 12px; }
         .pf-icon { width: 16px; height: 16px; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
         .pf-icon.ok { color: #22c55e; }
         .pf-icon.no { color: var(--text-mute); }
@@ -863,6 +902,15 @@
 </head>
 <body>
 
+<!-- SEO fallback for crawlers without JS (hidden from users; the app renders below) -->
+<noscript>
+    <h1>Grg AI — Free AI Assistant for Code, Apps &amp; Documents</h1>
+    <p>Grg AI is a free AI assistant that writes code, builds apps and websites, creates
+    documents and images, and helps with hardware, Arduino and robotics. It is powered by
+    Claude, GPT-5, Gemini and other top models, and AutoGrg automatically picks the best one
+    for your task. Start chatting free at grg-ai.com.</p>
+</noscript>
+
 <!-- AUTH MODAL -->
 <div class="auth-overlay" id="auth-overlay">
     <div class="auth-card">
@@ -966,10 +1014,10 @@
             </div>
             <div class="plan-upgrade-btn-wrap" id="plan-upgrade-wrap">
                 <button class="plan-upgrade-btn" onclick="startUpgrade()">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Upgrade to Grg Pro — $5/mo
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Upgrade to Grg Pro — €5/mo
                 </button>
                 <div class="plan-pro-features">
-                    <span>✓ Unlimited messages</span>
+                    <span>✓ Up to 50× more usage</span>
                     <span>✓ All models</span>
                     <span>✓ Priority support</span>
                 </div>
@@ -1031,7 +1079,7 @@
                 <button class="billing-btn active" id="billing-monthly" onclick="setBilling('monthly')">Monthly</button>
                 <button class="billing-btn" id="billing-yearly" onclick="setBilling('yearly')">
                     Yearly
-                    <span class="billing-save">Save $10</span>
+                    <span class="billing-save">Save €10</span>
                 </button>
             </div>
         </div>
@@ -1039,15 +1087,15 @@
             <!-- FREE PLAN -->
             <div class="plan-col" id="plan-col-free">
                 <div class="plan-col-header">
-                    <div class="plan-col-name">Free</div>
-                    <div class="plan-col-price">$0<span>/mo</span></div>
+                    <div class="plan-col-name">GrgFree</div>
+                    <div class="plan-col-price">€0<span>/mo</span></div>
                     <div class="plan-col-desc">Perfect for trying out Grg AI</div>
                     <div class="plan-current-badge" id="free-current-badge">Current Plan</div>
                 </div>
                 <div class="plan-col-features">
                     <div class="plan-feature">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>50 messages/day</strong></span>
+                        <span><strong>Free to use — credits refill weekly</strong></span>
                     </div>
                     <div class="plan-feature">
                         <span class="pf-icon ok">✓</span>
@@ -1106,15 +1154,15 @@
             <div class="plan-col pro" id="plan-col-pro">
                 <div class="plan-col-badge"><svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Most Popular</div>
                 <div class="plan-col-header">
-                    <div class="plan-col-name">Grg Pro</div>
-                    <div class="plan-col-price" id="pro-price">$5<span>/mo</span></div>
+                    <div class="plan-col-name">GrgPro</div>
+                    <div class="plan-col-price" id="pro-price">€5<span>/mo</span></div>
                     <div class="plan-col-desc" id="pro-desc">For power users & developers</div>
                     <div class="plan-current-badge" id="pro-current-badge" style="display:none">Current Plan</div>
                 </div>
                 <div class="plan-col-features">
                     <div class="plan-feature">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Unlimited messages</strong></span>
+                        <span><strong>Up to 50× more usage than GrgFree</strong></span>
                     </div>
                     <div class="plan-feature">
                         <span class="pf-icon ok">✓</span>
@@ -1182,8 +1230,33 @@
                         <span>+ all Grg house models</span>
                     </div>
                 </div>
-                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startUpgrade();closePlansModal()">Upgrade to Pro — $5/mo</button>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startUpgrade('pro');closePlansModal()">Upgrade to Pro — €5/mo</button>
                 <button class="plan-col-btn nhash-btn" onclick="payWithNhash()"><svg viewBox="0 0 40 40" width="16" height="16" aria-hidden="true"><defs><linearGradient id="nhgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect x="2" y="2" width="36" height="36" rx="10" fill="url(#nhgB)"/><text x="18" y="28" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="20" fill="#fff">n</text></svg>Pay with nHash</button>
+            </div>
+
+            <!-- ULTRA PLAN -->
+            <div class="plan-col ultra" id="plan-col-ultra">
+                <div class="plan-col-badge ultra-badge"><svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Best value</div>
+                <div class="plan-col-header">
+                    <div class="plan-col-name">GrgUltra</div>
+                    <div class="plan-col-price" id="ultra-price">€20<span>/mo</span></div>
+                    <div class="plan-col-desc" id="ultra-desc">For heavy users &amp; teams</div>
+                    <div class="plan-current-badge" id="ultra-current-badge" style="display:none">Current Plan</div>
+                </div>
+                <div class="plan-col-features">
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span><strong>Everything in GrgPro</strong></span></div>
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span><strong>Up to 4× more usage than GrgPro</strong></span></div>
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span>Highest priority &amp; speed</span></div>
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span>Largest context windows</span></div>
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span>Early access to new models</span></div>
+                    <div class="plan-feature"><span class="pf-icon ok">✓</span><span>Priority support</span></div>
+                    <div class="plan-feature-section">All flagship models included</div>
+                    <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span><strong>Claude Opus 4.8</strong></span></div>
+                    <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span><strong>GPT-5.6</strong></span></div>
+                    <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span><strong>Gemini 3 Pro</strong></span></div>
+                    <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span>+ all GrgPro models</span></div>
+                </div>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-ultra-btn" onclick="startUpgrade('ultra');closePlansModal()">Upgrade to Ultra — €20/mo</button>
             </div>
         </div>
     </div>
@@ -1257,13 +1330,13 @@
         <button class="upgrade-close" onclick="closeUpgrade()">✕</button>
         <div class="upgrade-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36" style="color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <h2 class="upgrade-title" id="upgrade-title">Upgrade to Grg Pro</h2>
-        <p class="upgrade-desc" id="upgrade-desc">You've reached your 50 messages/day limit. Come back tomorrow or upgrade to Pro for unlimited messages.</p>
+        <p class="upgrade-desc" id="upgrade-desc">You've used your free credits for now — they refill weekly. Upgrade to GrgPro for up to 50× more usage.</p>
         <div class="upgrade-features">
-            <div class="upgrade-feature">✓ Unlimited messages</div>
+            <div class="upgrade-feature">✓ Up to 50× more usage</div>
             <div class="upgrade-feature">✓ All AI models</div>
             <div class="upgrade-feature">✓ Unlimited conversations</div>
         </div>
-        <button class="upgrade-btn" onclick="startUpgrade()">Upgrade to Pro — $5/mo</button>
+        <button class="upgrade-btn" onclick="startUpgrade()">Upgrade to Pro — €5/mo</button>
         <button class="upgrade-later" id="upgrade-later-btn" onclick="closeUpgrade()">Mai târziu</button>
         <div class="upgrade-reset" id="upgrade-reset-info"></div>
     </div>
@@ -3725,6 +3798,7 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             provider: provider,
             model: modelName,
             uid: (typeof _currentUser !== 'undefined' && _currentUser) ? _currentUser.uid : undefined,
+            effort: (typeof _currentEffort !== 'undefined' ? _currentEffort : 'low'),
             messages: _buildMessages(message, history, summary),
             temperature: cfg.temperature,
             max_tokens: cfg.max_tokens
@@ -3748,12 +3822,13 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             var line = lines[li].trim();
             if (!line.startsWith('data:')) continue;
             var data = line.slice(5).trim();
-            if (data === '[DONE]') return;
+            if (data === '[DONE]') { _syncBalanceSoon(); return; }
             var p;
             try { p = JSON.parse(data); }
             catch (e) { continue; }   // partial / non-JSON keep-alive
             if (p.error) throw new Error(p.error);
             if (p.routed && typeof _onRouted === 'function') { try { _onRouted(p.routed); } catch (e) {} }
+            if (p.charge) { try { _applyCharge(p.charge); } catch (e) {} }
             if (p.reasoning && onReasoning) onReasoning(p.reasoning);
             if (p.token) onToken(p.token);
         }
@@ -3792,6 +3867,29 @@ async function loadSubscriptionStatus() {
 // ─── pay-as-you-go credit ───
 var _account = null;
 function canUsePremium() { return !!(_account && _account.premium_available); }
+
+// Live credit updates: every message spends credits (model × effort). The backend
+// sends a {charge:{cost,balance}} event; we update the pill instantly, then re-sync.
+function _applyCredits(balance) {
+    if (_account && typeof balance === 'number') _account.credits_balance = balance;
+    var amt = document.getElementById('topbar-credit-amt');
+    var pill = document.getElementById('topbar-credit');
+    if (amt && typeof balance === 'number') {
+        amt.textContent = (typeof fmtTok === 'function' ? fmtTok(balance) : balance) + ' cr';
+        if (pill) pill.style.display = 'flex';
+    }
+}
+function _applyCharge(c) {
+    if (!c) return;
+    if (typeof c.balance === 'number') _applyCredits(c.balance);
+    if (c.cost && typeof flashToast === 'function') { /* silent; pill already shows the drop */ }
+}
+var _balSyncT = null;
+function _syncBalanceSoon() {
+    if (typeof _currentUser === 'undefined' || !_currentUser) return;
+    clearTimeout(_balSyncT);
+    _balSyncT = setTimeout(function () { try { loadAccount(); } catch (e) {} }, 400);
+}
 
 async function loadAccount() {
     if (!_currentUser) { _account = null; return; }
@@ -3943,7 +4041,7 @@ function updatePlanUI() {
     if (_userPlan === 'pro') {
         if (badge) { badge.textContent = 'PRO'; badge.className = 'plan-badge pro'; }
         if (bar)   bar.style.width = '100%';
-        if (text)  text.textContent = 'Unlimited messages ✓';
+        if (text)  text.textContent = 'Up to 50× more usage ✓';
         if (wrap)  wrap.style.display = 'none';
         if (label) label.textContent = 'Grg Pro';
         var manageBtn = document.getElementById('account-manage-sub');
@@ -4004,14 +4102,20 @@ function setBilling(interval) {
     var priceEl = document.getElementById('pro-price');
     var descEl  = document.getElementById('pro-desc');
     var btnEl   = document.getElementById('plans-upgrade-btn');
+    var uPriceEl = document.getElementById('ultra-price');
+    var uBtnEl   = document.getElementById('plans-upgrade-ultra-btn');
     if (interval === 'yearly') {
-        if (priceEl) priceEl.innerHTML = '$50<span>/yr</span>';
-        if (descEl)  descEl.textContent = 'Save $10 vs monthly billing';
-        if (btnEl && _userPlan !== 'pro')   btnEl.textContent = 'Upgrade to Pro — $50/yr';
+        if (priceEl) priceEl.innerHTML = '€50<span>/yr</span>';
+        if (descEl)  descEl.textContent = 'Save €10 vs monthly billing';
+        if (btnEl && _userPlan !== 'pro')   btnEl.textContent = 'Upgrade to Pro — €50/yr';
+        if (uPriceEl) uPriceEl.innerHTML = '€200<span>/yr</span>';
+        if (uBtnEl && _userPlan !== 'ultra') uBtnEl.textContent = 'Upgrade to Ultra — €200/yr';
     } else {
-        if (priceEl) priceEl.innerHTML = '$5<span>/mo</span>';
+        if (priceEl) priceEl.innerHTML = '€5<span>/mo</span>';
         if (descEl)  descEl.textContent = 'For power users & developers';
-        if (btnEl && _userPlan !== 'pro')   btnEl.textContent = 'Upgrade to Pro — $5/mo';
+        if (btnEl && _userPlan !== 'pro')   btnEl.textContent = 'Upgrade to Pro — €5/mo';
+        if (uPriceEl) uPriceEl.innerHTML = '€20<span>/mo</span>';
+        if (uBtnEl && _userPlan !== 'ultra') uBtnEl.textContent = 'Upgrade to Ultra — €20/mo';
     }
 }
 
@@ -4030,7 +4134,7 @@ function showPlansModal() {
     } else {
         if (freeBadge) freeBadge.style.display = 'block';
         if (proBadge)  proBadge.style.display = 'none';
-        if (upgradeBtn) { upgradeBtn.textContent = 'Upgrade to Pro — $5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startUpgrade(); closePlansModal(); }; }
+        if (upgradeBtn) { upgradeBtn.textContent = 'Upgrade to Pro — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startUpgrade(); closePlansModal(); }; }
         if (freeBtn) freeBtn.textContent = 'Current Plan';
     }
 
@@ -4051,7 +4155,7 @@ function showUpgradePopup(reason) {
     var later   = document.getElementById('upgrade-later-btn');
     var reset   = document.getElementById('upgrade-reset-info');
     title.textContent = 'Daily limit reached';
-    desc.textContent  = 'You\'ve used all 50 messages for today. Upgrade to Pro for unlimited messages.';
+    desc.textContent  = 'You\'ve used your free credits for now — they refill weekly. Upgrade to GrgPro for up to 50× more usage.';
     later.textContent = 'Come back tomorrow';
     if (_resetAt) {
         var d = new Date(_resetAt * 1000);
@@ -4066,13 +4170,14 @@ function closeUpgrade() {
     document.getElementById('upgrade-overlay').classList.remove('visible');
 }
 
-async function startUpgrade() {
+async function startUpgrade(plan) {
+    plan = (plan === 'ultra') ? 'ultra' : 'pro';
     if (!_currentUser) { closeUpgrade(); openAuthModal(false); return; }
     try {
         var res = await fetch('/api/create-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: _currentUser.uid, email: _currentUser.email, interval: _billingInterval })
+            body: JSON.stringify({ uid: _currentUser.uid, email: _currentUser.email, interval: _billingInterval, plan: plan })
         });
         var data = await res.json();
         if (data.url) window.location.href = data.url;

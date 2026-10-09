@@ -118,7 +118,7 @@ from stripe_handler import (
     confirm_topup,
 )
 try:
-    from billing import get_account, premium_allowed, charge_usage
+    from billing import get_account, premium_allowed, charge_usage, charge_message
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
     print(f"[billing] not available: {_e}")
@@ -204,6 +204,24 @@ async def privacy():
 @app.get("/terms")
 async def terms():
     return FileResponse(STATIC_DIR / "terms.html")
+
+# ─── SEO: robots + sitemap (help Google index the site) ───
+@app.get("/robots.txt")
+async def robots_txt():
+    return Response("User-agent: *\nAllow: /\n\nSitemap: https://grg-ai.com/sitemap.xml\n",
+                    media_type="text/plain")
+
+@app.get("/sitemap.xml")
+async def sitemap_xml():
+    today = time.strftime("%Y-%m-%d")
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+           f'  <url><loc>https://grg-ai.com/</loc><lastmod>{today}</lastmod>'
+           '<changefreq>weekly</changefreq><priority>1.0</priority></url>\n'
+           '  <url><loc>https://grg-ai.com/privacy</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>\n'
+           '  <url><loc>https://grg-ai.com/terms</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>\n'
+           '</urlset>\n')
+    return Response(xml, media_type="application/xml")
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -887,7 +905,19 @@ async def chat(request: Request):
         if not gate.get("allowed"):
             if gate.get("reason") == "sign_in":
                 return _err_stream("Sign in to use premium models.")
-            return _err_stream("Out of credit — top up in Settings to use premium models, or pick a free Grg model.")
+            return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
+
+    # ─── Per-MESSAGE credit charge (usage + effort, NOT tokens) ───
+    # Every message a signed-in user sends spends credits = model-weight × effort.
+    # Anonymous users aren't charged here (the per-IP rate-limit covers them).
+    effort = str(body.get("effort") or "low")
+    _charge = {"cost": 0, "charged": 0, "balance": None}
+    if _BILLING_OK and uid:
+        _charge = charge_message(uid, model, effort)
+        if not _charge.get("allowed", True):
+            if _charge.get("reason") in ("needs_paid_credits", "needs_pro"):
+                return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
+            return _err_stream("You're out of credits for now — they refill soon, or upgrade / top up to keep going.")
 
     # Prepend the Grg system persona if the client didn't send one.
     if not any((m or {}).get("role") == "system" for m in messages):
@@ -913,6 +943,8 @@ async def chat(request: Request):
         real_usage = None
         if routed:
             yield "data: " + json.dumps({"routed": routed}) + "\n\n"
+        if _charge and _charge.get("charged"):
+            yield "data: " + json.dumps({"charge": {"cost": _charge.get("cost"), "balance": _charge.get("balance")}}) + "\n\n"
         try:
             async with httpx.AsyncClient(timeout=httpx.Timeout(180.0, connect=15.0)) as client:
                 async with client.stream("POST", url, headers=headers, json=payload) as resp:
@@ -953,18 +985,20 @@ async def chat(request: Request):
                             if content:
                                 out_chars += len(content)
                                 yield "data: " + json.dumps({"token": content}) + "\n\n"
-            # Meter premium usage with the profit margin. Prefer the provider's EXACT
-            # token counts; fall back to a char/4 estimate only if usage wasn't reported.
-            if is_premium and _BILLING_OK and uid:
+            # Usage is now charged PER MESSAGE up front (see charge_message above),
+            # not per token — so nothing to meter here. We still record the premium
+            # token count for the per-model usage stats (no extra charge).
+            if is_premium and _BILLING_OK and uid and real_usage:
                 try:
-                    if real_usage:
-                        in_tok = int(real_usage.get("prompt_tokens", 0))
-                        out_tok = int(real_usage.get("completion_tokens", 0))
-                    else:
-                        in_tok, out_tok = est_in_tokens, out_chars // 4
-                    charge_usage(uid, model, in_tok, out_tok)
+                    _t = int(real_usage.get("prompt_tokens", 0)) + int(real_usage.get("completion_tokens", 0))
+                    if _t:
+                        from billing import _get_user_ref as _ref
+                        _r = _ref(uid)
+                        if _r:
+                            from firebase_admin import firestore as _fs
+                            _r.set({"tokens_used": _fs.Increment(_t)}, merge=True)
                 except Exception as ce:  # noqa: BLE001
-                    print(f"[billing charge ERROR] {ce}")
+                    print(f"[usage stat ERROR] {ce}")
             yield "data: [DONE]\n\n"
         except httpx.TimeoutException:
             yield "data: " + json.dumps({"error": "Upstream timed out"}) + "\n\n"

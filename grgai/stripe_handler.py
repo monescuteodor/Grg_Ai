@@ -10,12 +10,22 @@ import stripe
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 
-# ─── CONFIG ─── (all secrets come from environment / .env — see .env.example)
+# ─── CONFIG ─── (secrets read from .env; literals kept only as test-mode fallback)
 STRIPE_SECRET_KEY      = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET  = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PRICE_ID        = os.environ.get("STRIPE_PRICE_ID", "")
 STRIPE_PRICE_ID_YEARLY = os.environ.get("STRIPE_PRICE_ID_YEARLY", "")
+# GrgUltra (€20/mo, €200/yr) — set in .env; the yearly one must be a price with a YEARLY interval.
+STRIPE_PRICE_ID_ULTRA        = os.environ.get("STRIPE_PRICE_ID_ULTRA", "")
+STRIPE_PRICE_ID_ULTRA_YEARLY = os.environ.get("STRIPE_PRICE_ID_ULTRA_YEARLY", "")
 FRONTEND_URL           = os.environ.get("FRONTEND_URL", "https://grg-ai.com")
+
+def _price_for(plan: str, interval: str) -> str:
+    """Pick the Stripe price for a plan (pro/ultra) + interval (monthly/yearly)."""
+    yearly = (interval == "yearly")
+    if plan == "ultra":
+        return STRIPE_PRICE_ID_ULTRA_YEARLY if yearly else STRIPE_PRICE_ID_ULTRA
+    return STRIPE_PRICE_ID_YEARLY if yearly else STRIPE_PRICE_ID
 
 stripe.api_key = STRIPE_SECRET_KEY
 
@@ -134,11 +144,16 @@ async def create_checkout_session(request: Request):
     uid      = body.get("uid")
     email    = body.get("email")
     interval = body.get("interval", "monthly")  # "monthly" or "yearly"
+    plan     = body.get("plan", "pro")           # "pro" or "ultra"
+    if plan not in ("pro", "ultra"):
+        plan = "pro"
 
     if not uid or not email:
         raise HTTPException(status_code=400, detail="uid and email required")
 
-    price_id = STRIPE_PRICE_ID_YEARLY if interval == "yearly" else STRIPE_PRICE_ID
+    price_id = _price_for(plan, interval)
+    if not price_id:
+        raise HTTPException(status_code=400, detail=f"{plan} {interval} price not configured")
 
     try:
         session = stripe.checkout.Session.create(
@@ -146,7 +161,8 @@ async def create_checkout_session(request: Request):
             mode="subscription",
             line_items=[{"price": price_id, "quantity": 1}],
             customer_email=email,
-            metadata={"firebase_uid": uid},
+            metadata={"firebase_uid": uid, "plan": plan},
+            subscription_data={"metadata": {"firebase_uid": uid, "plan": plan}},
             success_url=f"{FRONTEND_URL}?upgrade=success",
             cancel_url=f"{FRONTEND_URL}?upgrade=cancelled",
         )
@@ -322,27 +338,33 @@ async def stripe_webhook(request: Request):
             else:
                 customer_id = get_field(data, "customer")
                 subscription_id = get_field(data, "subscription")
+                plan = meta_field(data, "plan") or "pro"
+                if plan not in ("pro", "ultra"):
+                    plan = "pro"
                 if uid:
-                    _set_subscription(uid, "active", customer_id, subscription_id, plan="pro")
+                    _set_subscription(uid, "active", customer_id, subscription_id, plan=plan)
                     try:
-                        from billing import grant_pro_budget
-                        grant_pro_budget(uid)
+                        from billing import grant_plan
+                        grant_plan(uid, plan)
                     except Exception as e:  # noqa: BLE001
-                        print(f"[Stripe pro budget ERROR] {e}")
-                    print(f"[Stripe] Pro activated for {uid}")
+                        print(f"[Stripe plan budget ERROR] {e}")
+                    print(f"[Stripe] {plan} activated for {uid}")
 
         elif event_type == "invoice.paid":
             subscription_id = get_field(data, "subscription")
             if subscription_id:
                 sub = stripe.Subscription.retrieve(subscription_id)
                 uid = get_metadata_uid(sub)
+                plan = meta_field(sub, "plan") or "pro"
+                if plan not in ("pro", "ultra"):
+                    plan = "pro"
                 if uid:
-                    _set_subscription(uid, "active", plan="pro")
+                    _set_subscription(uid, "active", plan=plan)
                     try:
-                        from billing import grant_pro_budget
-                        grant_pro_budget(uid)  # refill monthly premium budget
+                        from billing import grant_plan
+                        grant_plan(uid, plan)  # refill both buckets on renewal
                     except Exception as e:  # noqa: BLE001
-                        print(f"[Stripe pro budget renew ERROR] {e}")
+                        print(f"[Stripe plan renew ERROR] {e}")
 
         elif event_type == "invoice.payment_failed":
             subscription_id = get_field(data, "subscription")
