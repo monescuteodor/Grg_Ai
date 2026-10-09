@@ -137,7 +137,7 @@
         .export-item .badge.md { background: rgba(139,92,246,0.15); color: var(--accent); }
 
         /* ─── MAIN ─── */
-        .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; transition: flex 300ms ease; min-width: 0; }
+        .main { flex: 1; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; position: relative; transition: flex 300ms ease; min-width: 0; }
         .topbar { height: 52px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 12px; }
         .menu-btn { background: none; border: 1px solid var(--border); color: var(--text-dim); width: 34px; height: 34px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); font-size: 18px; }
         .menu-btn:hover { background: var(--bg-hover); color: var(--text); border-color: var(--border-light); }
@@ -192,7 +192,16 @@
         .msg-name { font-size: 13px; font-weight: 600; color: var(--text); }
         .routed-chip { font-size: 10px; font-weight: 600; letter-spacing: .02em; color: var(--accent-2); background: var(--accent-soft); border: 1px solid rgba(139,92,246,0.25); padding: 1px 7px; border-radius: 20px; margin-left: 7px; vertical-align: 1px; }
         .msg-body { color: var(--text); line-height: 1.75; padding-left: 38px; white-space: pre-wrap; word-wrap: break-word; }
+        /* Assistant answers are rendered as real Markdown blocks — turn off pre-wrap there
+           so spacing comes from element margins, not stray source newlines. */
+        .msg-body .answer { white-space: normal; }
+        .msg-body .answer > *:first-child { margin-top: 0; }
+        .msg-body .answer > *:last-child { margin-bottom: 0; }
         .msg-body p { margin-bottom: 10px; }
+        .msg-body .answer p { margin: 0 0 10px; }
+        .msg-body .answer ul, .msg-body .answer ol { margin: 8px 0 10px 22px; }
+        .msg-body .answer li { margin-bottom: 5px; line-height: 1.7; }
+        .msg-body .answer li > ul, .msg-body .answer li > ol { margin: 5px 0 5px 20px; }
 
         /* ─── MESSAGE ACTIONS ─── */
         .msg-actions { display: flex; gap: 2px; padding-left: 38px; margin-top: 8px; opacity: 0; transition: opacity 0.15s; }
@@ -307,7 +316,7 @@
         .typing-dots span { width: 6px; height: 6px; background: var(--text-mute); border-radius: 50%; animation: thinking-bounce 1.4s ease-in-out infinite; }
 
         /* ─── INPUT (Claude-style) ─── */
-        .input-area { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 28px 20px; background: linear-gradient(transparent, var(--bg-deep) 30%); }
+        .input-area { position: absolute; bottom: var(--kb, 0px); left: 0; right: 0; padding: 12px 28px 20px; background: linear-gradient(transparent, var(--bg-deep) 30%); transition: bottom 0.12s ease; }
         .input-container { max-width: 780px; margin: 0 auto; position: relative; }
         .input-box { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 12px 8px 16px; transition: border-color var(--transition); display: flex; flex-direction: column; gap: 8px; }
         .input-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -1055,47 +1064,39 @@
                     <div class="plan-feature-section">Models</div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Grg Model</strong> <span class="pf-tag purple">Flagship</span></span>
+                        <span><strong>AutoGrg</strong> <span class="pf-tag purple">Smart routing</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>GPT-OSS 20B <span class="pf-tag fast">Fast</span></span>
+                        <span><strong>Grg Code</strong> <span class="pf-tag purple">Flagship</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>Qwen3 27B <span class="pf-tag orange">Reason</span></span>
+                        <span>Grg Fast <span class="pf-tag fast">Fast</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>GLM 5.2 <span class="pf-tag purple">Smart</span></span>
-                    </div>
-                    <div class="plan-feature plan-model-item">
-                        <span class="pf-icon ok">✓</span>
-                        <span>Gemma 4 26B MoE <span class="pf-tag green">Vision</span></span>
-                    </div>
-                    <div class="plan-feature plan-model-item">
-                        <span class="pf-icon ok">✓</span>
-                        <span>Laguna S 2.1 <span class="pf-tag purple">Code</span></span>
+                        <span>Grg Image <span class="pf-tag green">Image</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon no">✕</span>
-                        <span class="pf-locked">GPT-OSS 120B <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <span class="pf-locked">Claude Opus 4.8 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon no">✕</span>
-                        <span class="pf-locked">Grg Compound <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <span class="pf-locked">Claude Sonnet 5 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon no">✕</span>
-                        <span class="pf-locked">DeepSeek V4 Flash <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <span class="pf-locked">GPT-5.6 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon no">✕</span>
-                        <span class="pf-locked">Nemotron Ultra 550B <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <span class="pf-locked">GPT-5.1 Codex <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon no">✕</span>
-                        <span class="pf-locked">Nemotron Super 120B <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <span class="pf-locked">Gemini 3 Pro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="margin-left:4px;opacity:0.5;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                     </div>
                 </div>
                 <button class="plan-col-btn free-btn" disabled>Current Plan</button>
@@ -1131,54 +1132,54 @@
                         <span class="pf-icon ok">✓</span>
                         <span>Priority support</span>
                     </div>
-                    <div class="plan-feature-section">All Models Included</div>
+                    <div class="plan-feature-section">All flagship models included</div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Grg Model</strong> <span class="pf-tag purple">Flagship</span></span>
+                        <span><strong>AutoGrg</strong> <span class="pf-tag purple">Max performance</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>GPT-OSS 20B <span class="pf-tag fast">Fast</span></span>
+                        <span><strong>Claude Opus 4.8</strong> <span class="pf-tag purple">Flagship</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>GPT-OSS 120B</strong> <span class="pf-tag purple">Smart</span></span>
+                        <span><strong>Claude Sonnet 5</strong> <span class="pf-tag purple">Pro</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Grg Compound</strong> <span class="pf-tag green">Web</span></span>
+                        <span>Claude Fable <span class="pf-tag fast">Fast</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Qwen3 27B</strong> <span class="pf-tag orange">Reason</span></span>
+                        <span><strong>GPT-5.6</strong> <span class="pf-tag purple">Pro</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>GLM 5.2</strong> <span class="pf-tag purple">Smart</span></span>
+                        <span>GPT-5.5 <span class="pf-tag purple">Pro</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>DeepSeek V4 Flash <span class="pf-tag fast">Fast</span></span>
+                        <span><strong>GPT-5.1 Codex</strong> <span class="pf-tag green">Code</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Nemotron Ultra 550B</strong> <span class="pf-tag purple">550B</span></span>
+                        <span>GPT-4o <span class="pf-tag fast">Fast</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span><strong>Nemotron Super 120B</strong> <span class="pf-tag purple">120B</span></span>
+                        <span><strong>Gemini 3 Pro</strong> <span class="pf-tag purple">Pro</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>Gemma 4 31B / 26B <span class="pf-tag green">Vision</span></span>
+                        <span>Gemini 2.5 Pro <span class="pf-tag purple">Pro</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>Laguna S 2.1 <span class="pf-tag purple">Code</span></span>
+                        <span>Grg Image + Gemini 3 Image <span class="pf-tag green">Image</span></span>
                     </div>
                     <div class="plan-feature plan-model-item">
                         <span class="pf-icon ok">✓</span>
-                        <span>Ling 3.0 Flash VL <span class="pf-tag green">Vision</span></span>
+                        <span>+ all Grg house models</span>
                     </div>
                 </div>
                 <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startUpgrade();closePlansModal()">Upgrade to Pro — $5/mo</button>
@@ -1686,16 +1687,27 @@ document.addEventListener('paste', function(e) {
 // ─── IMAGE RECOGNITION via Pollinations ───
 // Image recognition disabled — coming soon
 
+function _mdInline(s) {
+    // Links, then bold/italic. (Inline code is already extracted to placeholders.)
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+    return s;
+}
+function _mdIsTableSep(l) {
+    return /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$/.test(l);
+}
 function formatMsg(text) {
     var h = esc(text);
-    // Code blocks first (protect from other replacements)
+    // 1) Fenced code blocks — pulled out first so nothing else touches them.
+    //    Kept exactly as before so Run / Copy / Code-panel buttons still work.
     var codeBlocks = [];
     h = h.replace(/```(\w*)\n?([\s\S]*?)```/g, function(m, lang, code) {
         var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
         var label = lang || 'code';
         var runnableList = ['html','htm','css','javascript','js','svg','jsx','tsx','react','typescript','ts'];
         var isRunnable = runnableList.indexOf(label.toLowerCase()) !== -1;
-        var isPython = false;
         var playIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
         var runBtn = isRunnable ? '<button class="run-btn" onclick="runPreview(this)">' + playIcon + '<span>Run</span></button>' : '';
         var codeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
@@ -1704,32 +1716,63 @@ function formatMsg(text) {
         var hdr = '<div class="code-header"><span class="code-lang">' + label + '</span>' + btns + '</div>';
         var idx = codeBlocks.length;
         codeBlocks.push('<div class="code-wrap">' + hdr + '<pre><code class="language-' + label + '">' + code.trim() + '</code></pre></div>');
-        return '%%CODE' + idx + '%%';
+        return '\u0000CODE' + idx + '\u0000';
     });
-    // Headings
-    h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    // Blockquotes
-    h = h.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-    // Horizontal rules
-    h = h.replace(/^---$/gm, '<hr>');
-    // Unordered lists
-    h = h.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
-    // Ordered lists
-    h = h.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-    // Links
-    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
-    // Inline code
-    h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
-    // Bold + italic
-    h = h.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    // Restore code blocks
-    for (var i = 0; i < codeBlocks.length; i++) {
-        h = h.replace('%%CODE' + i + '%%', codeBlocks[i]);
+    // 2) Inline code — protect before any * or | gets interpreted.
+    var inlineCode = [];
+    h = h.replace(/`([^`\n]+)`/g, function(m, c) {
+        inlineCode.push('<code>' + c + '</code>');
+        return '\u0000IC' + (inlineCode.length - 1) + '\u0000';
+    });
+    // 3) Walk line by line and build real blocks (headings, lists, tables, quotes, paras).
+    var lines = h.split('\n');
+    var out = [];
+    var i = 0;
+    function special(pt, idx) {
+        return /^(#{1,6})\s+/.test(pt) || /^(---+|\*\*\*+|___+)$/.test(pt)
+            || /^&gt;\s?/.test(pt) || /^[\-\*\+]\s+/.test(pt) || /^\d+[\.\)]\s+/.test(pt)
+            || /^\u0000CODE\d+\u0000$/.test(pt)
+            || (pt.indexOf('|') !== -1 && idx + 1 < lines.length && _mdIsTableSep(lines[idx + 1].trim()));
     }
+    while (i < lines.length) {
+        var t = lines[i].trim();
+        if (t === '') { i++; continue; }
+        if (/^\u0000CODE\d+\u0000$/.test(t)) { out.push(t); i++; continue; }
+        var hm = t.match(/^(#{1,6})\s+(.+)$/);
+        if (hm) { var lv = Math.min(hm[1].length, 3); out.push('<h' + lv + '>' + _mdInline(hm[2]) + '</h' + lv + '>'); i++; continue; }
+        if (/^(---+|\*\*\*+|___+)$/.test(t)) { out.push('<hr>'); i++; continue; }
+        if (/^&gt;\s?/.test(t)) {
+            var bq = [];
+            while (i < lines.length && /^&gt;\s?/.test(lines[i].trim())) { bq.push(_mdInline(lines[i].trim().replace(/^&gt;\s?/, ''))); i++; }
+            out.push('<blockquote>' + bq.join('<br>') + '</blockquote>'); continue;
+        }
+        if (t.indexOf('|') !== -1 && i + 1 < lines.length && _mdIsTableSep(lines[i + 1].trim())) {
+            var cells = function(l) { return l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function(c) { return _mdInline(c.trim()); }); };
+            var header = cells(lines[i]); i += 2;
+            var rows = [];
+            while (i < lines.length && lines[i].trim() !== '' && lines[i].indexOf('|') !== -1) { rows.push(cells(lines[i])); i++; }
+            var thead = '<tr>' + header.map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+            var tbody = rows.map(function(r) { return '<tr>' + r.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('');
+            out.push('<table><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>'); continue;
+        }
+        if (/^[\-\*\+]\s+/.test(t)) {
+            var ul = [];
+            while (i < lines.length && /^[\-\*\+]\s+/.test(lines[i].trim())) { ul.push('<li>' + _mdInline(lines[i].trim().replace(/^[\-\*\+]\s+/, '')) + '</li>'); i++; }
+            out.push('<ul>' + ul.join('') + '</ul>'); continue;
+        }
+        if (/^\d+[\.\)]\s+/.test(t)) {
+            var ol = [];
+            while (i < lines.length && /^\d+[\.\)]\s+/.test(lines[i].trim())) { ol.push('<li>' + _mdInline(lines[i].trim().replace(/^\d+[\.\)]\s+/, '')) + '</li>'); i++; }
+            out.push('<ol>' + ol.join('') + '</ol>'); continue;
+        }
+        var para = [];
+        while (i < lines.length && lines[i].trim() !== '' && !special(lines[i].trim(), i)) { para.push(_mdInline(lines[i].trim())); i++; }
+        if (para.length) out.push('<p>' + para.join('<br>') + '</p>');
+    }
+    h = out.join('');
+    // 4) Restore inline code, then the code blocks.
+    h = h.replace(/\u0000IC(\d+)\u0000/g, function(m, n) { return inlineCode[+n]; });
+    for (var k = 0; k < codeBlocks.length; k++) { h = h.replace('\u0000CODE' + k + '\u0000', codeBlocks[k]); }
     return h;
 }
 
@@ -4432,6 +4475,31 @@ async function loadNhashStats(){
   function say(){host.classList.remove('gm-say');void host.offsetWidth;host.classList.add('gm-say');}
   host.querySelector('svg').addEventListener('click',function(){hop();say();});
   setInterval(function(){hop();if(Math.random()<.5)say();},7000);
+})();
+</script>
+
+<script>
+/* iOS keyboard fix: when the on-screen keyboard opens, iOS used to scroll the
+   whole page up to reveal the input and leave it stuck there — pushing the top
+   bar (Sign In, credits, settings) off-screen. We instead lift the composer to
+   sit just above the keyboard (--kb) and pin the page to the top so the top bar
+   always stays put, then reset everything when the keyboard closes. */
+(function () {
+  var root = document.documentElement;
+  var vv = window.visualViewport;
+  function clearKb() { root.style.setProperty('--kb', '0px'); if (window.scrollY) window.scrollTo(0, 0); }
+  if (!vv) return;
+  function sync() {
+    var kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    // Below ~90px it's just the URL bar, not the keyboard — treat as closed.
+    root.style.setProperty('--kb', (kb > 90 ? kb : 0) + 'px');
+    if (window.scrollY) window.scrollTo(0, 0);   // keep the top bar pinned
+  }
+  vv.addEventListener('resize', sync);
+  vv.addEventListener('scroll', sync);
+  // Belt-and-suspenders: when a field loses focus (keyboard dismissed), snap back.
+  document.addEventListener('focusout', function () { setTimeout(clearKb, 80); });
+  sync();
 })();
 </script>
 

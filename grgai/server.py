@@ -660,13 +660,16 @@ def _auto_classify(messages):
     return "general"
 
 _AUTO_BRIEF = {"hardware": AUTO_HARDWARE_BRIEF, "app_build": AUTO_APPBUILD_BRIEF}
-# When the user has funds (Pro plan or credits), AutoGrg may pick premium models per task.
+# When the user has funds (Pro plan or credits), AutoGrg runs at MAXIMUM capability:
+# it always picks a flagship model (Claude Opus 4.8 everywhere; GPT-5.1 Codex for pure
+# coding) so paying users get the best possible results. Free users get the strongest
+# free model (gpt-oss-120b). Order matters only for the label.
 _AUTO_PREMIUM = {
-    "code":      ("openrouter", "openai/gpt-5.1-codex",     "GPT-5.1 Codex"),
-    "app_build": ("openrouter", "anthropic/claude-sonnet-5", "Claude Sonnet 5"),
-    "hardware":  ("openrouter", "anthropic/claude-sonnet-5", "Claude Sonnet 5"),
-    "research":  ("openrouter", "anthropic/claude-sonnet-5", "Claude Sonnet 5"),
-    "general":   ("openrouter", "anthropic/claude-sonnet-5", "Claude Sonnet 5"),
+    "code":      ("openrouter", "openai/gpt-5.1-codex",      "GPT-5.1 Codex"),
+    "app_build": ("openrouter", "anthropic/claude-opus-4.8", "Claude Opus 4.8"),
+    "hardware":  ("openrouter", "anthropic/claude-opus-4.8", "Claude Opus 4.8"),
+    "research":  ("openrouter", "anthropic/claude-opus-4.8", "Claude Opus 4.8"),
+    "general":   ("openrouter", "anthropic/claude-opus-4.8", "Claude Opus 4.8"),
 }
 
 def _auto_route(category, funded=False):
@@ -804,6 +807,24 @@ async def chat(request: Request):
                     break
         routed = {"model": _label, "category": _cat, "premium": _funded}
         _inject = [_brief] if _brief else []
+        # Max-performance: funded users get a thoroughness push + a big token budget so the
+        # flagship model gives its best, complete answer; everyone gets a clean-Markdown
+        # instruction so responses render nicely (headings/lists/tables/code).
+        if _funded:
+            try:
+                max_tokens = max(int(max_tokens or 0), 8000)
+            except (TypeError, ValueError):
+                max_tokens = 8000
+            _inject.append(
+                "Operate at maximum capability. Give the most complete, correct and well-structured "
+                "answer you can — reason carefully and do NOT cut it short. Format in clean "
+                "GitHub-flavored Markdown: ## headings, bullet or numbered lists for steps, **bold** "
+                "for key terms, tables where useful, and fenced code blocks with a language tag.")
+        else:
+            _inject.append(
+                "Format your answer in clean GitHub-flavored Markdown: short paragraphs, ## headings, "
+                "bullet or numbered lists for steps, **bold** for key terms, and fenced code blocks "
+                "with a language tag. Be complete but efficient.")
         # Live web (DuckDuckGo, no key) for hardware/research so answers use real, current data.
         if _cat in ("hardware", "research"):
             _q = ""
