@@ -793,9 +793,10 @@ function send() {
     if (!curSession()) newSession();
     const hint = document.getElementById('cmd-hint'); if (hint) hint.style.display = 'none';
     const fhint = document.getElementById('file-hint'); if (fhint) fhint.style.display = 'none';
-    addMsg('user', text); pushTrans({ t: 'user', text });
+    addMsg('user', text); pushTrans({ t: 'user', text });   // show the user's ORIGINAL text
     input.value = ''; autoSize(); setBusy(true); addStatus('Grg is thinking…');
-    window.grg.send(text);
+    // Private agents: redact PII in the TYPED text only (never file contents) before it leaves.
+    window.grg.send((typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRedact(text) : text);
 }
 
 // ─── slash commands (reusable prompts) ───
@@ -1047,8 +1048,9 @@ let streamBody = null, streamText = '', streamLast = 0;
 function finalizeStream() {
     finalizeReason();
     if (streamBody) {
-        streamBody.innerHTML = fmt(streamText);
-        if (streamText.trim()) pushTrans({ t: 'assistant', text: streamText });
+        var _ft = (typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(streamText) : streamText;
+        streamBody.innerHTML = fmt(_ft);
+        if (_ft.trim()) pushTrans({ t: 'assistant', text: _ft });
     }
     streamBody = null; streamText = '';
 }
@@ -1063,7 +1065,7 @@ function ensureStreamBubble() {
 }
 
 // ─── agent events ───
-window.grg.on('assistant-text', (t) => { finalizeStream(); clearStatus(); addMsg('assistant', t); pushTrans({ t: 'assistant', text: t }); });
+window.grg.on('assistant-text', (t) => { finalizeStream(); clearStatus(); var _rt = (typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(t) : t; addMsg('assistant', _rt); pushTrans({ t: 'assistant', text: _rt }); });
 window.grg.on('assistant-reasoning', (tok) => {
     ensureReason();
     reasonText += tok;
@@ -1075,7 +1077,7 @@ window.grg.on('assistant-token', (tok) => {
     ensureStreamBubble();
     streamText += tok;
     const now = Date.now();
-    if (now - streamLast > 50) { streamLast = now; streamBody.innerHTML = fmt(streamText); if (atBottom()) scroll(); }
+    if (now - streamLast > 50) { streamLast = now; streamBody.innerHTML = fmt((typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(streamText) : streamText); if (atBottom()) scroll(); }
 });
 window.grg.on('assistant-flush', () => finalizeStream());
 window.grg.on('tool-call', (d) => { finalizeStream(); addToolCall(d); });
@@ -1136,6 +1138,234 @@ function setApproveMode(auto) {
 }
 $('mode-btn').onclick = () => setApproveMode(!approveAuto);
 try { if (localStorage.getItem('grgcode-auto') === '1') setApproveMode(true); } catch (e) {}
+
+// ─────────────────── Specialist agents (ported from grg-ai.com) ───────────────────
+// Pick a specialist; it layers its expertise onto Grg Code's engineering workflow.
+// PRIVATE agents redact your typed sensitive data (emails/IDs/IBANs/cards/secrets)
+// locally before it leaves the machine, and restore it in the reply. File contents are
+// NEVER redacted (that would break code). Agent runs cost more credits (heavier workload).
+var _grgAgent = false;
+var _piiMap = { o2p: {}, p2o: {} };
+var _piiCount = {};
+function _resetPII() { _piiMap = { o2p: {}, p2o: {} }; _piiCount = {}; }
+var _PII_PATTERNS = [
+    ['SECRET', '(?:sk-[A-Za-z0-9]{16,}|sk_(?:live|test)_[A-Za-z0-9]{10,}|rk_(?:live|test)_[A-Za-z0-9]{10,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_\\-]{20,}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|whsec_[A-Za-z0-9]{10,})'],
+    ['EMAIL', '[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}'],
+    ['IBAN', '[A-Z]{2}\\d{2}(?:[ ]?[A-Z0-9]{3,4}){3,7}'],
+    ['CARD', '(?:\\d[ \\-]?){14,16}\\d'],
+    ['CNP', '[1-8]\\d{12}'],
+    ['PHONE', '(?:\\+?\\d{1,3}[ .\\-]?)?07\\d{2}[ .\\-]?\\d{3}[ .\\-]?\\d{3}|\\+\\d{10,14}']
+];
+function _piiRedact(text) {
+    if (!text || !_grgAgent) return text;
+    var out = String(text);
+    for (var k = 0; k < _PII_PATTERNS.length; k++) {
+        var type = _PII_PATTERNS[k][0];
+        var re = new RegExp(_PII_PATTERNS[k][1], 'g');
+        out = out.replace(re, function (m) {
+            if (_piiMap.o2p[m]) return _piiMap.o2p[m];
+            _piiCount[type] = (_piiCount[type] || 0) + 1;
+            var ph = '[' + type + '_' + _piiCount[type] + ']';
+            _piiMap.o2p[m] = ph; _piiMap.p2o[ph] = m;
+            return ph;
+        });
+    }
+    return out;
+}
+function _piiRestore(text) {
+    if (!text || !_grgAgent) return text;
+    return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
+}
+var _AGENTS = [
+    // LEGAL
+    { id:'law-litig',  cat:'Legal',    name:'Litigation Lawyer',   desc:'Disputes, pleadings, strategy', privacy:true,
+      prompt:'You are a senior litigation lawyer. Analyze disputes, draft pleadings and legal arguments, assess risk and procedure, and cite the relevant statutes/case-law structure. Be precise, hedge where the law is uncertain, and flag when a licensed local lawyer is required.' },
+    { id:'law-contract', cat:'Legal',  name:'Contracts Lawyer',    desc:'Draft & review contracts', privacy:true,
+      prompt:'You are a senior contracts lawyer. Draft, review and red-line contracts clause by clause, explain risky terms in plain language, suggest fallback wording, and keep numbering/clause structure. Note jurisdiction-specific caveats.' },
+    { id:'law-gdpr',   cat:'Legal',    name:'GDPR / Privacy Auditor', desc:'Data-protection compliance', privacy:true,
+      prompt:'You are a GDPR and data-protection auditor. Assess processing activities against GDPR principles, lawful bases, DPIAs, data-subject rights, retention and transfers; produce actionable, prioritized compliance findings with article references.' },
+    { id:'law-labor',  cat:'Legal',    name:'Employment Lawyer',   desc:'Labor law & HR', privacy:true,
+      prompt:'You are an employment/labor lawyer. Advise on contracts, dismissals, working time, discrimination and HR policy, balancing employer and employee perspectives, with clear procedure and risk flags.' },
+    { id:'law-ip',     cat:'Legal',    name:'IP Lawyer',           desc:'Trademarks, patents, copyright', privacy:true,
+      prompt:'You are an intellectual-property lawyer. Advise on trademarks, patents, copyright and licensing, infringement risk and filing strategy, with clear next steps.' },
+    // DEVELOPMENT
+    { id:'dev-arch',   cat:'Development', name:'Senior Architect',  desc:'System & app architecture', privacy:false,
+      prompt:'You are a principal software architect. Design robust, scalable systems; weigh trade-offs explicitly; produce clean folder structures, data models and sequence of steps; prefer boring, proven tech. Write production-quality code.' },
+    { id:'dev-react',  cat:'Development', name:'React / Node Engineer', desc:'Full-stack web', privacy:false,
+      prompt:'You are a senior React/Node full-stack engineer. Write modern, typed, accessible, production-ready code (Next.js/Vite, Tailwind, clean APIs), explain decisions briefly, and include error handling.' },
+    { id:'dev-python', cat:'Development', name:'Python / Data Engineer', desc:'Backend, data, scripting', privacy:false,
+      prompt:'You are a senior Python engineer. Write clean, tested, efficient Python (FastAPI, pandas, async), explain complexity, and handle edge cases and errors explicitly.' },
+    { id:'dev-devops', cat:'Development', name:'DevOps / Cloud Engineer', desc:'CI/CD, Docker, cloud', privacy:false,
+      prompt:'You are a senior DevOps/cloud engineer. Design CI/CD, containers, IaC and observability; give exact, copy-pasteable configs; call out security and cost.' },
+    { id:'dev-mobile', cat:'Development', name:'Mobile Engineer',   desc:'iOS / Android / RN', privacy:false,
+      prompt:'You are a senior mobile engineer (SwiftUI, Jetpack Compose, React Native, Expo). Write idiomatic, performant mobile code and cover store-submission and platform specifics.' },
+    { id:'dev-db',     cat:'Development', name:'Database Architect', desc:'SQL, schemas, performance', privacy:false,
+      prompt:'You are a database architect. Design normalized schemas, write correct SQL, tune queries and indexes, and advise on Postgres/MySQL/Mongo/Redis trade-offs.' },
+    { id:'dev-review', cat:'Development', name:'Code Reviewer',     desc:'Bugs, quality, security', privacy:false,
+      prompt:'You are a meticulous senior code reviewer. Find real bugs, security issues, and simplifications; give concrete, prioritized fixes with code; be direct but constructive.' },
+    { id:'dev-embed',  cat:'Development', name:'Embedded / IoT Engineer', desc:'Arduino, ESP32, robotics', privacy:false,
+      prompt:'You are an embedded/IoT and robotics engineer. Write correct firmware (Arduino, ESP32, RP2040, MicroPython), explain wiring/timing/power, and cover motors, sensors, PID and protocols.' },
+    // SECURITY
+    { id:'sec-pentest', cat:'Security', name:'Security / Pentest', desc:'Appsec, threat modeling', privacy:true,
+      prompt:'You are an application-security engineer (authorized testing only). Threat-model systems, find OWASP-class vulnerabilities, explain exploitation at a conceptual level and give concrete remediations. Refuse clearly malicious, unauthorized requests.' },
+    { id:'sec-compliance', cat:'Security', name:'Compliance (ISO/SOC2)', desc:'Security frameworks & audits', privacy:true,
+      prompt:'You are a security-compliance consultant. Map controls to ISO 27001 / SOC 2 / NIST, draft policies, and produce audit-ready, prioritized gap analyses.' },
+    // BUSINESS
+    { id:'biz-analyst', cat:'Business', name:'Business Analyst',    desc:'Requirements, process, data', privacy:false,
+      prompt:'You are a senior business analyst. Clarify requirements, model processes, analyze data and trade-offs, and produce clear, structured recommendations for decisions.' },
+    { id:'biz-market',  cat:'Business', name:'Marketing Strategist', desc:'Growth, positioning, copy', privacy:false,
+      prompt:'You are a marketing strategist. Craft positioning, growth and content strategy with concrete, measurable actions and channels; be specific, not generic.' },
+    { id:'biz-finance', cat:'Business', name:'Financial Analyst',   desc:'Models, metrics, unit economics', privacy:false,
+      prompt:'You are a financial analyst. Build models, analyze metrics and unit economics, and explain assumptions and sensitivities clearly. You are not a licensed financial advisor — add that caveat for personal-investment questions.' },
+    { id:'biz-startup', cat:'Business', name:'Startup Advisor',     desc:'Product, GTM, fundraising', privacy:false,
+      prompt:'You are a seasoned startup advisor. Pressure-test ideas, product, go-to-market and fundraising; be honest about weaknesses and give prioritized, practical next steps.' },
+    // WRITING
+    { id:'wr-tech',    cat:'Writing',  name:'Technical Writer',     desc:'Docs, guides, specs', privacy:false,
+      prompt:'You are a technical writer. Produce clear, well-structured docs, READMEs, API references and guides with correct Markdown, examples and consistent terminology.' },
+    { id:'wr-copy',    cat:'Writing',  name:'Copywriter',          desc:'Landing pages, ads, emails', privacy:false,
+      prompt:'You are a conversion copywriter. Write crisp, persuasive copy (headlines, landing pages, ads, emails) matched to the audience and offer; give a few variations.' },
+    { id:'wr-academic', cat:'Writing', name:'Academic Editor',      desc:'Papers, citations, clarity', privacy:false,
+      prompt:'You are an academic editor. Improve clarity, structure, argument and citation style (APA/IEEE/etc.) while preserving the author\'s meaning; flag unsupported claims.' },
+    // DATA / AI
+    { id:'ai-ml',      cat:'Data & AI', name:'ML / AI Engineer',    desc:'LLMs, RAG, pipelines', privacy:false,
+      prompt:'You are an ML/AI engineer. Design and debug LLM apps, RAG, embeddings, fine-tuning and data pipelines; give concrete, runnable code and evaluation advice.' },
+    { id:'ai-data',    cat:'Data & AI', name:'Data Scientist',      desc:'Analysis, stats, viz', privacy:false,
+      prompt:'You are a data scientist. Analyze data rigorously, pick correct statistics and visualizations, explain findings plainly, and avoid over-claiming from the data.' },
+    // OTHER
+    { id:'gen-research', cat:'Other',  name:'Research Assistant',   desc:'Deep, structured research', privacy:false,
+      prompt:'You are a thorough research assistant. Break questions down, reason step by step, compare sources and options, and present balanced, well-structured, cited conclusions.' },
+    { id:'gen-translate', cat:'Other', name:'Translator / Localizer', desc:'Natural translation & tone', privacy:true,
+      prompt:'You are a professional translator and localizer. Translate naturally (not literally), preserve tone and formatting, and keep any [REDACTED] placeholders untouched.' }
+];
+var _AGENT_CATS = ['Legal','Development','Security','Business','Writing','Data & AI','Other'];
+var _AGENT_ICONS = {
+    'Legal':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M7 7l-3 6a3 3 0 0 0 6 0z"/><path d="M17 7l-3 6a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg>',
+    'Development': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    'Security':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    'Business':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="20" x2="21" y2="20"/><rect x="5" y="11" width="3" height="7"/><rect x="10.5" y="6" width="3" height="12"/><rect x="16" y="13" width="3" height="5"/></svg>',
+    'Writing':     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    'Data & AI':   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>',
+    'Other':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.1 5.4L20 9.3l-4 3.6L17 19l-5-2.8L7 19l1-6.1-4-3.6 5.9-.9z"/></svg>'
+};
+function _agentIcon(cat) { return _AGENT_ICONS[cat] || _AGENT_ICONS['Other']; }
+var _PRIV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10" style="vertical-align:-1px"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+var _EDIT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>';
+var _customAgents = [];
+try { _customAgents = JSON.parse(localStorage.getItem('grgcode_custom_agents') || '[]') || []; } catch (e) { _customAgents = []; }
+function _allAgents() { return _customAgents.concat(_AGENTS); }
+function _saveCustomAgents() { try { localStorage.setItem('grgcode_custom_agents', JSON.stringify(_customAgents)); } catch (e) {} }
+var _activeAgent = null;
+try { var _sa = localStorage.getItem('grgcode_active_agent'); if (_sa) { var _all0 = _allAgents(); for (var _ai=0; _ai<_all0.length; _ai++) if (_all0[_ai].id === _sa) _activeAgent = _all0[_ai]; } } catch (e) {}
+_grgAgent = !!(_activeAgent && _activeAgent.privacy);
+function _pushAgentToMain() { try { window.grg.setAgent(_activeAgent ? { id: _activeAgent.id, name: _activeAgent.name, prompt: _activeAgent.prompt, privacy: !!_activeAgent.privacy } : null); } catch (e) {} }
+function selectAgent(id) {
+    var a = null, all = _allAgents();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) a = all[i];
+    _activeAgent = a;
+    _grgAgent = !!(a && a.privacy);
+    _resetPII();
+    try { if (a) localStorage.setItem('grgcode_active_agent', a.id); else localStorage.removeItem('grgcode_active_agent'); } catch (e) {}
+    _pushAgentToMain();
+    updateAgentUI();
+    closeAgentPicker();
+}
+function clearAgent() { selectAgent(null); }
+function _agentRow(a, isCustom) {
+    var active = (_activeAgent && _activeAgent.id === a.id) ? ' active' : '';
+    var tools = isCustom ? '<span class="agent-tools">'
+        + '<span class="agent-tool" onclick="event.stopPropagation();editCustomAgent(\'' + a.id + '\')" title="Edit">' + _EDIT_SVG + '</span>'
+        + '<span class="agent-tool" onclick="event.stopPropagation();deleteCustomAgent(\'' + a.id + '\')" title="Delete">✕</span></span>' : '';
+    return '<button class="agent-item' + active + '" onclick="selectAgent(\'' + a.id + '\')">'
+         + '<span class="agent-ico">' + _agentIcon(a.cat) + '</span>'
+         + '<span class="agent-meta"><span class="agent-name">' + esc(a.name) + (a.privacy ? ' <span class="agent-priv">' + _PRIV_SVG + ' PRIVATE</span>' : '') + '</span>'
+         + '<span class="agent-desc">' + esc(a.desc || '') + '</span></span>' + tools + '</button>';
+}
+function renderAgentList(q) {
+    q = (q || '').toLowerCase().trim();
+    var list = document.getElementById('agent-list'); if (!list) return;
+    var html = '<button class="agent-create" onclick="openCreateAgent()"><span class="ac-plus">+</span> Create your own agent</button>';
+    var mine = _customAgents.filter(function (a) { return !q || (a.name + ' ' + (a.desc || '') + ' ' + a.cat).toLowerCase().indexOf(q) !== -1; });
+    if (mine.length) {
+        html += '<div class="agent-cat-head">Your Agents</div>';
+        mine.forEach(function (a) { html += _agentRow(a, true); });
+    }
+    for (var c = 0; c < _AGENT_CATS.length; c++) {
+        var cat = _AGENT_CATS[c];
+        var items = _AGENTS.filter(function (a) { return a.cat === cat && (!q || (a.name + ' ' + a.desc + ' ' + a.cat).toLowerCase().indexOf(q) !== -1); });
+        if (!items.length) continue;
+        html += '<div class="agent-cat-head">' + cat + '</div>';
+        items.forEach(function (a) { html += _agentRow(a, false); });
+    }
+    list.innerHTML = html;
+}
+var _editingAgentId = null;
+function openCreateAgent(id) {
+    _editingAgentId = id || null;
+    var a = null;
+    if (id) { for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === id) a = _customAgents[i]; }
+    document.getElementById('ca-title').textContent = a ? 'Edit agent' : 'Create your own agent';
+    document.getElementById('ca-name').value = a ? a.name : '';
+    document.getElementById('ca-desc').value = a ? (a.desc || '') : '';
+    document.getElementById('ca-prompt').value = a ? a.prompt : '';
+    document.getElementById('ca-priv').checked = a ? !!a.privacy : false;
+    var sel = document.getElementById('ca-cat'); if (sel) sel.value = a ? a.cat : 'Other';
+    document.getElementById('ca-err').textContent = '';
+    document.getElementById('agent-create-ov').classList.add('visible');
+    setTimeout(function () { document.getElementById('ca-name').focus(); }, 50);
+}
+function closeCreateAgent() { document.getElementById('agent-create-ov').classList.remove('visible'); }
+function saveCustomAgent() {
+    var name = document.getElementById('ca-name').value.trim();
+    var desc = document.getElementById('ca-desc').value.trim();
+    var prompt = document.getElementById('ca-prompt').value.trim();
+    var cat = document.getElementById('ca-cat').value;
+    var priv = document.getElementById('ca-priv').checked;
+    var err = document.getElementById('ca-err');
+    if (!name) { err.textContent = 'Please give your agent a name.'; return; }
+    if (prompt.length < 15) { err.textContent = 'Write a longer instruction / system prompt (what the agent does).'; return; }
+    if (_editingAgentId) {
+        for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === _editingAgentId) {
+            _customAgents[i] = { id: _editingAgentId, cat: cat, name: name, desc: desc, prompt: prompt, privacy: priv, custom: true };
+            if (_activeAgent && _activeAgent.id === _editingAgentId) { _activeAgent = _customAgents[i]; _grgAgent = !!priv; _pushAgentToMain(); }
+        }
+    } else {
+        _customAgents.unshift({ id: 'custom-' + Date.now(), cat: cat, name: name, desc: desc, prompt: prompt, privacy: priv, custom: true });
+    }
+    _saveCustomAgents();
+    closeCreateAgent();
+    renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
+    updateAgentUI();
+}
+function editCustomAgent(id) { openCreateAgent(id); }
+function deleteCustomAgent(id) {
+    if (!confirm('Delete this agent?')) return;
+    _customAgents = _customAgents.filter(function (a) { return a.id !== id; });
+    _saveCustomAgents();
+    if (_activeAgent && _activeAgent.id === id) clearAgent();
+    renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
+}
+function openAgentPicker() {
+    renderAgentList('');
+    var ov = document.getElementById('agent-ov'); if (ov) ov.classList.add('visible');
+    var s = document.getElementById('agent-search'); if (s) { s.value = ''; setTimeout(function () { s.focus(); }, 50); }
+}
+function closeAgentPicker() { var ov = document.getElementById('agent-ov'); if (ov) ov.classList.remove('visible'); }
+function updateAgentUI() {
+    var pill = document.getElementById('agent-pill');
+    var label = document.getElementById('agent-label');
+    var banner = document.getElementById('agent-banner');
+    if (_activeAgent) {
+        if (label) label.textContent = _activeAgent.name;
+        if (pill) pill.classList.add('active');
+        if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active · uses more credits' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your typed sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
+    } else {
+        if (label) label.textContent = 'Agents';
+        if (pill) pill.classList.remove('active');
+        if (banner) banner.className = 'agent-banner';
+    }
+}
+_pushAgentToMain();
+updateAgentUI();
 
 // model selector — mirrors the models on grg-ai.com, grouped by family.
 // Groq models run as full agents (tools). Premium (OpenRouter) need credits.

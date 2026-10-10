@@ -16,6 +16,10 @@ let running = false;
 let autoApprove = false;
 let agentModel = 'auto';  // AutoGrg by default — the backend classifies the task and routes to the best affordable model
 let agentUid = null;  // set from the renderer when signed in; used for premium gating/metering
+let activeAgent = null;  // {id,name,prompt,privacy} — a specialist agent chosen in the renderer (null = normal Grg Code)
+// Privacy preamble (only added for a PRIVATE agent): the renderer redacts the user's typed
+// PII to placeholders before it reaches the model, and restores them locally in the reply.
+const GRGAGENT_PRIVACY = 'PRIVACY MODE: the user\'s sensitive data (emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) in their typed messages has been REDACTED to typed placeholders like [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type, reason about it normally, and ALWAYS keep the exact placeholder tokens verbatim in your reply — never invent, alter or guess the real values; the client substitutes them back locally.';
 const pendingApprovals = new Map();
 let curCheckpoint = null;      // active per-task snapshot of files about to change
 const checkpoints = [];        // history of {id, ts, user, ops:[{path, before, existed}]}
@@ -524,6 +528,7 @@ function systemPrompt() {
             (skills.length ? 'Skills you can load (knowledge <topic>): ' + skills.join(', ') + '.' : ''),
             (tpls.length ? 'Scaffold templates (scaffold <name>): ' + tpls.join(', ') + '.' : ''),
             (mem ? '\n─── PROJECT MEMORY (GRGCODE.md — follow these conventions) ───\n' + mem + '\n─── end project memory ───' : ''),
+            (activeAgent ? '\n─── ACTIVE SPECIALIST: ' + activeAgent.name + ' ───\nAdopt this expertise and style on top of your engineering workflow:\n' + activeAgent.prompt + (activeAgent.privacy ? '\n' + GRGAGENT_PRIVACY : '') + '\n─── end specialist ───' : ''),
             'Shell commands and file writes require the user to approve them. Keep going until the task is fully done and verified; be concise but thorough. When finished with no more tool calls, reply with a normal message.'
         ].filter(Boolean).join('\n')
     };
@@ -533,7 +538,7 @@ async function streamBackend(messages, toolsArg) {
     const res = await fetch(BACKEND + '/api/agent/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, tools: toolsArg || allTools(), model: agentModel, uid: agentUid })
+        body: JSON.stringify({ messages, tools: toolsArg || allTools(), model: agentModel, uid: agentUid, agent: activeAgent ? activeAgent.id : undefined })
     });
     if (!res.ok || !res.body) {
         let e = 'Server error ' + res.status;
@@ -1037,6 +1042,7 @@ ipcMain.on('set-folder', (e, p) => {
 ipcMain.on('set-uid', (e, uid) => { agentUid = uid || null; });
 ipcMain.on('set-approve-mode', (e, auto) => { autoApprove = !!auto; });
 ipcMain.on('set-model', (e, m) => { if (typeof m === 'string' && m) agentModel = m; });
+ipcMain.on('set-agent', (e, a) => { activeAgent = (a && a.id && a.prompt) ? { id: a.id, name: a.name || 'Agent', prompt: a.prompt, privacy: !!a.privacy } : null; });
 ipcMain.on('approval-response', (e, { id, ok }) => {
     const resolve = pendingApprovals.get(id);
     if (resolve) { pendingApprovals.delete(id); resolve(!!ok); }

@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('grg', {
     setFolder: (p) => ipcRenderer.send('set-folder', p),
     setApproveMode: (auto) => ipcRenderer.send('set-approve-mode', auto),
     setModel: (m) => ipcRenderer.send('set-model', m),
+    setAgent: (a) => ipcRenderer.send('set-agent', a),
     approve: (id, ok) => ipcRenderer.send('approval-response', { id, ok }),
     openExternal: (url) => ipcRenderer.send('open-external', url),
     openPreview: (html) => ipcRenderer.invoke('open-preview', html),

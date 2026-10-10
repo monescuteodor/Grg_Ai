@@ -208,6 +208,54 @@
     .cmodel-item .mtag { font-size:10px; color:var(--text-mute); background:var(--bg-hover); padding:1px 6px; border-radius:10px; }
     .cmodel-item .mlock { color:var(--text-mute); display:flex; }
     .cmodel-item .mlock svg { width:11px; height:11px; }
+    /* ─── Agent picker ─── */
+    .agent-pill.active { background:var(--accent-soft); border-color:rgba(139,92,246,0.45); color:var(--accent-2); font-weight:600; }
+    .agent-ov { position:fixed; inset:0; z-index:8200; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:18px; }
+    .agent-ov.visible { display:flex; }
+    .agent-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:580px; max-height:86vh; display:flex; flex-direction:column; padding:18px; box-shadow:var(--shadow-lg); }
+    .agent-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .agent-title { font-size:18px; font-weight:700; color:var(--text); }
+    .agent-sub { font-size:12.5px; color:var(--text-mute); margin-top:3px; }
+    .agent-close { background:none; border:1px solid var(--border); color:var(--text-mute); width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:15px; flex-shrink:0; }
+    .agent-search { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text); font-family:var(--font); font-size:13.5px; outline:none; margin-bottom:10px; }
+    .agent-search:focus { border-color:var(--accent); }
+    .agent-list { overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:4px; padding-right:4px; }
+    .agent-cat-head { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-mute); margin:10px 0 2px; }
+    .agent-item { display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:10px; border:1px solid transparent; cursor:pointer; text-align:left; background:none; width:100%; font-family:var(--font); }
+    .agent-item:hover { background:var(--bg-hover); }
+    .agent-item.active { border-color:var(--accent); background:var(--accent-soft); }
+    .agent-ico { width:26px; text-align:center; flex-shrink:0; color:var(--accent-2); }
+    .agent-ico svg { width:18px; height:18px; }
+    .agent-meta { min-width:0; flex:1; }
+    .agent-name { font-size:13.5px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px; }
+    .agent-desc { font-size:11.5px; color:var(--text-mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .agent-priv { font-size:9px; font-weight:700; color:#22c55e; border:1px solid rgba(34,197,94,0.35); border-radius:6px; padding:1px 5px; display:inline-flex; align-items:center; gap:3px; }
+    .agent-none { margin-top:10px; width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text-dim); border-radius:10px; padding:10px; font-family:var(--font); font-size:13px; cursor:pointer; flex-shrink:0; }
+    .agent-none:hover { color:var(--text); border-color:var(--accent); }
+    .agent-banner { display:none; align-items:center; gap:8px; font-size:11.5px; color:var(--accent-2); background:var(--accent-soft); border:1px solid rgba(139,92,246,0.28); border-radius:8px; padding:5px 10px; margin:0 0 8px; }
+    .agent-banner.on { display:inline-flex; }
+    .agent-banner .ab-ico svg { width:14px; height:14px; vertical-align:-2px; }
+    .agent-banner .ab-x { margin-left:4px; cursor:pointer; opacity:.7; }
+    .agent-banner .ab-x:hover { opacity:1; }
+    .agent-create { width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; margin-bottom:8px; border:1px dashed var(--accent); border-radius:10px; background:var(--accent-soft); color:var(--accent-2); font-family:var(--font); font-size:13.5px; font-weight:600; cursor:pointer; }
+    .agent-create:hover { background:rgba(139,92,246,0.14); }
+    .agent-create .ac-plus { font-size:16px; line-height:1; }
+    .agent-tools { display:flex; gap:2px; margin-left:auto; flex-shrink:0; }
+    .agent-tool { width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:6px; color:var(--text-mute); font-size:12px; }
+    .agent-tool:hover { background:var(--bg-surface); color:var(--text); }
+    .agent-create-ov { position:fixed; inset:0; z-index:8300; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:18px; }
+    .agent-create-ov.visible { display:flex; }
+    .ca-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; padding:20px; box-shadow:var(--shadow-lg); }
+    .ca-lbl { display:block; font-size:11.5px; font-weight:600; color:var(--text-mute); margin:12px 0 4px; }
+    .ca-in { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; color:var(--text); font-family:var(--font); font-size:13.5px; outline:none; }
+    .ca-in:focus { border-color:var(--accent); }
+    .ca-ta { resize:vertical; min-height:92px; line-height:1.5; }
+    .ca-check { display:flex; gap:8px; align-items:flex-start; margin-top:12px; font-size:12px; color:var(--text-dim); cursor:pointer; }
+    .ca-check input { margin-top:2px; flex-shrink:0; }
+    .ca-err { color:#ef4444; font-size:12px; min-height:15px; margin-top:8px; }
+    .ca-actions { display:flex; gap:8px; margin-top:8px; }
+    .ca-cancel { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text-dim); border-radius:10px; padding:10px; font-family:var(--font); font-size:13px; cursor:pointer; }
+    .ca-save { flex:2; background:linear-gradient(135deg,var(--accent),#6d28d9); border:0; color:#fff; border-radius:10px; padding:10px; font-family:var(--font); font-size:13.5px; font-weight:600; cursor:pointer; }
     .cright { margin-left:auto; display:flex; align-items:center; }
     /* session groups */
     .sgroup-label { display:flex; align-items:center; gap:7px; font-size:11px; font-weight:600; letter-spacing:.02em; color:var(--text-dim); padding:10px 12px 5px; }
@@ -336,6 +384,7 @@
                 <div class="box">
                     <div class="cmd-hint" id="cmd-hint"></div>
                     <div class="cmd-hint" id="file-hint"></div>
+                    <div class="agent-banner" id="agent-banner"></div>
                     <textarea id="input" rows="1" placeholder="Describe a task…  (/ for commands · @ to reference a file)"></textarea>
                     <div class="cfoot">
                         <button class="cbtn" id="mode-btn" title="Toggle how Grg handles commands &amp; file writes">
@@ -346,6 +395,10 @@
                             <button class="cbtn cmodel-btn" id="cmodel-btn"><span id="cmodel-label">Grg Model</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg></button>
                             <div class="cmodel-menu" id="cmodel-menu"></div>
                         </div>
+                        <button class="cbtn agent-pill" id="agent-pill" onclick="openAgentPicker()" title="Choose a specialist agent">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                            <span id="agent-label">Agents</span>
+                        </button>
                         <div class="cright">
                             <button class="send" id="send" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
                             <button class="stopb" id="stop" title="Stop"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
@@ -355,6 +408,48 @@
             </div>
         </div>
     </main>
+
+    <!-- AGENT PICKER -->
+    <div class="agent-ov" id="agent-ov" onclick="if(event.target===this)closeAgentPicker()">
+        <div class="agent-card">
+            <div class="agent-head">
+                <div>
+                    <div class="agent-title">Choose an agent</div>
+                    <div class="agent-sub">A specialist on top of Grg Code. <span style="color:#22c55e;font-weight:600">PRIVATE</span> agents redact your typed data locally. Agent runs use more credits.</div>
+                </div>
+                <button class="agent-close" onclick="closeAgentPicker()">✕</button>
+            </div>
+            <input id="agent-search" class="agent-search" placeholder="Search agents…" oninput="renderAgentList(this.value)" autocomplete="off">
+            <div class="agent-list" id="agent-list"></div>
+            <button class="agent-none" onclick="clearAgent()">Use normal Grg Code (no agent)</button>
+        </div>
+    </div>
+
+    <!-- CREATE / EDIT AGENT -->
+    <div class="agent-create-ov" id="agent-create-ov" onclick="if(event.target===this)closeCreateAgent()">
+        <div class="ca-card">
+            <div class="agent-head">
+                <div class="agent-title" id="ca-title">Create your own agent</div>
+                <button class="agent-close" onclick="closeCreateAgent()">✕</button>
+            </div>
+            <label class="ca-lbl">Name</label>
+            <input id="ca-name" class="ca-in" placeholder="e.g. Rust Systems Engineer" autocomplete="off" maxlength="40">
+            <label class="ca-lbl">Category</label>
+            <select id="ca-cat" class="ca-in">
+                <option>Legal</option><option>Development</option><option>Security</option><option>Business</option><option>Writing</option><option>Data &amp; AI</option><option selected>Other</option>
+            </select>
+            <label class="ca-lbl">Short description</label>
+            <input id="ca-desc" class="ca-in" placeholder="One line shown in the list" autocomplete="off" maxlength="60">
+            <label class="ca-lbl">Instructions (system prompt)</label>
+            <textarea id="ca-prompt" class="ca-in ca-ta" rows="5" placeholder="Describe the agent's role, expertise and style. e.g. 'You are a senior Rust systems engineer. Write safe, idiomatic Rust, explain ownership/lifetimes, and cover async and performance.'"></textarea>
+            <label class="ca-check"><input type="checkbox" id="ca-priv"> <span>Privacy mode — redact my typed sensitive data (emails, IDs, IBANs, cards, secrets) before it leaves my device (file contents are never redacted)</span></label>
+            <div class="ca-err" id="ca-err"></div>
+            <div class="ca-actions">
+                <button class="ca-cancel" onclick="closeCreateAgent()">Cancel</button>
+                <button class="ca-save" onclick="saveCustomAgent()">Save agent</button>
+            </div>
+        </div>
+    </div>
 
     <div class="gc-preview" id="gc-preview">
         <div class="gc-top">

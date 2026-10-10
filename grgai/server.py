@@ -1237,6 +1237,8 @@ async def agent_stream(request: Request):
     # Premium (paid OpenRouter) models need funds; free Grg/Groq models are free.
     uid = body.get("uid")
     is_premium = provider == "openrouter" and not str(model).endswith(":free")
+    # Specialist agents cost AGENT_MULT× more (heavier workload).
+    _agent_mult = (AGENT_MULT if (_BILLING_OK and body.get("agent")) else 1.0)
 
     def sse(obj):
         return "data: " + json.dumps(obj) + "\n\n"
@@ -1371,7 +1373,8 @@ async def agent_stream(request: Request):
                 try:
                     charge_usage(uid, used_model,
                                  int(real_usage.get("prompt_tokens", 0)),
-                                 int(real_usage.get("completion_tokens", 0)))
+                                 int(real_usage.get("completion_tokens", 0)),
+                                 agent_mult=_agent_mult)
                 except Exception as ce:  # noqa: BLE001
                     print(f"[agent billing charge ERROR] {ce}")
             if tool_acc:

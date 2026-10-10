@@ -440,9 +440,11 @@ def premium_allowed(uid: str) -> dict:
     return {"allowed": False, "reason": "no_funds"}
 
 
-def charge_usage(uid: str, model: str, in_tokens: int, out_tokens: int, images: int = 0) -> dict:
+def charge_usage(uid: str, model: str, in_tokens: int, out_tokens: int, images: int = 0,
+                 agent_mult: float = 1.0) -> dict:
     """Consume the plan's token allowance first (free to the user); charge any
-    overflow tokens to the credit wallet at real_cost*MARKUP."""
+    overflow tokens to the credit wallet at real_cost*MARKUP*agent_mult. Used by the
+    desktop agent (/api/agent); `agent_mult` makes specialist-agent runs cost more."""
     if not uid or not FIREBASE_AVAILABLE:
         return {"tokens": 0, "charged_eur": 0.0}
     ref = _get_user_ref(uid)
@@ -462,7 +464,7 @@ def charge_usage(uid: str, model: str, in_tokens: int, out_tokens: int, images: 
     real = tokens / 1_000_000.0 * model_price_eur(model)
     if images:
         real += images * IMAGE_PRICE_EUR
-    charge = round(real * MARKUP, 6)
+    charge = round(real * MARKUP * float(agent_mult or 1.0), 6)
     # Spend the plan allowance first, then the pay-as-you-go wallet.
     from_plan = min(plan_eur, charge)
     from_wallet = min(wallet, charge - from_plan)
