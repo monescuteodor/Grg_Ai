@@ -4099,7 +4099,7 @@ function updateAgentUI() {
     if (_activeAgent) {
         if (label) label.textContent = _activeAgent.name;
         if (pill) pill.classList.add('active');
-        if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
+        if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active · uses more credits' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
     } else {
         if (label) label.textContent = 'Agents';
         if (pill) pill.classList.remove('active');
@@ -4177,6 +4177,7 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             model: modelName,
             uid: (typeof _currentUser !== 'undefined' && _currentUser) ? _currentUser.uid : undefined,
             effort: (typeof _currentEffort !== 'undefined' ? _currentEffort : 'low'),
+            agent: (typeof _activeAgent !== 'undefined' && _activeAgent) ? _activeAgent.id : undefined,
             messages: _buildMessages(message, history, summary),
             temperature: cfg.temperature,
             max_tokens: cfg.max_tokens

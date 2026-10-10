@@ -118,7 +118,7 @@ from stripe_handler import (
     confirm_topup,
 )
 try:
-    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium
+    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
     print(f"[billing] not available: {_e}")
@@ -918,10 +918,13 @@ async def chat(request: Request):
     # credits charged are always ≥ the real API cost → the owner profits on every
     # message. Anonymous users aren't charged here (the per-IP rate-limit covers them).
     _est_in = len(json.dumps(messages)) // 4      # conservative input-token estimate
+    # Specialist agents cost AGENT_MULT× more (heavier workload) — flagged by the client.
+    _agent_mult = (AGENT_MULT if (_BILLING_OK and body.get("agent")) else 1.0)
     _charge = {"cost": 0, "charged": 0, "balance": None}
     if _BILLING_OK and uid:
         _charge = charge_message(uid, model, effort,
-                                 est_in_tokens=_est_in, max_out_tokens=max_tokens)
+                                 est_in_tokens=_est_in, max_out_tokens=max_tokens,
+                                 agent_mult=_agent_mult)
         if not _charge.get("allowed", True):
             if _charge.get("reason") in ("needs_paid_credits", "needs_pro"):
                 return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
@@ -1005,7 +1008,8 @@ async def chat(request: Request):
                         _pt = int(real_usage.get("prompt_tokens", 0))
                         _ct = int(real_usage.get("completion_tokens", 0))
                         _s = settle_premium(uid, model, _pt, _ct, _charge.get("cost"),
-                                            _charge.get("from_bucket", 0), _charge.get("from_wallet", 0))
+                                            _charge.get("from_bucket", 0), _charge.get("from_wallet", 0),
+                                            agent_mult=_agent_mult)
                         _final_cost = _s.get("actual", _charge.get("cost"))
                         _final_bal = _s.get("balance")
                         if _final_bal is None:

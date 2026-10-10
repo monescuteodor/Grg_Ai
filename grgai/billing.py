@@ -125,6 +125,11 @@ MSG_CREDITS_MIN = 1
 # denser tokenization (code / non-English). Output is hard-capped by max_tokens, so the
 # prompt side is the only soft part — the pad keeps the ceiling >= real usage.
 EST_IN_PAD = 1.5
+# Specialist AGENTS cost more than normal chat: they use more resources (long expert
+# system prompts, bigger context, more back-and-forth). Every message sent with an agent
+# active is charged AGENT_MULT× the normal per-message price — on free AND premium models
+# — so the owner profits more and never goes negative on the heavier agent workload.
+AGENT_MULT = 4.0
 
 def _is_free_model(model: str) -> bool:
     m = (model or "")
@@ -148,9 +153,11 @@ def premium_msg_credits(model: str, effort: str = "low",
     return max(1, math.ceil(real * MARKUP / CREDIT_EUR))
 
 def message_cost_credits(model: str, effort: str = "low", images: int = 0,
-                         est_in_tokens: int = 0, max_out_tokens: int = 0) -> int:
+                         est_in_tokens: int = 0, max_out_tokens: int = 0,
+                         agent_mult: float = 1.0) -> int:
     c = (free_msg_credits(effort) if _is_free_model(model)
          else premium_msg_credits(model, effort, est_in_tokens, max_out_tokens))
+    c = max(1, math.ceil(c * float(agent_mult or 1.0)))      # agents cost AGENT_MULT× more
     return max(MSG_CREDITS_MIN, c + int(images) * 2)
 
 def _roll_daily(data: dict) -> dict:
@@ -180,13 +187,15 @@ def message_rates() -> dict:
     return {m: message_cost_credits(m, "low", 0, 0, EFFORT_TOKENS["low"]) for m in ids}
 
 def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
-                   est_in_tokens: int = 0, max_out_tokens: int = 0) -> dict:
+                   est_in_tokens: int = 0, max_out_tokens: int = 0,
+                   agent_mult: float = 1.0) -> dict:
     """Spend credits for ONE message from the right bucket (free-model→free bucket,
     premium→premium bucket), then bought wallet. Anonymous is never charged/blocked.
     The premium cost is the WORST-CASE (ceiling) cost × MARKUP, so the charge is always
-    ≥ the real API cost → the owner profits on every message.
+    ≥ the real API cost → the owner profits on every message. `agent_mult` (AGENT_MULT when
+    a specialist agent is active) makes agent messages cost proportionally more.
     Returns {allowed, cost, balance, charged, reason}. Fail-OPEN on any backend error."""
-    cost = message_cost_credits(model, effort, images, est_in_tokens, max_out_tokens)
+    cost = message_cost_credits(model, effort, images, est_in_tokens, max_out_tokens, agent_mult)
     if not uid or not FIREBASE_AVAILABLE:
         return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "anon": True}
     try:
@@ -244,21 +253,23 @@ def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
         return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "error": str(e)[:120]}
 
 
-def premium_actual_credits(model: str, in_tokens: int, out_tokens: int) -> int:
-    """Credits the owner must keep for the message's REAL usage = real_cost × MARKUP.
+def premium_actual_credits(model: str, in_tokens: int, out_tokens: int,
+                           agent_mult: float = 1.0) -> int:
+    """Credits the owner must keep for the message's REAL usage = real_cost × MARKUP × agent_mult.
     ceil() so the charge is never below the real cost + margin."""
     toks = max(0, int(in_tokens)) + max(0, int(out_tokens))
     real = toks / 1_000_000.0 * model_price_eur(model)
-    return max(1, math.ceil(real * MARKUP / CREDIT_EUR))
+    return max(1, math.ceil(real * MARKUP / CREDIT_EUR * float(agent_mult or 1.0)))
 
 
 def settle_premium(uid: str, model: str, in_tokens: int, out_tokens: int,
-                   charged_credits: int, from_bucket: int = 0, from_wallet: int = 0) -> dict:
+                   charged_credits: int, from_bucket: int = 0, from_wallet: int = 0,
+                   agent_mult: float = 1.0) -> dict:
     """Reconcile the up-front WORST-CASE premium hold to the ACTUAL token usage reported
     by the provider. Refund the overcharge, or claw back the (rare) undercharge, so the
     user pays exactly real_cost × MARKUP and the owner's margin is exact, never negative.
     Fail-OPEN: on any error we keep the up-front hold (which is already profit-safe)."""
-    actual = premium_actual_credits(model, in_tokens, out_tokens)
+    actual = premium_actual_credits(model, in_tokens, out_tokens, agent_mult)
     delta = actual - int(charged_credits)          # <0 → refund the user; >0 → charge a bit more
     if not uid or not FIREBASE_AVAILABLE or delta == 0:
         return {"actual": actual, "delta": 0, "balance": None}

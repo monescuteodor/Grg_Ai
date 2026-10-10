@@ -171,6 +171,29 @@ print("     held ceiling=%d cr, tiny-reply actual=%d cr -> refund %d cr" %
 
 # ───────────────────────────────────────────────────────────────────────────
 print("=" * 74)
+print("TEST 8 — specialist AGENTS cost AGENT_MULT× more, and are still profit-safe")
+print("=" * 74)
+AM = B.AGENT_MULT
+print("  AGENT_MULT =", AM)
+# Agent message costs AGENT_MULT× the normal message (free + premium), both pre-charge and settle.
+for model in (["openai/gpt-oss-120b"] + PREMIUM_MODELS[:5]):
+    normal = B.message_cost_credits(model, "mid", 0, 1000, OUT_CAP["mid"], 1.0)
+    agent  = B.message_cost_credits(model, "mid", 0, 1000, OUT_CAP["mid"], AM)
+    check(agent >= normal * AM * 0.95, "agent charge not ~%gx for %s (%d vs %d)" % (AM, model, agent, normal))
+    print("  %-28s normal=%d cr  agent=%d cr  (x%.1f)" % (model, normal, agent, agent / max(1, normal)))
+# settle with agent_mult must stay >= real_cost (profit) AND >= normal settle
+for model in PREMIUM_MODELS:
+    for (ti, to) in [(2000, 4000), (200000, 8192)]:
+        a = B.premium_actual_credits(model, ti, to, AM)
+        base = B.premium_actual_credits(model, ti, to, 1.0)
+        cost = real_cost_eur(model, ti + to)
+        check(a * CREDIT_EUR >= cost, "agent settle LOSS %s" % model)
+        check(a >= base, "agent settle not >= normal settle for %s" % model)
+check(AM > 1.0, "AGENT_MULT must be > 1 (agents should cost more than normal)")
+print("  agent settle stays >= real cost and >= normal: OK")
+
+# ───────────────────────────────────────────────────────────────────────────
+print("=" * 74)
 if FAILS:
     print("RESULT: %d FAILING CHECK(S) — NOT always profitable:" % len(FAILS))
     for f in FAILS:
