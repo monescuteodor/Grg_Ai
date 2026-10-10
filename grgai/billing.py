@@ -21,6 +21,7 @@ Firestore fields on users/{uid}:
 
 import os
 import time
+import math
 
 from stripe_handler import _get_user_ref, FIREBASE_AVAILABLE, check_rate_limit
 try:
@@ -119,6 +120,11 @@ EFFORT_MULT = {"low": 1.0, "mid": 1.5, "high": 2.0, "ultra": 3.0}   # free-model
 EFFORT_TOKENS = {"low": 1500, "mid": 3000, "high": 6000, "ultra": 10000}
 FREE_MSG_CREDITS = 1
 MSG_CREDITS_MIN = 1
+# Padding on the char-based input estimate so we never undercharge the prompt side.
+# json.dumps already inflates the char count vs real text, and 1.5x adds headroom for
+# denser tokenization (code / non-English). Output is hard-capped by max_tokens, so the
+# prompt side is the only soft part — the pad keeps the ceiling >= real usage.
+EST_IN_PAD = 1.5
 
 def _is_free_model(model: str) -> bool:
     m = (model or "")
@@ -129,15 +135,22 @@ def _is_free_model(model: str) -> bool:
 def free_msg_credits(effort: str = "low") -> int:
     return max(1, int(round(FREE_MSG_CREDITS * EFFORT_MULT.get(str(effort or "low").lower(), 1.0))))
 
-def premium_msg_credits(model: str, effort: str = "low") -> int:
-    """Flat per-message premium price = real_cost(assumed tokens) × MARKUP, in credits.
-    Guarantees the 25% margin: the credits charged are the real API cost + margin."""
-    toks = EFFORT_TOKENS.get(str(effort or "low").lower(), 1500)
-    real = toks / 1_000_000.0 * model_price_eur(model)      # EUR real API cost for a typical msg
-    return max(1, int(round(real * MARKUP / CREDIT_EUR)))
+def premium_msg_credits(model: str, effort: str = "low",
+                        est_in_tokens: int = 0, max_out_tokens: int = 0) -> int:
+    """Per-message premium price = WORST-CASE cost × MARKUP, in credits — so the owner
+    ALWAYS profits on every message. The worst case is (padded input estimate + the max
+    output tokens we actually allow for this message) at the model's price; the real usage
+    can NEVER exceed that ceiling, so the credits charged are always ≥ the real API cost,
+    keeping the full MARKUP margin. We ceil() so rounding can never undercharge."""
+    out = int(max_out_tokens) if max_out_tokens else EFFORT_TOKENS.get(str(effort or "low").lower(), 1500)
+    toks = int(int(est_in_tokens) * EST_IN_PAD) + max(0, out)   # ceiling tokens for this message
+    real = toks / 1_000_000.0 * model_price_eur(model)          # EUR ceiling cost
+    return max(1, math.ceil(real * MARKUP / CREDIT_EUR))
 
-def message_cost_credits(model: str, effort: str = "low", images: int = 0) -> int:
-    c = free_msg_credits(effort) if _is_free_model(model) else premium_msg_credits(model, effort)
+def message_cost_credits(model: str, effort: str = "low", images: int = 0,
+                         est_in_tokens: int = 0, max_out_tokens: int = 0) -> int:
+    c = (free_msg_credits(effort) if _is_free_model(model)
+         else premium_msg_credits(model, effort, est_in_tokens, max_out_tokens))
     return max(MSG_CREDITS_MIN, c + int(images) * 2)
 
 def _roll_daily(data: dict) -> dict:
@@ -160,15 +173,20 @@ def _roll_premium(data: dict) -> dict:
     return {"premium_credits": int(data.get("premium_credits", 0)), "premium_credits_period": period}
 
 def message_rates() -> dict:
-    """{model_id: credits_per_message at low effort} for the UI."""
+    """{model_id: baseline credits_per_message} for the UI — a representative low-effort
+    message (no extra input, ~1500-token answer). The live charge scales with effort and
+    input, so this is a 'from' figure."""
     ids = list(MODEL_PRICE_EUR.keys()) + ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
-    return {m: message_cost_credits(m, "low") for m in ids}
+    return {m: message_cost_credits(m, "low", 0, 0, EFFORT_TOKENS["low"]) for m in ids}
 
-def charge_message(uid: str, model: str, effort: str = "low", images: int = 0) -> dict:
+def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
+                   est_in_tokens: int = 0, max_out_tokens: int = 0) -> dict:
     """Spend credits for ONE message from the right bucket (free-model→free bucket,
     premium→premium bucket), then bought wallet. Anonymous is never charged/blocked.
+    The premium cost is the WORST-CASE (ceiling) cost × MARKUP, so the charge is always
+    ≥ the real API cost → the owner profits on every message.
     Returns {allowed, cost, balance, charged, reason}. Fail-OPEN on any backend error."""
-    cost = message_cost_credits(model, effort, images)
+    cost = message_cost_credits(model, effort, images, est_in_tokens, max_out_tokens)
     if not uid or not FIREBASE_AVAILABLE:
         return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "anon": True}
     try:

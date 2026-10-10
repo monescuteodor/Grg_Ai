@@ -807,6 +807,7 @@ async def chat(request: Request):
     messages = body.get("messages") or []
     temperature = body.get("temperature", 0.7)
     max_tokens = body.get("max_tokens", 2048)
+    effort = str(body.get("effort") or "low")
 
     # AutoGrg: classify the task, then route to the best model the user can afford
     # (premium if they have a Pro plan or credits; free otherwise) + inject expertise.
@@ -829,10 +830,14 @@ async def chat(request: Request):
         # flagship model gives its best, complete answer; everyone gets a clean-Markdown
         # instruction so responses render nicely (headings/lists/tables/code).
         if _funded:
+            # Keep a sensible floor so flagship answers aren't truncated, but DON'T force a
+            # huge cap regardless of effort — the per-message charge is sized to max_tokens,
+            # so the output budget must track the effort the user picked (and paid for).
             try:
-                max_tokens = max(int(max_tokens or 0), 8000)
+                _floor = {"low": 1024, "mid": 2048, "high": 4096, "ultra": 8192}.get(effort, 4096)
+                max_tokens = max(int(max_tokens or 0), _floor)
             except (TypeError, ValueError):
-                max_tokens = 8000
+                max_tokens = 4096
             _inject.append(
                 "Operate at maximum capability. Give the most complete, correct and well-structured "
                 "answer you can — reason carefully and do NOT cut it short. Format in clean "
@@ -907,13 +912,16 @@ async def chat(request: Request):
                 return _err_stream("Sign in to use premium models.")
             return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
 
-    # ─── Per-MESSAGE credit charge (usage + effort, NOT tokens) ───
-    # Every message a signed-in user sends spends credits = model-weight × effort.
-    # Anonymous users aren't charged here (the per-IP rate-limit covers them).
-    effort = str(body.get("effort") or "low")
+    # ─── Per-MESSAGE credit charge (usage + effort, margin-safe) ───
+    # Every signed-in message spends credits. For PREMIUM models the charge is the
+    # WORST-CASE cost (estimated input + the max output we allow) × MARKUP, so the
+    # credits charged are always ≥ the real API cost → the owner profits on every
+    # message. Anonymous users aren't charged here (the per-IP rate-limit covers them).
+    _est_in = len(json.dumps(messages)) // 4      # conservative input-token estimate
     _charge = {"cost": 0, "charged": 0, "balance": None}
     if _BILLING_OK and uid:
-        _charge = charge_message(uid, model, effort)
+        _charge = charge_message(uid, model, effort,
+                                 est_in_tokens=_est_in, max_out_tokens=max_tokens)
         if not _charge.get("allowed", True):
             if _charge.get("reason") in ("needs_paid_credits", "needs_pro"):
                 return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
@@ -935,8 +943,6 @@ async def chat(request: Request):
     # Ask the provider to report exact token usage so we charge precisely (money at stake).
     if is_premium:
         payload["stream_options"] = {"include_usage": True}
-
-    est_in_tokens = (len(json.dumps(messages)) // 4) if is_premium else 0
 
     async def event_stream():
         out_chars = 0
