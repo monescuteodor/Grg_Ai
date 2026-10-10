@@ -1529,6 +1529,32 @@ window.authSubmit = async () => {
         closeAuth();
     } catch (e) { $('au-err').textContent = (e.message || 'Failed').replace('Firebase:', '').replace(/\(auth.*\)\.?/, '').trim(); }
 };
+window.doGoogleAuth = async () => {
+    var btn = document.getElementById('au-google');
+    try {
+        if (btn) btn.disabled = true;
+        $('au-err').style.color = 'var(--text-mute)';
+        $('au-err').textContent = 'Opening Google sign-in in your browser…';
+        var r = await window.grg.startGoogleAuth();
+        if (!r || !r.ok) throw new Error((r && r.error) || 'could not start');
+        // The browser signs in; main.js receives the token on a loopback and emits 'google-token'.
+    } catch (e) {
+        $('au-err').style.color = ''; $('au-err').textContent = 'Google sign-in failed: ' + e.message;
+        if (btn) btn.disabled = false;
+    }
+};
+window.grg.on('google-token', async (token) => {
+    var btn = document.getElementById('au-google');
+    try {
+        if (!window._fb || !window._fb.signInWithCustomToken) throw new Error('auth still loading');
+        await window._fb.signInWithCustomToken(window._fb.auth, token);
+        if (btn) btn.disabled = false;
+        closeAuth();
+    } catch (e) {
+        $('au-err').style.color = ''; $('au-err').textContent = 'Google sign-in failed: ' + (e.message || 'error');
+        if (btn) btn.disabled = false;
+    }
+});
 window.doSignOut = (e) => { if (e) e.stopPropagation(); if (window._fb) window._fb.signOut(window._fb.auth); };
 function renderAcct() {
     const box = $('acct-box');

@@ -3,14 +3,15 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const http = require('http');
 const { exec, spawn } = require('child_process');
 
 const BACKEND = 'https://grg-ai.com';
 const MAX_ITERS = 30;
-// This build's version number, read from the packaged artifactName (vN.exe) so it tracks
-// the release automatically. Used by the in-app updater to compare against the server.
-let APP_VERSION = 0;
-try { const _pj = require('./package.json'); const _m = String((((_pj || {}).build || {}).win || {}).artifactName || '').match(/v(\d+)\.exe/); if (_m) APP_VERSION = parseInt(_m[1], 10); } catch (e) {}
+// This build's version number — BUMP with each release (must match the vN in artifactName).
+// Hardcoded on purpose: electron-builder strips the `build` field from the packaged
+// package.json, so reading artifactName at runtime returned 0 and the updater always fired.
+const APP_VERSION = 37;
 
 let win = null;
 let projectDir = process.cwd();
@@ -1081,6 +1082,33 @@ ipcMain.handle('launch-update', async (e, p) => {
     catch (e2) { return { ok: false, error: e2.message }; }
 });
 ipcMain.on('show-in-folder', (e, p) => { try { shell.showItemInFolder(p); } catch (x) {} });
+
+// ─── Google sign-in (system browser → backend mints a custom token → loopback) ───
+let _googleAuthServer = null;
+ipcMain.handle('start-google-auth', async () => {
+    try {
+        if (_googleAuthServer) { try { _googleAuthServer.close(); } catch (e) {} _googleAuthServer = null; }
+        const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        const server = http.createServer((req, res) => {
+            let u;
+            try { u = new URL(req.url, 'http://127.0.0.1'); } catch (e) { res.writeHead(400); res.end(); return; }
+            if (u.pathname !== '/cb') { res.writeHead(404); res.end(); return; }
+            const token = u.searchParams.get('token'), st = u.searchParams.get('state');
+            const page = (ok) => '<!doctype html><meta charset="utf-8"><body style="font-family:system-ui,-apple-system,sans-serif;background:#0e0b17;color:#ece9f6;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="margin:0 0 8px">' + (ok ? 'Signed in to Grg Code' : 'Sign-in could not be verified') + '</h2><p style="color:#9990b3">' + (ok ? 'You can close this tab and return to the app.' : 'Please return to Grg Code and try again.') + '</p></div></body>';
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            if (token && st === state) { res.end(page(true)); send('google-token', token); }
+            else { res.end(page(false)); }
+            setTimeout(() => { try { server.close(); } catch (e) {} }, 500);
+            _googleAuthServer = null;
+        });
+        await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+        _googleAuthServer = server;
+        const port = server.address().port;
+        setTimeout(() => { if (_googleAuthServer === server) { try { server.close(); } catch (e) {} _googleAuthServer = null; } }, 300000);
+        await shell.openExternal(BACKEND + '/grgcode-auth?port=' + port + '&state=' + encodeURIComponent(state));
+        return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+});
 
 // Open a rendered preview in its own window (popout button in the preview panel).
 ipcMain.handle('open-preview', (e, html) => {

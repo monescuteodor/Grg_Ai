@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('grg', {
     downloadUpdate: (url, filename) => ipcRenderer.invoke('download-update', url, filename),
     launchUpdate: (p) => ipcRenderer.invoke('launch-update', p),
     showInFolder: (p) => ipcRenderer.send('show-in-folder', p),
+    startGoogleAuth: () => ipcRenderer.invoke('start-google-auth'),
     openPreview: (html) => ipcRenderer.invoke('open-preview', html),
     listCommands: () => ipcRenderer.invoke('list-commands'),
     listFiles: () => ipcRenderer.invoke('list-files'),
@@ -48,7 +49,7 @@ contextBridge.exposeInMainWorld('grg', {
     memoryGet: () => ipcRenderer.invoke('memory-get'),
     memorySave: (content) => ipcRenderer.invoke('memory-save', { content }),
     on: (channel, cb) => {
-        const allowed = ['assistant-text', 'assistant-token', 'assistant-reasoning', 'assistant-flush', 'tool-call', 'tool-result', 'approval-request', 'auto-approved', 'agent-status', 'agent-compacted', 'agent-done', 'agent-error', 'agent-stopped', 'agent-idle', 'agent-plan', 'subagent-start', 'subagent-tool', 'subagent-tool-result', 'subagent-end', 'checkpoint', 'term-output', 'term-exit'];
+        const allowed = ['assistant-text', 'assistant-token', 'assistant-reasoning', 'assistant-flush', 'tool-call', 'tool-result', 'approval-request', 'auto-approved', 'agent-status', 'agent-compacted', 'agent-done', 'agent-error', 'agent-stopped', 'agent-idle', 'agent-plan', 'subagent-start', 'subagent-tool', 'subagent-tool-result', 'subagent-end', 'checkpoint', 'term-output', 'term-exit', 'google-token'];
         if (allowed.includes(channel)) ipcRenderer.on(channel, (e, data) => cb(data));
     }
 });

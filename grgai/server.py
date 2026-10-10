@@ -245,6 +245,37 @@ async def grgcode_version():
             "filename": f"GrgCode-win-x64-v{latest}.exe",
             "url": f"/static/downloads/GrgCode-win-x64-v{latest}.exe"}
 
+@app.get("/grgcode-auth")
+async def grgcode_auth_page():
+    """System-browser sign-in page for the GrgCode desktop app (Google OAuth happens
+    here in a real browser, then the page hands a Firebase custom token back to the app
+    over a localhost loopback URL)."""
+    return FileResponse(STATIC_DIR / "grgcode-auth.html")
+
+@app.post("/api/grgcode/auth-exchange")
+async def grgcode_auth_exchange(request: Request):
+    """Verify the browser's Firebase ID token and mint a short-lived CUSTOM token the
+    desktop app can sign in with (signInWithCustomToken). Requires Admin SDK with a
+    service-account key (local signing) — which this server has."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "bad request"}, status_code=400)
+    id_token = body.get("idToken")
+    if not id_token:
+        return JSONResponse({"error": "missing idToken"}, status_code=400)
+    try:
+        from firebase_admin import auth as _fbauth
+        decoded = _fbauth.verify_id_token(id_token)
+        uid = decoded.get("uid") or decoded.get("user_id")
+        custom = _fbauth.create_custom_token(uid)
+        if isinstance(custom, bytes):
+            custom = custom.decode("utf-8")
+        return {"customToken": custom, "uid": uid, "email": decoded.get("email")}
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgcode auth-exchange ERROR] {e}")
+        return JSONResponse({"error": "verification failed"}, status_code=401)
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
