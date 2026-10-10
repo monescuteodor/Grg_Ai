@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/static/logo.png">
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
         import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
         const firebaseConfig = {
             apiKey: "AIzaSyB5UAUcnxlp6O1mjCWrx6NdxF3TLtksJ_A",
@@ -24,7 +24,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        window._fb = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy };
+        window._fb = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy };
     </script>
     <title>Grg AI — Free AI Assistant for Code, Apps &amp; Documents | Claude, GPT-5, Gemini</title>
     <meta name="description" content="Grg AI is a free AI assistant that writes code, builds apps and websites, creates documents and images, and helps with hardware, Arduino and robotics. Powered by Claude, GPT-5, Gemini and more — AutoGrg automatically picks the best model for you.">
@@ -868,19 +868,19 @@
         /* Account settings modal */
         .account-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 5000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .account-modal.visible { opacity: 1; pointer-events: auto; }
-        .account-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 420px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.5); transform: scale(0.96); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+        .account-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px; padding: 20px 22px; max-width: 420px; width: 92%; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); transform: scale(0.96); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
         .account-modal.visible .account-card { transform: scale(1); }
-        .account-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .account-header h2 { font-size: 18px; font-weight: 600; color: var(--text); }
+        .account-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .account-header h2 { font-size: 17px; font-weight: 600; color: var(--text); }
         .account-close { background: none; border: 1px solid var(--border); color: var(--text-mute); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; }
-        .account-avatar-big { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: white; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-        .account-name { font-size: 18px; font-weight: 600; text-align: center; color: var(--text); }
-        .account-email { font-size: 13px; color: var(--text-mute); text-align: center; margin-top: 4px; margin-bottom: 24px; }
-        .account-stat { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .account-avatar-big { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: white; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; }
+        .account-name { font-size: 17px; font-weight: 600; text-align: center; color: var(--text); }
+        .account-email { font-size: 12.5px; color: var(--text-mute); text-align: center; margin-top: 3px; margin-bottom: 12px; }
+        .account-stat { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
         .account-stat:last-of-type { border-bottom: none; }
         .account-stat-label { color: var(--text-mute); }
         .account-stat-value { color: var(--text); font-weight: 500; }
-        .account-danger { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .account-danger { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
         .account-signout { width: 100%; padding: 10px; background: none; border: 1px solid var(--red); color: var(--red); border-radius: 10px; font-family: var(--font); font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .account-signout:hover { background: rgba(239,68,68,0.08); }
         .account-manage-sub { width: 100%; padding: 10px; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; font-family: var(--font); font-size: 13px; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
@@ -892,6 +892,54 @@
         .topbar-signin-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-family: var(--font); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-left: 8px; }
         .topbar-signin-btn:hover { background: #7c3aed; transform: translateY(-1px); }
         .topbar-signin-btn svg { width: 14px; height: 14px; }
+        /* ─── Agent picker ─── */
+        .agent-pill.active { background: var(--accent-soft); border-color: rgba(139,92,246,0.45); color: var(--accent-2); font-weight: 600; }
+        .agent-ov { position: fixed; inset: 0; z-index: 8200; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 18px; }
+        .agent-ov.visible { display: flex; }
+        .agent-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 580px; max-height: 86vh; display: flex; flex-direction: column; padding: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.55); }
+        .agent-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .agent-title { font-size: 18px; font-weight: 700; color: var(--text); }
+        .agent-sub { font-size: 12.5px; color: var(--text-mute); margin-top: 3px; }
+        .agent-close { background: none; border: 1px solid var(--border); color: var(--text-mute); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 15px; flex-shrink: 0; }
+        .agent-search { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-family: var(--font); font-size: 13.5px; outline: none; margin-bottom: 10px; }
+        .agent-search:focus { border-color: var(--accent); }
+        .agent-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
+        .agent-cat-head { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-mute); margin: 10px 0 2px; }
+        .agent-item { display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; text-align: left; background: none; width: 100%; font-family: var(--font); }
+        .agent-item:hover { background: var(--bg-hover); }
+        .agent-item.active { border-color: var(--accent); background: var(--accent-soft); }
+        .agent-ico { width: 26px; text-align: center; flex-shrink: 0; color: var(--accent-2); }
+        .agent-ico svg { width: 18px; height: 18px; }
+        .agent-meta { min-width: 0; flex: 1; }
+        .agent-name { font-size: 13.5px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+        .agent-desc { font-size: 11.5px; color: var(--text-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .agent-priv { font-size: 9px; font-weight: 700; color: #22c55e; border: 1px solid rgba(34,197,94,0.35); border-radius: 6px; padding: 1px 5px; display: inline-flex; align-items: center; gap: 3px; }
+        .agent-banner .ab-ico svg { width: 14px; height: 14px; vertical-align: -2px; }
+        .agent-none { margin-top: 10px; width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); border-radius: 10px; padding: 10px; font-family: var(--font); font-size: 13px; cursor: pointer; flex-shrink: 0; }
+        .agent-none:hover { color: var(--text); border-color: var(--accent); }
+        .agent-banner { display: none; align-items: center; gap: 8px; font-size: 11.5px; color: var(--accent-2); background: var(--accent-soft); border: 1px solid rgba(139,92,246,0.28); border-radius: 8px; padding: 5px 10px; margin: 0 0 8px; }
+        .agent-banner.on { display: inline-flex; }
+        .agent-banner .ab-x { margin-left: 4px; cursor: pointer; opacity: .7; }
+        .agent-banner .ab-x:hover { opacity: 1; }
+        .agent-create { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px; margin-bottom: 8px; border: 1px dashed var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--accent-2); font-family: var(--font); font-size: 13.5px; font-weight: 600; cursor: pointer; }
+        .agent-create:hover { background: rgba(139,92,246,0.14); }
+        .agent-create .ac-plus { font-size: 16px; line-height: 1; }
+        .agent-tools { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
+        .agent-tool { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: var(--text-mute); font-size: 12px; }
+        .agent-tool:hover { background: var(--bg-surface); color: var(--text); }
+        .agent-create-ov { position: fixed; inset: 0; z-index: 8300; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 18px; }
+        .agent-create-ov.visible { display: flex; }
+        .ca-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 24px 64px rgba(0,0,0,0.55); }
+        .ca-lbl { display: block; font-size: 11.5px; font-weight: 600; color: var(--text-mute); margin: 12px 0 4px; }
+        .ca-in { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; color: var(--text); font-family: var(--font); font-size: 13.5px; outline: none; }
+        .ca-in:focus { border-color: var(--accent); }
+        .ca-ta { resize: vertical; min-height: 92px; line-height: 1.5; }
+        .ca-check { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; font-size: 12px; color: var(--text-dim); cursor: pointer; }
+        .ca-check input { margin-top: 2px; flex-shrink: 0; }
+        .ca-err { color: #ef4444; font-size: 12px; min-height: 15px; margin-top: 8px; }
+        .ca-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .ca-cancel { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); border-radius: 10px; padding: 10px; font-family: var(--font); font-size: 13px; cursor: pointer; }
+        .ca-save { flex: 2; background: linear-gradient(135deg,var(--accent),#6d28d9); border: 0; color: #fff; border-radius: 10px; padding: 10px; font-family: var(--font); font-size: 13.5px; font-weight: 600; cursor: pointer; }
         .input-box { animation: intro-glow 1.6s ease-out 0.3s; }
         @keyframes intro-glow {
             0% { box-shadow: 0 0 0 0 transparent; border-color: var(--border); }
@@ -920,6 +968,11 @@
             <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
             <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
         </div>
+        <button class="auth-google" onclick="doGoogleAuth()">
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            Continue with Google
+        </button>
+        <div class="auth-or"><span>or</span></div>
         <div id="auth-signin-form">
             <input class="auth-input" id="signin-email" type="email" placeholder="Email address" />
             <input class="auth-input" id="signin-password" type="password" placeholder="Password" />
@@ -947,6 +1000,10 @@
 </div>
 
 <style>
+    .auth-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px; background: #fff; color: #1f1f1f; border: 1px solid var(--border); border-radius: 10px; font-family: var(--font); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; }
+    .auth-google:hover { background: #f1f3f4; }
+    .auth-or { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: var(--text-mute); font-size: 12px; }
+    .auth-or::before, .auth-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .credit-box { margin: 10px 0 4px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); text-align: left; }
     .credit-row { display: flex; align-items: center; justify-content: space-between; }
     .credit-title { font-size: 13px; font-weight: 600; color: var(--text); }
@@ -1009,7 +1066,7 @@
                 <div class="plan-badge free" id="plan-badge">FREE</div>
                 <div class="plan-usage" id="plan-usage">
                     <div class="plan-usage-bar-wrap"><div class="plan-usage-bar" id="plan-usage-bar" style="width:0%"></div></div>
-                    <span class="plan-usage-text" id="plan-usage-text">0 / 50 messages today</span>
+                    <span class="plan-usage-text" id="plan-usage-text">Free weekly credits</span>
                 </div>
             </div>
             <div class="plan-upgrade-btn-wrap" id="plan-upgrade-wrap">
@@ -1028,7 +1085,7 @@
                 <span class="credit-title">Credits</span>
                 <span class="credit-balance" id="credit-balance">0 credits</span>
             </div>
-            <div class="credit-sub">Premium models spend credits by how much they cost — pricier models use more per token, so you do less with them and more with cheaper ones. Top up any time.</div>
+            <div class="credit-sub">Each message spends credits by the model and effort — flagship models cost more, cheaper ones less. Top up any time.</div>
             <div class="topup-btns">
                 <button class="topup-btn" onclick="startTopup(5)">+ €5</button>
                 <button class="topup-btn" onclick="startTopup(10)">+ €10</button>
@@ -1069,6 +1126,48 @@
 </div>
 
 <!-- PLANS MODAL -->
+<!-- AGENT PICKER -->
+<div class="agent-ov" id="agent-ov" onclick="if(event.target===this)closeAgentPicker()">
+    <div class="agent-card">
+        <div class="agent-head">
+            <div>
+                <div class="agent-title">Choose an agent</div>
+                <div class="agent-sub">A specialist with its own expertise. <span style="color:#22c55e;font-weight:600">PRIVATE</span> agents redact your sensitive data locally.</div>
+            </div>
+            <button class="agent-close" onclick="closeAgentPicker()">✕</button>
+        </div>
+        <input id="agent-search" class="agent-search" placeholder="Search agents…" oninput="renderAgentList(this.value)" autocomplete="off">
+        <div class="agent-list" id="agent-list"></div>
+        <button class="agent-none" onclick="clearAgent()">Use normal Grg AI chat (no agent)</button>
+    </div>
+</div>
+
+<!-- CREATE / EDIT AGENT -->
+<div class="agent-create-ov" id="agent-create-ov" onclick="if(event.target===this)closeCreateAgent()">
+    <div class="ca-card">
+        <div class="agent-head">
+            <div class="agent-title" id="ca-title">Create your own agent</div>
+            <button class="agent-close" onclick="closeCreateAgent()">✕</button>
+        </div>
+        <label class="ca-lbl">Name</label>
+        <input id="ca-name" class="ca-in" placeholder="e.g. Tax Advisor" autocomplete="off" maxlength="40">
+        <label class="ca-lbl">Category</label>
+        <select id="ca-cat" class="ca-in">
+            <option>Legal</option><option>Development</option><option>Security</option><option>Business</option><option>Writing</option><option>Data &amp; AI</option><option selected>Other</option>
+        </select>
+        <label class="ca-lbl">Short description</label>
+        <input id="ca-desc" class="ca-in" placeholder="One line shown in the list" autocomplete="off" maxlength="60">
+        <label class="ca-lbl">Instructions (system prompt)</label>
+        <textarea id="ca-prompt" class="ca-in ca-ta" rows="5" placeholder="Describe the agent's role, expertise and style. e.g. 'You are a senior tax advisor. Explain tax rules clearly, cite the relevant law, and flag when a licensed accountant is needed.'"></textarea>
+        <label class="ca-check"><input type="checkbox" id="ca-priv"> <span>Privacy mode — redact my sensitive data (emails, IDs, IBANs, cards, secrets) before it leaves my device</span></label>
+        <div class="ca-err" id="ca-err"></div>
+        <div class="ca-actions">
+            <button class="ca-cancel" onclick="closeCreateAgent()">Cancel</button>
+            <button class="ca-save" onclick="saveCustomAgent()">Save agent</button>
+        </div>
+    </div>
+</div>
+
 <div class="plans-overlay" id="plans-overlay" onclick="if(event.target===this)closePlansModal()">
     <div class="plans-card">
         <button class="plans-close" onclick="closePlansModal()">✕</button>
@@ -1404,6 +1503,7 @@
     <div class="sidebar-footer">
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
+        <a href="https://github.com/monescuteodor/Grg_Ai" target="_blank" rel="noopener">GitHub</a>
         <div class="export-dropdown">
             <a href="#" onclick="toggleExportMenu(event)">Export</a>
             <div class="export-dropdown-menu" id="export-menu">
@@ -1463,6 +1563,8 @@
 
     <div class="input-area">
         <div class="input-container">
+            <!-- Active agent banner -->
+            <div class="agent-banner" id="agent-banner"></div>
             <!-- Slash command menu -->
             <div class="slash-menu" id="slash-menu"></div>
             <!-- Scroll to bottom -->
@@ -1494,6 +1596,11 @@
                             </button>
                             <div class="ifoot-menu" id="model-menu"></div>
                         </div>
+                        <!-- Agent picker -->
+                        <button class="ifoot-pill agent-pill" id="agent-pill" onclick="openAgentPicker()" title="Choose a specialist agent">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                            <span id="agent-label">Agents</span>
+                        </button>
                         <!-- Effort dropdown -->
                         <div class="effort-pills" id="effort-pills">
                             <button class="effort-pill" onclick="selectEffort('low','Low')" data-effort="low">Low</button>
@@ -2329,10 +2436,11 @@ async function sendMessage(regenerate) {
     let fullReason = '';
     let _didPersist = false;
     function _persist() {
-        chat.turns.push({ user: fullMsg, assistant: fullResp.trim(), reasoning: fullReason.trim() || undefined });
+        chat.turns.push({ user: fullMsg, assistant: _piiRestore(fullResp).trim(), reasoning: _piiRestore(fullReason).trim() || undefined });
         _didPersist = true;
-        save();
-        maybeAutoTitle(chat);
+        // Zero-persistence: GrgAgent sessions stay in memory only — never written to
+        // storage, and no auto-title (which would send content to a model).
+        if (!_grgAgent) { save(); maybeAutoTitle(chat); }
     }
     try {
         // ─── UNIFIED STREAMING (all models proxied via backend /api/chat) ───
@@ -2344,7 +2452,7 @@ async function sendMessage(regenerate) {
             const now = Date.now();
             if (!force && now - lastRender < 45) return;
             lastRender = now;
-            aiBody.innerHTML = assistantHTML(fullReason, _stripGrgDoc(fullResp), !fullResp.trim());
+            aiBody.innerHTML = assistantHTML(_piiRestore(fullReason), _stripGrgDoc(_piiRestore(fullResp)), !fullResp.trim());
             scrollBottom();
         }
         // AutoGrg: when the backend reports which model it picked, badge the message.
@@ -2367,8 +2475,8 @@ async function sendMessage(regenerate) {
             },
             _summary);
         if (fullResp.trim() || fullReason.trim()) {
-            var _docInfo = _extractGrgDoc(fullResp);
-            aiBody.innerHTML = assistantHTML(fullReason, _stripGrgDoc(fullResp), false);
+            var _docInfo = _extractGrgDoc(_piiRestore(fullResp));
+            aiBody.innerHTML = assistantHTML(_piiRestore(fullReason), _stripGrgDoc(_piiRestore(fullResp)), false);
             document.querySelectorAll('.code-wrap pre code').forEach(el => hljs.highlightElement(el));
             if (_docInfo && _docInfo.spec) _renderGrgDoc(aiBody, _docInfo.spec);
             _persist();
@@ -2378,7 +2486,7 @@ async function sendMessage(regenerate) {
     } catch(e) {
         if (e && e.name === 'AbortError') {
             if (fullResp.trim() || fullReason.trim()) {
-                aiBody.innerHTML = assistantHTML(fullReason, fullResp, false);
+                aiBody.innerHTML = assistantHTML(_piiRestore(fullReason), _piiRestore(fullResp), false);
                 document.querySelectorAll('.code-wrap pre code').forEach(el => hljs.highlightElement(el));
                 _persist();
             } else {
@@ -3284,6 +3392,9 @@ async function doSignIn() {
         var cred = await window._fb.signInWithEmailAndPassword(window._fb.auth, email, password);
         await _setKeyFromPassword(password, cred.user.uid);
         closeAuthModal();
+        if (cred.user && cred.user.emailVerified === false) {
+            try { flashToast('Reminder: verify your email — check your inbox.'); } catch (e) {}
+        }
     } catch(e) {
         _authError(e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found'
             ? 'Invalid email or password.' : e.message);
@@ -3304,6 +3415,8 @@ async function doSignUp() {
     try {
         var cred = await window._fb.createUserWithEmailAndPassword(window._fb.auth, email, password);
         await window._fb.updateProfile(cred.user, { displayName: name });
+        // Send the email-verification link (Firebase template).
+        try { await window._fb.sendEmailVerification(cred.user); } catch (ve) { console.warn('verify email send failed', ve); }
         await _setKeyFromPassword(password, cred.user.uid);
         // Save GDPR consent to Firestore
         if (window._fb.db) {
@@ -3316,9 +3429,32 @@ async function doSignUp() {
             });
         }
         closeAuthModal();
+        try { flashToast('Account created — check ' + email + ' to verify your address.'); } catch (e) {}
     } catch(e) {
         _authError(e.code === 'auth/email-already-in-use'
             ? 'Email already in use.' : e.message);
+    }
+}
+
+// ─── Sign in / up with Google ───
+async function doGoogleAuth() {
+    try {
+        _authError('');
+        var provider = new window._fb.GoogleAuthProvider();
+        var cred = await window._fb.signInWithPopup(window._fb.auth, provider);
+        // Derive the device-local E2E key from the stable uid (no password with Google).
+        try { await _setKeyFromPassword(cred.user.uid, cred.user.uid); } catch (e) {}
+        // Record consent for first-time Google sign-ups.
+        try {
+            if (window._fb.db) {
+                var dbh = window._fb, ref = dbh.doc(dbh.db, 'users', cred.user.uid, 'settings', 'consent');
+                await dbh.setDoc(ref, { termsAccepted: true, termsAcceptedAt: new Date().toISOString(), provider: 'google' }, { merge: true });
+            }
+        } catch (e) {}
+        closeAuthModal();
+    } catch (e) {
+        if (e && (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request')) return;
+        _authError((e && e.message) || 'Google sign-in failed. Please try again.');
     }
 }
 
@@ -3718,6 +3854,7 @@ function selectEffort(effort, label) {
         var labels = { low: 'Low', mid: 'Mid', high: 'High', ultra: 'Ultra' };
         if (labels[savedEffort]) setTimeout(function() { selectEffort(savedEffort, labels[savedEffort]); }, 100);
     }
+    try { if (typeof updateAgentUI === 'function') updateAgentUI(); } catch (e) {}
 })();
 
 // ─── EFFORT → sampling config ───
@@ -3733,9 +3870,250 @@ var _CTX_BUDGET = 24000;   // chars of history sent as context (full-memory wind
 function _getCustomInstructions() {
     try { return (localStorage.getItem('grg_custom_instructions') || '').trim(); } catch (e) { return ''; }
 }
+// ─── GrgAgent: privacy-first mode (client-side PII redaction, zero-persistence) ───
+var _grgAgent = false;
+try { _grgAgent = localStorage.getItem('grg_agent') === '1'; } catch (e) {}
+// Substitution map lives ONLY in memory (never saved) — the model never sees real data.
+var _piiMap = { o2p: {}, p2o: {} };
+var _piiCount = {};
+function _resetPII() { _piiMap = { o2p: {}, p2o: {} }; _piiCount = {}; }
+// High-confidence structured PII (names need a real NER model — out of scope for v1).
+var _PII_PATTERNS = [
+    ['SECRET', '(?:sk-[A-Za-z0-9]{16,}|sk_(?:live|test)_[A-Za-z0-9]{10,}|rk_(?:live|test)_[A-Za-z0-9]{10,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_\\-]{20,}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|whsec_[A-Za-z0-9]{10,})'],
+    ['EMAIL', '[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}'],
+    ['IBAN', '[A-Z]{2}\\d{2}(?:[ ]?[A-Z0-9]{3,4}){3,7}'],
+    ['CARD', '(?:\\d[ \\-]?){14,16}\\d'],
+    ['CNP', '[1-8]\\d{12}'],
+    ['PHONE', '(?:\\+?\\d{1,3}[ .\\-]?)?07\\d{2}[ .\\-]?\\d{3}[ .\\-]?\\d{3}|\\+\\d{10,14}']
+];
+function _piiRedact(text) {
+    if (!text || !_grgAgent) return text;
+    var out = String(text);
+    for (var k = 0; k < _PII_PATTERNS.length; k++) {
+        var type = _PII_PATTERNS[k][0];
+        var re = new RegExp(_PII_PATTERNS[k][1], 'g');
+        out = out.replace(re, function (m) {
+            if (_piiMap.o2p[m]) return _piiMap.o2p[m];
+            _piiCount[type] = (_piiCount[type] || 0) + 1;
+            var ph = '[' + type + '_' + _piiCount[type] + ']';
+            _piiMap.o2p[m] = ph; _piiMap.p2o[ph] = m;
+            return ph;
+        });
+    }
+    return out;
+}
+function _piiRestore(text) {
+    if (!text || !_grgAgent) return text;
+    return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
+}
+var GRGAGENT_PROMPT = "You are GrgAgent — a confidential, privacy-first assistant for legal, technical and privacy work. "
+    + "The user's sensitive data (emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) has been REDACTED before reaching you "
+    + "and replaced with typed placeholders like [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type and reason about it normally. "
+    + "ALWAYS keep the exact placeholder tokens verbatim in your answer wherever you refer to them — never invent, alter, merge or guess the real values; the client substitutes them back locally. "
+    + "Be precise and well-structured (cite clause/section numbers for legal text), and never ask the user to reveal the real redacted values.";
+
+// ─── Agent library — pick a specialist; each carries its own expertise + style.
+// `privacy:true` turns on the PII-redaction pipeline for that agent. Add more freely.
+var _AGENTS = [
+    // LEGAL
+    { id:'law-litig',  cat:'Legal',    name:'Litigation Lawyer',   desc:'Disputes, pleadings, strategy', privacy:true,
+      prompt:'You are a senior litigation lawyer. Analyze disputes, draft pleadings and legal arguments, assess risk and procedure, and cite the relevant statutes/case-law structure. Be precise, hedge where the law is uncertain, and flag when a licensed local lawyer is required.' },
+    { id:'law-contract', cat:'Legal',  name:'Contracts Lawyer',    desc:'Draft & review contracts', privacy:true,
+      prompt:'You are a senior contracts lawyer. Draft, review and red-line contracts clause by clause, explain risky terms in plain language, suggest fallback wording, and keep numbering/clause structure. Note jurisdiction-specific caveats.' },
+    { id:'law-gdpr',   cat:'Legal',    name:'GDPR / Privacy Auditor', desc:'Data-protection compliance', privacy:true,
+      prompt:'You are a GDPR and data-protection auditor. Assess processing activities against GDPR principles, lawful bases, DPIAs, data-subject rights, retention and transfers; produce actionable, prioritized compliance findings with article references.' },
+    { id:'law-labor',  cat:'Legal',    name:'Employment Lawyer',   desc:'Labor law & HR', privacy:true,
+      prompt:'You are an employment/labor lawyer. Advise on contracts, dismissals, working time, discrimination and HR policy, balancing employer and employee perspectives, with clear procedure and risk flags.' },
+    { id:'law-ip',     cat:'Legal',    name:'IP Lawyer',           desc:'Trademarks, patents, copyright', privacy:true,
+      prompt:'You are an intellectual-property lawyer. Advise on trademarks, patents, copyright and licensing, infringement risk and filing strategy, with clear next steps.' },
+    // DEVELOPMENT
+    { id:'dev-arch',   cat:'Development', name:'Senior Architect',  desc:'System & app architecture', privacy:false,
+      prompt:'You are a principal software architect. Design robust, scalable systems; weigh trade-offs explicitly; produce clean folder structures, data models and sequence of steps; prefer boring, proven tech. Write production-quality code.' },
+    { id:'dev-react',  cat:'Development', name:'React / Node Engineer', desc:'Full-stack web', privacy:false,
+      prompt:'You are a senior React/Node full-stack engineer. Write modern, typed, accessible, production-ready code (Next.js/Vite, Tailwind, clean APIs), explain decisions briefly, and include error handling.' },
+    { id:'dev-python', cat:'Development', name:'Python / Data Engineer', desc:'Backend, data, scripting', privacy:false,
+      prompt:'You are a senior Python engineer. Write clean, tested, efficient Python (FastAPI, pandas, async), explain complexity, and handle edge cases and errors explicitly.' },
+    { id:'dev-devops', cat:'Development', name:'DevOps / Cloud Engineer', desc:'CI/CD, Docker, cloud', privacy:false,
+      prompt:'You are a senior DevOps/cloud engineer. Design CI/CD, containers, IaC and observability; give exact, copy-pasteable configs; call out security and cost.' },
+    { id:'dev-mobile', cat:'Development', name:'Mobile Engineer',   desc:'iOS / Android / RN', privacy:false,
+      prompt:'You are a senior mobile engineer (SwiftUI, Jetpack Compose, React Native, Expo). Write idiomatic, performant mobile code and cover store-submission and platform specifics.' },
+    { id:'dev-db',     cat:'Development', name:'Database Architect', desc:'SQL, schemas, performance', privacy:false,
+      prompt:'You are a database architect. Design normalized schemas, write correct SQL, tune queries and indexes, and advise on Postgres/MySQL/Mongo/Redis trade-offs.' },
+    { id:'dev-review', cat:'Development', name:'Code Reviewer',     desc:'Bugs, quality, security', privacy:false,
+      prompt:'You are a meticulous senior code reviewer. Find real bugs, security issues, and simplifications; give concrete, prioritized fixes with code; be direct but constructive.' },
+    { id:'dev-embed',  cat:'Development', name:'Embedded / IoT Engineer', desc:'Arduino, ESP32, robotics', privacy:false,
+      prompt:'You are an embedded/IoT and robotics engineer. Write correct firmware (Arduino, ESP32, RP2040, MicroPython), explain wiring/timing/power, and cover motors, sensors, PID and protocols.' },
+    // SECURITY
+    { id:'sec-pentest', cat:'Security', name:'Security / Pentest', desc:'Appsec, threat modeling', privacy:true,
+      prompt:'You are an application-security engineer (authorized testing only). Threat-model systems, find OWASP-class vulnerabilities, explain exploitation at a conceptual level and give concrete remediations. Refuse clearly malicious, unauthorized requests.' },
+    { id:'sec-compliance', cat:'Security', name:'Compliance (ISO/SOC2)', desc:'Security frameworks & audits', privacy:true,
+      prompt:'You are a security-compliance consultant. Map controls to ISO 27001 / SOC 2 / NIST, draft policies, and produce audit-ready, prioritized gap analyses.' },
+    // BUSINESS
+    { id:'biz-analyst', cat:'Business', name:'Business Analyst',    desc:'Requirements, process, data', privacy:false,
+      prompt:'You are a senior business analyst. Clarify requirements, model processes, analyze data and trade-offs, and produce clear, structured recommendations for decisions.' },
+    { id:'biz-market',  cat:'Business', name:'Marketing Strategist', desc:'Growth, positioning, copy', privacy:false,
+      prompt:'You are a marketing strategist. Craft positioning, growth and content strategy with concrete, measurable actions and channels; be specific, not generic.' },
+    { id:'biz-finance', cat:'Business', name:'Financial Analyst',   desc:'Models, metrics, unit economics', privacy:false,
+      prompt:'You are a financial analyst. Build models, analyze metrics and unit economics, and explain assumptions and sensitivities clearly. You are not a licensed financial advisor — add that caveat for personal-investment questions.' },
+    { id:'biz-startup', cat:'Business', name:'Startup Advisor',     desc:'Product, GTM, fundraising', privacy:false,
+      prompt:'You are a seasoned startup advisor. Pressure-test ideas, product, go-to-market and fundraising; be honest about weaknesses and give prioritized, practical next steps.' },
+    // WRITING
+    { id:'wr-tech',    cat:'Writing',  name:'Technical Writer',     desc:'Docs, guides, specs', privacy:false,
+      prompt:'You are a technical writer. Produce clear, well-structured docs, READMEs, API references and guides with correct Markdown, examples and consistent terminology.' },
+    { id:'wr-copy',    cat:'Writing',  name:'Copywriter',          desc:'Landing pages, ads, emails', privacy:false,
+      prompt:'You are a conversion copywriter. Write crisp, persuasive copy (headlines, landing pages, ads, emails) matched to the audience and offer; give a few variations.' },
+    { id:'wr-academic', cat:'Writing', name:'Academic Editor',      desc:'Papers, citations, clarity', privacy:false,
+      prompt:'You are an academic editor. Improve clarity, structure, argument and citation style (APA/IEEE/etc.) while preserving the author\'s meaning; flag unsupported claims.' },
+    // DATA / AI
+    { id:'ai-ml',      cat:'Data & AI', name:'ML / AI Engineer',    desc:'LLMs, RAG, pipelines', privacy:false,
+      prompt:'You are an ML/AI engineer. Design and debug LLM apps, RAG, embeddings, fine-tuning and data pipelines; give concrete, runnable code and evaluation advice.' },
+    { id:'ai-data',    cat:'Data & AI', name:'Data Scientist',      desc:'Analysis, stats, viz', privacy:false,
+      prompt:'You are a data scientist. Analyze data rigorously, pick correct statistics and visualizations, explain findings plainly, and avoid over-claiming from the data.' },
+    // OTHER
+    { id:'gen-research', cat:'Other',  name:'Research Assistant',   desc:'Deep, structured research', privacy:false,
+      prompt:'You are a thorough research assistant. Break questions down, reason step by step, compare sources and options, and present balanced, well-structured, cited conclusions.' },
+    { id:'gen-translate', cat:'Other', name:'Translator / Localizer', desc:'Natural translation & tone', privacy:true,
+      prompt:'You are a professional translator and localizer. Translate naturally (not literally), preserve tone and formatting, and keep any [REDACTED] placeholders untouched.' }
+];
+var _AGENT_CATS = ['Legal','Development','Security','Business','Writing','Data & AI','Other'];
+// Monochrome SVG symbols per category (no emoji — matches the rest of the UI).
+var _AGENT_ICONS = {
+    'Legal':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M7 7l-3 6a3 3 0 0 0 6 0z"/><path d="M17 7l-3 6a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg>',
+    'Development': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    'Security':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    'Business':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="20" x2="21" y2="20"/><rect x="5" y="11" width="3" height="7"/><rect x="10.5" y="6" width="3" height="12"/><rect x="16" y="13" width="3" height="5"/></svg>',
+    'Writing':     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    'Data & AI':   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>',
+    'Other':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.1 5.4L20 9.3l-4 3.6L17 19l-5-2.8L7 19l1-6.1-4-3.6 5.9-.9z"/></svg>'
+};
+function _agentIcon(cat) { return _AGENT_ICONS[cat] || _AGENT_ICONS['Other']; }
+var _PRIV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10" style="vertical-align:-1px"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+var _EDIT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>';
+// User-created agents live in localStorage (per device) and merge with the built-ins.
+var _customAgents = [];
+try { _customAgents = JSON.parse(localStorage.getItem('grg_custom_agents') || '[]') || []; } catch (e) { _customAgents = []; }
+function _allAgents() { return _customAgents.concat(_AGENTS); }
+function _saveCustomAgents() { try { localStorage.setItem('grg_custom_agents', JSON.stringify(_customAgents)); } catch (e) {} }
+var _activeAgent = null;
+try { var _sa = localStorage.getItem('grg_active_agent'); if (_sa) { var _all0 = _allAgents(); for (var _ai=0; _ai<_all0.length; _ai++) if (_all0[_ai].id === _sa) _activeAgent = _all0[_ai]; } } catch (e) {}
+_grgAgent = !!(_activeAgent && _activeAgent.privacy);
+
+function selectAgent(id) {
+    var a = null, all = _allAgents();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) a = all[i];
+    _activeAgent = a;
+    _grgAgent = !!(a && a.privacy);
+    _resetPII();
+    try { if (a) localStorage.setItem('grg_active_agent', a.id); else localStorage.removeItem('grg_active_agent'); } catch (e) {}
+    if (typeof updateAgentUI === 'function') updateAgentUI();
+    try { closeAgentPicker(); } catch (e) {}
+}
+function clearAgent() { selectAgent(null); }
+
+function _agentRow(a, isCustom) {
+    var active = (_activeAgent && _activeAgent.id === a.id) ? ' active' : '';
+    var tools = isCustom ? '<span class="agent-tools">'
+        + '<span class="agent-tool" onclick="event.stopPropagation();editCustomAgent(\'' + a.id + '\')" title="Edit">' + _EDIT_SVG + '</span>'
+        + '<span class="agent-tool" onclick="event.stopPropagation();deleteCustomAgent(\'' + a.id + '\')" title="Delete">✕</span></span>' : '';
+    return '<button class="agent-item' + active + '" onclick="selectAgent(\'' + a.id + '\')">'
+         + '<span class="agent-ico">' + _agentIcon(a.cat) + '</span>'
+         + '<span class="agent-meta"><span class="agent-name">' + esc(a.name) + (a.privacy ? ' <span class="agent-priv">' + _PRIV_SVG + ' PRIVATE</span>' : '') + '</span>'
+         + '<span class="agent-desc">' + esc(a.desc || '') + '</span></span>' + tools + '</button>';
+}
+function renderAgentList(q) {
+    q = (q || '').toLowerCase().trim();
+    var list = document.getElementById('agent-list'); if (!list) return;
+    var html = '<button class="agent-create" onclick="openCreateAgent()"><span class="ac-plus">+</span> Create your own agent</button>';
+    var mine = _customAgents.filter(function (a) { return !q || (a.name + ' ' + (a.desc || '') + ' ' + a.cat).toLowerCase().indexOf(q) !== -1; });
+    if (mine.length) {
+        html += '<div class="agent-cat-head">Your Agents</div>';
+        mine.forEach(function (a) { html += _agentRow(a, true); });
+    }
+    for (var c = 0; c < _AGENT_CATS.length; c++) {
+        var cat = _AGENT_CATS[c];
+        var items = _AGENTS.filter(function (a) { return a.cat === cat && (!q || (a.name + ' ' + a.desc + ' ' + a.cat).toLowerCase().indexOf(q) !== -1); });
+        if (!items.length) continue;
+        html += '<div class="agent-cat-head">' + cat + '</div>';
+        items.forEach(function (a) { html += _agentRow(a, false); });
+    }
+    list.innerHTML = html;
+}
+
+// ─── Create / edit a custom agent ───
+var _editingAgentId = null;
+function openCreateAgent(id) {
+    _editingAgentId = id || null;
+    var a = null;
+    if (id) { for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === id) a = _customAgents[i]; }
+    document.getElementById('ca-title').textContent = a ? 'Edit agent' : 'Create your own agent';
+    document.getElementById('ca-name').value = a ? a.name : '';
+    document.getElementById('ca-desc').value = a ? (a.desc || '') : '';
+    document.getElementById('ca-prompt').value = a ? a.prompt : '';
+    document.getElementById('ca-priv').checked = a ? !!a.privacy : false;
+    var sel = document.getElementById('ca-cat'); if (sel) sel.value = a ? a.cat : 'Other';
+    document.getElementById('ca-err').textContent = '';
+    document.getElementById('agent-create-ov').classList.add('visible');
+    setTimeout(function () { document.getElementById('ca-name').focus(); }, 50);
+}
+function closeCreateAgent() { document.getElementById('agent-create-ov').classList.remove('visible'); }
+function saveCustomAgent() {
+    var name = document.getElementById('ca-name').value.trim();
+    var desc = document.getElementById('ca-desc').value.trim();
+    var prompt = document.getElementById('ca-prompt').value.trim();
+    var cat = document.getElementById('ca-cat').value;
+    var priv = document.getElementById('ca-priv').checked;
+    var err = document.getElementById('ca-err');
+    if (!name) { err.textContent = 'Please give your agent a name.'; return; }
+    if (prompt.length < 15) { err.textContent = 'Write a longer instruction / system prompt (what the agent does).'; return; }
+    if (_editingAgentId) {
+        for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === _editingAgentId) {
+            _customAgents[i] = { id: _editingAgentId, cat: cat, name: name, desc: desc, prompt: prompt, privacy: priv, custom: true };
+            if (_activeAgent && _activeAgent.id === _editingAgentId) { _activeAgent = _customAgents[i]; _grgAgent = !!priv; }
+        }
+    } else {
+        _customAgents.unshift({ id: 'custom-' + Date.now(), cat: cat, name: name, desc: desc, prompt: prompt, privacy: priv, custom: true });
+    }
+    _saveCustomAgents();
+    closeCreateAgent();
+    renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
+    if (typeof updateAgentUI === 'function') updateAgentUI();
+}
+function editCustomAgent(id) { openCreateAgent(id); }
+function deleteCustomAgent(id) {
+    if (!confirm('Delete this agent?')) return;
+    _customAgents = _customAgents.filter(function (a) { return a.id !== id; });
+    _saveCustomAgents();
+    if (_activeAgent && _activeAgent.id === id) clearAgent();
+    renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
+}
+function openAgentPicker() {
+    renderAgentList('');
+    var ov = document.getElementById('agent-ov'); if (ov) ov.classList.add('visible');
+    var s = document.getElementById('agent-search'); if (s) { s.value = ''; setTimeout(function () { s.focus(); }, 50); }
+}
+function closeAgentPicker() { var ov = document.getElementById('agent-ov'); if (ov) ov.classList.remove('visible'); }
+function updateAgentUI() {
+    var pill = document.getElementById('agent-pill');
+    var label = document.getElementById('agent-label');
+    var banner = document.getElementById('agent-banner');
+    if (_activeAgent) {
+        if (label) label.textContent = _activeAgent.name;
+        if (pill) pill.classList.add('active');
+        if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
+    } else {
+        if (label) label.textContent = 'Agents';
+        if (pill) pill.classList.remove('active');
+        if (banner) banner.className = 'agent-banner';
+    }
+}
+
 function _buildMessages(message, history, summary) {
     function truncate(str, max) { return str && str.length > max ? str.slice(0, max) + '\n…[truncated]' : (str || ''); }
     var messages = [];
+    if (_activeAgent) {
+        if (_activeAgent.privacy) messages.push({ role: 'system', content: GRGAGENT_PROMPT });
+        messages.push({ role: 'system', content: _activeAgent.prompt });
+    }
     var ci = _getCustomInstructions();
     if (ci) messages.push({ role: 'system', content: 'The user provided these custom instructions — follow them:\n' + ci.slice(0, 2000) });
     if (summary && summary.trim()) {
@@ -3752,10 +4130,10 @@ function _buildMessages(message, history, summary) {
         used += cost;
     }
     for (var j = 0; j < picked.length; j++) {
-        messages.push({ role: 'user', content: picked[j].u });
-        messages.push({ role: 'assistant', content: picked[j].a });
+        messages.push({ role: 'user', content: _piiRedact(picked[j].u) });
+        messages.push({ role: 'assistant', content: _piiRedact(picked[j].a) });
     }
-    messages.push({ role: 'user', content: truncate(message, 12000) });
+    messages.push({ role: 'user', content: _piiRedact(truncate(message, 12000)) });
     return messages;
 }
 
@@ -4038,21 +4416,30 @@ function updatePlanUI() {
     var text  = document.getElementById('plan-usage-text');
     var wrap  = document.getElementById('plan-upgrade-wrap');
     var label = document.getElementById('account-plan-label');
-    if (_userPlan === 'pro') {
-        if (badge) { badge.textContent = 'PRO'; badge.className = 'plan-badge pro'; }
+    if (_userPlan === 'pro' || _userPlan === 'ultra') {
+        var isUltra = (_userPlan === 'ultra');
+        if (badge) { badge.textContent = isUltra ? 'ULTRA' : 'PRO'; badge.className = 'plan-badge pro'; }
         if (bar)   bar.style.width = '100%';
-        if (text)  text.textContent = 'Up to 50× more usage ✓';
+        if (text)  text.textContent = isUltra ? 'Max usage ✓' : 'Up to 50× more usage ✓';
         if (wrap)  wrap.style.display = 'none';
-        if (label) label.textContent = 'Grg Pro';
+        if (label) label.textContent = isUltra ? 'GrgUltra' : 'GrgPro';
         var manageBtn = document.getElementById('account-manage-sub');
         if (manageBtn) manageBtn.style.display = 'block';
     } else {
-        var pct = Math.min((_msgUsed / _msgLimit) * 100, 100);
+        // Free: show the weekly free-credit bucket, not a message count.
+        var dc = (_account && typeof _account.daily_credits === 'number') ? _account.daily_credits : null;
+        var dt = (_account && _account.daily_credits_total) ? _account.daily_credits_total : 100;
         if (badge) { badge.textContent = 'FREE'; badge.className = 'plan-badge free'; }
-        if (bar)   { bar.style.width = pct + '%'; bar.className = 'plan-usage-bar' + (pct >= 80 ? ' danger' : ''); }
-        if (text)  text.textContent = _msgUsed + ' / ' + _msgLimit + ' messages today';
+        if (dc !== null) {
+            var usedPct = Math.min(((dt - dc) / dt) * 100, 100);
+            if (bar)  { bar.style.width = usedPct + '%'; bar.className = 'plan-usage-bar' + (dc <= dt * 0.2 ? ' danger' : ''); }
+            if (text) text.textContent = dc + ' / ' + dt + ' free credits left';
+        } else {
+            if (bar)  bar.style.width = '0%';
+            if (text) text.textContent = 'Free weekly credits';
+        }
         if (wrap)  wrap.style.display = '';
-        if (label) label.textContent = 'Free';
+        if (label) label.textContent = 'GrgFree';
         var manageBtn = document.getElementById('account-manage-sub');
         if (manageBtn) manageBtn.style.display = 'none';
     }
@@ -4074,7 +4461,7 @@ selectModel = function(model) {
 
 async function checkAndRecordMessage() {
     if (!_currentUser) return true;
-    if (_userPlan === 'pro') return true;
+    if (_userPlan === 'pro' || _userPlan === 'ultra') return true;
     try {
         var res = await fetch('/api/record-message', {
             method: 'POST',
@@ -4126,15 +4513,25 @@ function showPlansModal() {
     var upgradeBtn = document.getElementById('plans-upgrade-btn');
     var freeBtn = document.querySelector('.free-btn');
 
-    if (_userPlan === 'pro') {
+    var ultraBadge = document.getElementById('ultra-current-badge');
+    var ultraBtn   = document.getElementById('plans-upgrade-ultra-btn');
+    if (_userPlan === 'ultra') {
+        if (freeBadge) freeBadge.style.display = 'none';
+        if (proBadge)  proBadge.style.display = 'none';
+        if (ultraBadge) ultraBadge.style.display = 'block';
+        if (ultraBtn) { ultraBtn.textContent = 'Current Plan'; ultraBtn.classList.add('current'); ultraBtn.onclick = null; }
+        if (freeBtn) freeBtn.textContent = 'Downgrade';
+    } else if (_userPlan === 'pro') {
         if (freeBadge) freeBadge.style.display = 'none';
         if (proBadge)  proBadge.style.display = 'block';
+        if (ultraBadge) ultraBadge.style.display = 'none';
         if (upgradeBtn) { upgradeBtn.textContent = 'Current Plan'; upgradeBtn.classList.add('current'); upgradeBtn.onclick = null; }
         if (freeBtn) freeBtn.textContent = 'Downgrade';
     } else {
         if (freeBadge) freeBadge.style.display = 'block';
         if (proBadge)  proBadge.style.display = 'none';
-        if (upgradeBtn) { upgradeBtn.textContent = 'Upgrade to Pro — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startUpgrade(); closePlansModal(); }; }
+        if (ultraBadge) ultraBadge.style.display = 'none';
+        if (upgradeBtn) { upgradeBtn.textContent = 'Upgrade to Pro — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startUpgrade('pro'); closePlansModal(); }; }
         if (freeBtn) freeBtn.textContent = 'Current Plan';
     }
 
@@ -4147,8 +4544,8 @@ function closePlansModal() {
 }
 
 function showUpgradePopup(reason) {
-    // Pro users should never see the upgrade popup.
-    if (_userPlan === 'pro') return;
+    // Paid users should never see the upgrade popup.
+    if (_userPlan === 'pro' || _userPlan === 'ultra') return;
     var overlay = document.getElementById('upgrade-overlay');
     var title   = document.getElementById('upgrade-title');
     var desc    = document.getElementById('upgrade-desc');
@@ -4179,9 +4576,10 @@ async function startUpgrade(plan) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ uid: _currentUser.uid, email: _currentUser.email, interval: _billingInterval, plan: plan })
         });
-        var data = await res.json();
-        if (data.url) window.location.href = data.url;
-    } catch(e) { alert('Payment error. Please try again.'); }
+        var data = await res.json().catch(function(){ return {}; });
+        if (data.url) { window.location.href = data.url; return; }
+        alert('Could not start checkout: ' + (data.detail || data.error || ('server ' + res.status)));
+    } catch(e) { console.error('upgrade error', e); alert('Payment error: ' + ((e && e.message) || 'network') + '. Please try again.'); }
 }
 
 // Check ?upgrade=success / ?topup=success în URL

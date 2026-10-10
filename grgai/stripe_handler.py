@@ -86,8 +86,8 @@ def check_rate_limit(uid: str) -> dict:
     data = doc.to_dict() if doc.exists else {}
 
     plan = data.get("plan", "free")
-    if plan == "pro":
-        return {"allowed": True, "used": 0, "limit": -1, "reset_at": 0, "plan": "pro"}
+    if plan in ("pro", "ultra"):
+        return {"allowed": True, "used": 0, "limit": -1, "reset_at": 0, "plan": plan}
 
     now = time.time()
     first_msg_at = data.get("daily_first_msg_at", 0)
