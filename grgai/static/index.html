@@ -1688,11 +1688,11 @@
             <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span><b>Specialist agents</b>26 experts + build your own; private agents redact your typed data</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v33.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v34.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v33.exe</b> — no install · ~71 MB</div>
+        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v34.exe</b> — no install · ~71 MB</div>
     </div>
 </div>
 
@@ -3999,7 +3999,14 @@ var _activeAgent = null;
 try { var _sa = localStorage.getItem('grg_active_agent'); if (_sa) { var _all0 = _allAgents(); for (var _ai=0; _ai<_all0.length; _ai++) if (_all0[_ai].id === _sa) _activeAgent = _all0[_ai]; } } catch (e) {}
 _grgAgent = !!(_activeAgent && _activeAgent.privacy);
 
+// Specialist agents are a PAID feature (GrgPro / GrgUltra). Free & anonymous can't use them.
+function _agentsAllowed() { return _userPlan === 'pro' || _userPlan === 'ultra'; }
+function _agentUpsell() {
+    try { flashToast('Specialist agents are a GrgPro feature — upgrade to use them.'); } catch (e) {}
+    try { showPlansModal(); } catch (e) {}
+}
 function selectAgent(id) {
+    if (id && !_agentsAllowed()) { try { closeAgentPicker(); } catch (e) {} _agentUpsell(); return; }
     var a = null, all = _allAgents();
     for (var i = 0; i < all.length; i++) if (all[i].id === id) a = all[i];
     _activeAgent = a;
@@ -4043,6 +4050,7 @@ function renderAgentList(q) {
 // ─── Create / edit a custom agent ───
 var _editingAgentId = null;
 function openCreateAgent(id) {
+    if (!_agentsAllowed()) { _agentUpsell(); return; }
     _editingAgentId = id || null;
     var a = null;
     if (id) { for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === id) a = _customAgents[i]; }
@@ -4088,6 +4096,7 @@ function deleteCustomAgent(id) {
     renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
 }
 function openAgentPicker() {
+    if (!_agentsAllowed()) { _agentUpsell(); return; }
     renderAgentList('');
     var ov = document.getElementById('agent-ov'); if (ov) ov.classList.add('visible');
     var s = document.getElementById('agent-search'); if (s) { s.value = ''; setTimeout(function () { s.focus(); }, 50); }
@@ -4111,7 +4120,11 @@ function updateAgentUI() {
 function _buildMessages(message, history, summary) {
     function truncate(str, max) { return str && str.length > max ? str.slice(0, max) + '\n…[truncated]' : (str || ''); }
     var messages = [];
-    if (_activeAgent) {
+    // Agents are paid-only — ignore any (leftover) active agent for free/anon users, and
+    // keep the PII-redaction flag in sync so we never redact when the agent isn't applied.
+    var _agentOn = _activeAgent && _agentsAllowed();
+    _grgAgent = !!(_agentOn && _activeAgent.privacy);
+    if (_agentOn) {
         if (_activeAgent.privacy) messages.push({ role: 'system', content: GRGAGENT_PROMPT });
         messages.push({ role: 'system', content: _activeAgent.prompt });
     }
@@ -4178,7 +4191,7 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             model: modelName,
             uid: (typeof _currentUser !== 'undefined' && _currentUser) ? _currentUser.uid : undefined,
             effort: (typeof _currentEffort !== 'undefined' ? _currentEffort : 'low'),
-            agent: (typeof _activeAgent !== 'undefined' && _activeAgent) ? _activeAgent.id : undefined,
+            agent: (typeof _activeAgent !== 'undefined' && _activeAgent && typeof _agentsAllowed === 'function' && _agentsAllowed()) ? _activeAgent.id : undefined,
             messages: _buildMessages(message, history, summary),
             temperature: cfg.temperature,
             max_tokens: cfg.max_tokens
@@ -4234,6 +4247,8 @@ async function loadSubscriptionStatus() {
         _msgLimit = data.limit || 50;
         _resetAt  = data.reset_at || 0;
         _planLoaded = true;
+        // Agents are paid-only: if a free/anon user still has one active (e.g. after a downgrade), drop it.
+        try { if (_activeAgent && typeof _agentsAllowed === 'function' && !_agentsAllowed()) { _activeAgent = null; _grgAgent = false; try { localStorage.removeItem('grg_active_agent'); } catch (e) {} if (typeof updateAgentUI === 'function') updateAgentUI(); } } catch (e) {}
         updatePlanUI();
         await loadAccount();
         enforcePlanModels();

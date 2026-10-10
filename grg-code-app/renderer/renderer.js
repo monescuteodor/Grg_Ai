@@ -796,7 +796,7 @@ function send() {
     addMsg('user', text); pushTrans({ t: 'user', text });   // show the user's ORIGINAL text
     input.value = ''; autoSize(); setBusy(true); addStatus('Grg is thinking…');
     // Private agents: redact PII in the TYPED text only (never file contents) before it leaves.
-    window.grg.send((typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRedact(text) : text);
+    window.grg.send((typeof _grgAgent !== 'undefined' && _grgAgent && _agentsAllowed()) ? _piiRedact(text) : text);
 }
 
 // ─── slash commands (reusable prompts) ───
@@ -1048,7 +1048,7 @@ let streamBody = null, streamText = '', streamLast = 0;
 function finalizeStream() {
     finalizeReason();
     if (streamBody) {
-        var _ft = (typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(streamText) : streamText;
+        var _ft = (typeof _grgAgent !== 'undefined' && _grgAgent && _agentsAllowed()) ? _piiRestore(streamText) : streamText;
         streamBody.innerHTML = fmt(_ft);
         if (_ft.trim()) pushTrans({ t: 'assistant', text: _ft });
     }
@@ -1065,7 +1065,7 @@ function ensureStreamBubble() {
 }
 
 // ─── agent events ───
-window.grg.on('assistant-text', (t) => { finalizeStream(); clearStatus(); var _rt = (typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(t) : t; addMsg('assistant', _rt); pushTrans({ t: 'assistant', text: _rt }); });
+window.grg.on('assistant-text', (t) => { finalizeStream(); clearStatus(); var _rt = (typeof _grgAgent !== 'undefined' && _grgAgent && _agentsAllowed()) ? _piiRestore(t) : t; addMsg('assistant', _rt); pushTrans({ t: 'assistant', text: _rt }); });
 window.grg.on('assistant-reasoning', (tok) => {
     ensureReason();
     reasonText += tok;
@@ -1077,7 +1077,7 @@ window.grg.on('assistant-token', (tok) => {
     ensureStreamBubble();
     streamText += tok;
     const now = Date.now();
-    if (now - streamLast > 50) { streamLast = now; streamBody.innerHTML = fmt((typeof _grgAgent !== 'undefined' && _grgAgent) ? _piiRestore(streamText) : streamText); if (atBottom()) scroll(); }
+    if (now - streamLast > 50) { streamLast = now; streamBody.innerHTML = fmt((typeof _grgAgent !== 'undefined' && _grgAgent && _agentsAllowed()) ? _piiRestore(streamText) : streamText); if (atBottom()) scroll(); }
 });
 window.grg.on('assistant-flush', () => finalizeStream());
 window.grg.on('tool-call', (d) => { finalizeStream(); addToolCall(d); });
@@ -1257,8 +1257,14 @@ function _saveCustomAgents() { try { localStorage.setItem('grgcode_custom_agents
 var _activeAgent = null;
 try { var _sa = localStorage.getItem('grgcode_active_agent'); if (_sa) { var _all0 = _allAgents(); for (var _ai=0; _ai<_all0.length; _ai++) if (_all0[_ai].id === _sa) _activeAgent = _all0[_ai]; } } catch (e) {}
 _grgAgent = !!(_activeAgent && _activeAgent.privacy);
-function _pushAgentToMain() { try { window.grg.setAgent(_activeAgent ? { id: _activeAgent.id, name: _activeAgent.name, prompt: _activeAgent.prompt, privacy: !!_activeAgent.privacy } : null); } catch (e) {} }
+// Specialist agents are a PAID feature (GrgPro / GrgUltra). Free & signed-out can't use them.
+function _agentsAllowed() { try { return !!(_user && _account && (_account.plan === 'pro' || _account.plan === 'ultra')); } catch (e) { return false; } }
+function _agentUpsell() { try { _gcToast('Specialist agents are a GrgPro feature — upgrade to use them.'); } catch (e) {} try { openBilling(); } catch (e) {} }
+function _pushAgentToMain() { try { var ok = _agentsAllowed() && _activeAgent; window.grg.setAgent(ok ? { id: _activeAgent.id, name: _activeAgent.name, prompt: _activeAgent.prompt, privacy: !!_activeAgent.privacy } : null); } catch (e) {} }
+// After the plan is known (or on sign-out), drop a leftover agent the user may no longer be entitled to.
+function _reconcileAgent() { try { if (_activeAgent && !_agentsAllowed()) { _activeAgent = null; _grgAgent = false; try { localStorage.removeItem('grgcode_active_agent'); } catch (e) {} } _pushAgentToMain(); if (typeof updateAgentUI === 'function') updateAgentUI(); } catch (e) {} }
 function selectAgent(id) {
+    if (id && !_agentsAllowed()) { closeAgentPicker(); _agentUpsell(); return; }
     var a = null, all = _allAgents();
     for (var i = 0; i < all.length; i++) if (all[i].id === id) a = all[i];
     _activeAgent = a;
@@ -1300,6 +1306,7 @@ function renderAgentList(q) {
 }
 var _editingAgentId = null;
 function openCreateAgent(id) {
+    if (!_agentsAllowed()) { _agentUpsell(); return; }
     _editingAgentId = id || null;
     var a = null;
     if (id) { for (var i = 0; i < _customAgents.length; i++) if (_customAgents[i].id === id) a = _customAgents[i]; }
@@ -1345,6 +1352,7 @@ function deleteCustomAgent(id) {
     renderAgentList(document.getElementById('agent-search') ? document.getElementById('agent-search').value : '');
 }
 function openAgentPicker() {
+    if (!_agentsAllowed()) { _agentUpsell(); return; }
     renderAgentList('');
     var ov = document.getElementById('agent-ov'); if (ov) ov.classList.add('visible');
     var s = document.getElementById('agent-search'); if (s) { s.value = ''; setTimeout(function () { s.focus(); }, 50); }
@@ -1488,7 +1496,7 @@ function renderAcct() {
 }
 function initAuth() {
     if (!window._fb) return;
-    window._fb.onAuthStateChanged(window._fb.auth, (u) => { _user = u; _account = null; try { window.grg.setUid(u ? u.uid : null); } catch (e) {} renderAcct(); if (u) loadAccount(); });
+    window._fb.onAuthStateChanged(window._fb.auth, (u) => { _user = u; _account = null; try { window.grg.setUid(u ? u.uid : null); } catch (e) {} renderAcct(); if (u) loadAccount(); else { try { _reconcileAgent(); } catch (e) {} } });
 }
 
 // ─── Billing / credits (mirrors the website; card entry happens in the browser) ───
@@ -1498,6 +1506,7 @@ async function loadAccount() {
     if (!_user) { _account = null; return; }
     try { _account = await window.grg.billAccount(_user.uid); } catch (e) { _account = null; }
     renderBilling(); renderAcct();
+    try { _reconcileAgent(); } catch (e) {}   // agents are paid-only; drop/restore based on plan
 }
 function openBilling() { if (!_user) { openAuth(); return; } $('bill-ov').classList.add('show'); loadAccount(); }
 function closeBilling() { $('bill-ov').classList.remove('show'); }
