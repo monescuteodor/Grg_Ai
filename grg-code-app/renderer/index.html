@@ -210,6 +210,9 @@
     .cmodel-item .mlock svg { width:11px; height:11px; }
     /* ─── Agent picker ─── */
     .agent-pill.active { background:var(--accent-soft); border-color:rgba(139,92,246,0.45); color:var(--accent-2); font-weight:600; }
+    .agent-lock { display:none; align-items:center; margin-left:1px; opacity:.75; }
+    .agent-pill.locked { opacity:.82; }
+    .agent-pill.locked .agent-lock { display:inline-flex; }
     .agent-ov { position:fixed; inset:0; z-index:8200; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:18px; }
     .agent-ov.visible { display:flex; }
     .agent-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:580px; max-height:86vh; display:flex; flex-direction:column; padding:18px; box-shadow:var(--shadow-lg); }
@@ -398,6 +401,7 @@
                         <button class="cbtn agent-pill" id="agent-pill" onclick="openAgentPicker()" title="Choose a specialist agent">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
                             <span id="agent-label">Agents</span>
+                            <span class="agent-lock" id="agent-lock" title="GrgPro feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="11" height="11"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
                         </button>
                         <div class="cright">
                             <button class="send" id="send" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>

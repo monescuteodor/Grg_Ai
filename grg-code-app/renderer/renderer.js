@@ -1364,11 +1364,16 @@ function updateAgentUI() {
     var banner = document.getElementById('agent-banner');
     if (_activeAgent) {
         if (label) label.textContent = _activeAgent.name;
-        if (pill) pill.classList.add('active');
+        if (pill) { pill.classList.add('active'); pill.classList.remove('locked'); pill.title = 'Change specialist agent'; }
         if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active · uses more credits' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your typed sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
     } else {
         if (label) label.textContent = 'Agents';
-        if (pill) pill.classList.remove('active');
+        if (pill) {
+            pill.classList.remove('active');
+            var _locked = !_agentsAllowed();
+            pill.classList.toggle('locked', _locked);
+            pill.title = _locked ? 'Specialist agents — a GrgPro feature' : 'Choose a specialist agent';
+        }
         if (banner) banner.className = 'agent-banner';
     }
 }

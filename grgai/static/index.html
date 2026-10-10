@@ -894,6 +894,9 @@
         .topbar-signin-btn svg { width: 14px; height: 14px; }
         /* ─── Agent picker ─── */
         .agent-pill.active { background: var(--accent-soft); border-color: rgba(139,92,246,0.45); color: var(--accent-2); font-weight: 600; }
+        .agent-lock { display: none; align-items: center; margin-left: 1px; opacity: .75; }
+        .agent-pill.locked { opacity: .82; }
+        .agent-pill.locked .agent-lock { display: inline-flex; }
         .agent-ov { position: fixed; inset: 0; z-index: 8200; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 18px; }
         .agent-ov.visible { display: flex; }
         .agent-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 580px; max-height: 86vh; display: flex; flex-direction: column; padding: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.55); }
@@ -1600,6 +1603,7 @@
                         <button class="ifoot-pill agent-pill" id="agent-pill" onclick="openAgentPicker()" title="Choose a specialist agent">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
                             <span id="agent-label">Agents</span>
+                            <span class="agent-lock" id="agent-lock" title="GrgPro feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="11" height="11"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
                         </button>
                         <!-- Effort dropdown -->
                         <div class="effort-pills" id="effort-pills">
@@ -1688,11 +1692,11 @@
             <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span><b>Specialist agents</b>26 experts + build your own; private agents redact your typed data</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v34.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v35.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v34.exe</b> — no install · ~71 MB</div>
+        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v35.exe</b> — no install · ~71 MB</div>
     </div>
 </div>
 
@@ -4108,11 +4112,16 @@ function updateAgentUI() {
     var banner = document.getElementById('agent-banner');
     if (_activeAgent) {
         if (label) label.textContent = _activeAgent.name;
-        if (pill) pill.classList.add('active');
+        if (pill) { pill.classList.add('active'); pill.classList.remove('locked'); pill.title = 'Change specialist agent'; }
         if (banner) { banner.className = 'agent-banner on'; banner.innerHTML = '<span class="ab-ico">' + _agentIcon(_activeAgent.cat) + '</span> <b>' + esc(_activeAgent.name) + '</b> active · uses more credits' + (_activeAgent.privacy ? ' · ' + _PRIV_SVG + ' your sensitive data is redacted before it leaves your device' : '') + ' <span class="ab-x" onclick="clearAgent()" title="Exit agent">✕</span>'; }
     } else {
         if (label) label.textContent = 'Agents';
-        if (pill) pill.classList.remove('active');
+        if (pill) {
+            pill.classList.remove('active');
+            var _locked = (typeof _agentsAllowed === 'function') && !_agentsAllowed();
+            pill.classList.toggle('locked', _locked);
+            pill.title = _locked ? 'Specialist agents — a GrgPro feature' : 'Choose a specialist agent';
+        }
         if (banner) banner.className = 'agent-banner';
     }
 }
@@ -4248,7 +4257,8 @@ async function loadSubscriptionStatus() {
         _resetAt  = data.reset_at || 0;
         _planLoaded = true;
         // Agents are paid-only: if a free/anon user still has one active (e.g. after a downgrade), drop it.
-        try { if (_activeAgent && typeof _agentsAllowed === 'function' && !_agentsAllowed()) { _activeAgent = null; _grgAgent = false; try { localStorage.removeItem('grg_active_agent'); } catch (e) {} if (typeof updateAgentUI === 'function') updateAgentUI(); } } catch (e) {}
+        try { if (_activeAgent && typeof _agentsAllowed === 'function' && !_agentsAllowed()) { _activeAgent = null; _grgAgent = false; try { localStorage.removeItem('grg_active_agent'); } catch (e) {} } } catch (e) {}
+        try { if (typeof updateAgentUI === 'function') updateAgentUI(); } catch (e) {}   // refresh the Agents pill lock for the now-known plan
         updatePlanUI();
         await loadAccount();
         enforcePlanModels();
