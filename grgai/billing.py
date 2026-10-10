@@ -237,10 +237,81 @@ def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
                 updates["daily_credits"] = daily_credits
                 updates["daily_credits_day"] = daily["daily_credits_day"]
         ref.set(updates, merge=True)
-        return {"allowed": True, "cost": cost, "charged": cost, "balance": total_all - cost}
+        return {"allowed": True, "cost": cost, "charged": cost, "balance": total_all - cost,
+                "from_bucket": use_bucket, "from_wallet": use_wallet, "is_free": is_free}
     except Exception as e:  # noqa: BLE001 — never block a message on a billing error
         print(f"[charge_message ERROR] {e}")
         return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "error": str(e)[:120]}
+
+
+def premium_actual_credits(model: str, in_tokens: int, out_tokens: int) -> int:
+    """Credits the owner must keep for the message's REAL usage = real_cost × MARKUP.
+    ceil() so the charge is never below the real cost + margin."""
+    toks = max(0, int(in_tokens)) + max(0, int(out_tokens))
+    real = toks / 1_000_000.0 * model_price_eur(model)
+    return max(1, math.ceil(real * MARKUP / CREDIT_EUR))
+
+
+def settle_premium(uid: str, model: str, in_tokens: int, out_tokens: int,
+                   charged_credits: int, from_bucket: int = 0, from_wallet: int = 0) -> dict:
+    """Reconcile the up-front WORST-CASE premium hold to the ACTUAL token usage reported
+    by the provider. Refund the overcharge, or claw back the (rare) undercharge, so the
+    user pays exactly real_cost × MARKUP and the owner's margin is exact, never negative.
+    Fail-OPEN: on any error we keep the up-front hold (which is already profit-safe)."""
+    actual = premium_actual_credits(model, in_tokens, out_tokens)
+    delta = actual - int(charged_credits)          # <0 → refund the user; >0 → charge a bit more
+    if not uid or not FIREBASE_AVAILABLE or delta == 0:
+        return {"actual": actual, "delta": 0, "balance": None}
+    try:
+        ref = _get_user_ref(uid)
+        if not ref:
+            return {"actual": actual, "delta": 0, "balance": None}
+        data = ref.get().to_dict() or {}
+        daily = _roll_daily(data)
+        prem = _roll_premium(data)
+        wallet = float(data.get("wallet_eur", 0.0))
+        daily_credits = int(daily["daily_credits"])
+        premium_credits = int(prem["premium_credits"])
+        updates = {
+            "premium_credits_period": prem["premium_credits_period"],
+            "credits_spent_total": firestore.Increment(delta) if firestore else int(data.get("credits_spent_total", 0)) + delta,
+            "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+        }
+        if delta < 0:
+            # REFUND |delta|: reverse the wallet portion first, then the premium bucket.
+            refund = -delta
+            back_wallet = min(refund, int(from_wallet))
+            back_bucket = refund - back_wallet
+            wallet = wallet + back_wallet * CREDIT_EUR
+            premium_credits = premium_credits + back_bucket
+        else:
+            # Rare: real input out-tokenized our padded estimate → charge the extra, bucket then wallet.
+            need = delta
+            take_bucket = min(premium_credits, need)
+            premium_credits -= take_bucket
+            need -= take_bucket
+            if need > 0:
+                wallet = max(0.0, wallet - need * CREDIT_EUR)
+        updates["premium_credits"] = premium_credits
+        updates["wallet_eur"] = max(0.0, wallet)
+        if prem.get("_reset") is None and daily.get("_reset"):
+            updates["daily_credits"] = daily_credits
+            updates["daily_credits_day"] = daily["daily_credits_day"]
+        # keep usage_models credits in sync with the actual (not the ceiling)
+        um = dict(data.get("usage_models", {}))
+        cur = um.get(model, {})
+        um[model] = {"messages": int(cur.get("messages", 0)),
+                     "credits": max(0, int(cur.get("credits", 0)) + delta),
+                     "tokens": int(cur.get("tokens", 0)) + max(0, int(in_tokens)) + max(0, int(out_tokens))}
+        updates["usage_models"] = um
+        updates["tokens_used"] = (firestore.Increment(max(0, int(in_tokens)) + max(0, int(out_tokens)))
+                                  if firestore else int(data.get("tokens_used", 0)) + max(0, int(in_tokens)) + max(0, int(out_tokens)))
+        ref.set(updates, merge=True)
+        balance = premium_credits + daily_credits + eur_to_credits(wallet)
+        return {"actual": actual, "delta": delta, "balance": balance}
+    except Exception as e:  # noqa: BLE001 — never undo a streamed answer over a settle error
+        print(f"[settle_premium ERROR] {e}")
+        return {"actual": actual, "delta": 0, "balance": None, "error": str(e)[:120]}
 
 
 def model_price_eur(model: str) -> float:

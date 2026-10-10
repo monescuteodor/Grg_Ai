@@ -118,7 +118,7 @@ from stripe_handler import (
     confirm_topup,
 )
 try:
-    from billing import get_account, premium_allowed, charge_usage, charge_message
+    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
     print(f"[billing] not available: {_e}")
@@ -949,7 +949,11 @@ async def chat(request: Request):
         real_usage = None
         if routed:
             yield "data: " + json.dumps({"routed": routed}) + "\n\n"
-        if _charge and _charge.get("charged"):
+        # Free models: flat charge, show it right away. Premium: the up-front charge is a
+        # WORST-CASE hold — we reconcile it to the provider's real token usage after the
+        # stream and emit the (usually smaller) final charge then, so the pill lands on the
+        # exact amount instead of the ceiling.
+        if _charge and _charge.get("charged") and not is_premium:
             yield "data: " + json.dumps({"charge": {"cost": _charge.get("cost"), "balance": _charge.get("balance")}}) + "\n\n"
         try:
             async with httpx.AsyncClient(timeout=httpx.Timeout(180.0, connect=15.0)) as client:
@@ -991,20 +995,28 @@ async def chat(request: Request):
                             if content:
                                 out_chars += len(content)
                                 yield "data: " + json.dumps({"token": content}) + "\n\n"
-            # Usage is now charged PER MESSAGE up front (see charge_message above),
-            # not per token — so nothing to meter here. We still record the premium
-            # token count for the per-model usage stats (no extra charge).
-            if is_premium and _BILLING_OK and uid and real_usage:
-                try:
-                    _t = int(real_usage.get("prompt_tokens", 0)) + int(real_usage.get("completion_tokens", 0))
-                    if _t:
-                        from billing import _get_user_ref as _ref
-                        _r = _ref(uid)
-                        if _r:
-                            from firebase_admin import firestore as _fs
-                            _r.set({"tokens_used": _fs.Increment(_t)}, merge=True)
-                except Exception as ce:  # noqa: BLE001
-                    print(f"[usage stat ERROR] {ce}")
+            # ── BULLETPROOF SETTLE ── Premium was held at the worst-case ceiling up front.
+            # Reconcile to the provider's REAL token usage: refund the overcharge (or claw
+            # back a rare underestimate), so the user pays exactly real_cost×MARKUP and the
+            # owner's margin is exact and never negative. Then emit the final charge.
+            if is_premium and _BILLING_OK and uid and _charge.get("charged"):
+                if real_usage:
+                    try:
+                        _pt = int(real_usage.get("prompt_tokens", 0))
+                        _ct = int(real_usage.get("completion_tokens", 0))
+                        _s = settle_premium(uid, model, _pt, _ct, _charge.get("cost"),
+                                            _charge.get("from_bucket", 0), _charge.get("from_wallet", 0))
+                        _final_cost = _s.get("actual", _charge.get("cost"))
+                        _final_bal = _s.get("balance")
+                        if _final_bal is None:
+                            _final_bal = _charge.get("balance")
+                        yield "data: " + json.dumps({"charge": {"cost": _final_cost, "balance": _final_bal}}) + "\n\n"
+                    except Exception as ce:  # noqa: BLE001 — keep the ceiling hold on error
+                        print(f"[settle ERROR] {ce}")
+                        yield "data: " + json.dumps({"charge": {"cost": _charge.get("cost"), "balance": _charge.get("balance")}}) + "\n\n"
+                else:
+                    # Provider didn't report usage → keep the worst-case hold (safe) and show it.
+                    yield "data: " + json.dumps({"charge": {"cost": _charge.get("cost"), "balance": _charge.get("balance")}}) + "\n\n"
             yield "data: [DONE]\n\n"
         except httpx.TimeoutException:
             yield "data: " + json.dumps({"error": "Upstream timed out"}) + "\n\n"

@@ -140,6 +140,37 @@ check(with_img >= base + 6, "images did not add the expected credits")
 
 # ───────────────────────────────────────────────────────────────────────────
 print("=" * 74)
+print("TEST 7 — BULLETPROOF settle: charge on the provider's REAL tokens is always")
+print("          profit-safe, for ANY usage (no dependence on the input estimate)")
+print("=" * 74)
+# After the stream, settle_premium charges premium_actual_credits(model, in, out) =
+# ceil(real_tokens * price * MARKUP / CREDIT_EUR). This is computed from the REAL tokens
+# the provider reports, so it cannot be fooled by dense/CJK input or a long prompt.
+worst_settle = 1e9
+TOKEN_GRID = [(1, 1), (500, 500), (2000, 4000), (50000, 8192), (200000, 8192), (1_000_000, 8192)]
+for model in PREMIUM_MODELS:
+    for (ti, to) in TOKEN_GRID:
+        charged = B.premium_actual_credits(model, ti, to)
+        revenue = charged * CREDIT_EUR
+        cost = real_cost_eur(model, ti + to)
+        check(revenue >= cost, "SETTLE LOSS %s in=%d out=%d: rev %.5f < cost %.5f" %
+              (model, ti, to, revenue, cost))
+        if cost > 0:
+            worst_settle = min(worst_settle, revenue / cost)
+print("  worst-case settled revenue/cost over ALL models x token mixes: %.3f (must be >= 1.0)" % worst_settle)
+check(worst_settle >= 1.0, "a settled charge lost money")
+check(worst_settle >= MARKUP * 0.97, "settled margin dropped below MARKUP")
+
+print("  settle delta direction check:")
+# A big up-front hold that over-estimated → settle must REFUND (delta < 0).
+ceiling = B.premium_msg_credits("anthropic/claude-opus-4.8", "ultra", 30000, 8192)
+actual_small = B.premium_actual_credits("anthropic/claude-opus-4.8", 200, 300)   # tiny real reply
+check(actual_small < ceiling, "tiny real reply should settle BELOW the ceiling (refund)")
+print("     held ceiling=%d cr, tiny-reply actual=%d cr -> refund %d cr" %
+      (ceiling, actual_small, ceiling - actual_small))
+
+# ───────────────────────────────────────────────────────────────────────────
+print("=" * 74)
 if FAILS:
     print("RESULT: %d FAILING CHECK(S) — NOT always profitable:" % len(FAILS))
     for f in FAILS:
