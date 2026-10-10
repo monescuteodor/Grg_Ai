@@ -1380,6 +1380,50 @@ function updateAgentUI() {
 _pushAgentToMain();
 updateAgentUI();
 
+// ─────────────────── In-app updater (portable exe) ───────────────────
+var _updateInfo = null, _updateBusy = false, _updatePath = null;
+function _ubIco() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'; }
+function _setUpdateBanner(html) { var b = document.getElementById('update-banner'); if (!b) return; if (!html) { b.className = 'update-banner'; b.innerHTML = ''; } else { b.innerHTML = html; b.className = 'update-banner show'; } }
+async function checkForUpdates(manual) {
+    try {
+        var info = await window.grg.checkUpdate();
+        _updateInfo = info;
+        if (info && info.updateAvailable) {
+            _setUpdateBanner(
+                '<div class="ub-title">' + _ubIco() + ' Update available</div>' +
+                '<div class="ub-sub">v' + info.latest + ' is out — you have v' + (info.current || '?') + '.</div>' +
+                '<button class="ub-btn" id="ub-go" onclick="doUpdate()">Download &amp; update</button>');
+        } else if (manual) {
+            _setUpdateBanner('');
+            if (typeof _gcToast === 'function') _gcToast(info && info.error ? ('Update check failed: ' + info.error) : ("You're on the latest version (v" + (info ? info.current : '?') + ').'));
+        }
+    } catch (e) { if (manual && typeof _gcToast === 'function') _gcToast('Update check failed.'); }
+}
+async function doUpdate() {
+    if (!_updateInfo || _updateBusy) return;
+    _updateBusy = true;
+    var btn = document.getElementById('ub-go');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="ub-spin"></span> Downloading…'; }
+    try {
+        var r = await window.grg.downloadUpdate(_updateInfo.url, _updateInfo.filename);
+        if (!r || !r.ok) throw new Error((r && r.error) || 'download failed');
+        _updatePath = r.path;
+        _setUpdateBanner(
+            '<div class="ub-title">' + _ubIco() + ' Update ready</div>' +
+            '<div class="ub-sub">v' + _updateInfo.latest + ' downloaded.</div>' +
+            '<div class="ub-row"><button class="ub-btn" onclick="launchUpdateNow()">Restart into v' + _updateInfo.latest + '</button>' +
+            '<button class="ub-alt" onclick="showUpdateFolder()" title="Show in folder">Folder</button></div>');
+    } catch (e) {
+        if (btn) { btn.disabled = false; btn.innerHTML = 'Download &amp; update'; }
+        if (typeof _gcToast === 'function') _gcToast('Update download failed: ' + e.message);
+    }
+    _updateBusy = false;
+}
+function launchUpdateNow() { if (!_updatePath) return; if (typeof _gcToast === 'function') _gcToast('Starting the new version…'); try { window.grg.launchUpdate(_updatePath); } catch (e) {} }
+function showUpdateFolder() { if (_updatePath) try { window.grg.showInFolder(_updatePath); } catch (e) {} }
+// Auto-check a couple seconds after launch (silent unless an update exists).
+setTimeout(function () { try { checkForUpdates(false); } catch (e) {} }, 2500);
+
 // model selector — mirrors the models on grg-ai.com, grouped by family.
 // Groq models run as full agents (tools). Premium (OpenRouter) need credits.
 // Mirrors the full model list on grg-ai.com (image-only models excluded — the agent doesn't generate images).

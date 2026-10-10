@@ -7,6 +7,10 @@ const { exec, spawn } = require('child_process');
 
 const BACKEND = 'https://grg-ai.com';
 const MAX_ITERS = 30;
+// This build's version number, read from the packaged artifactName (vN.exe) so it tracks
+// the release automatically. Used by the in-app updater to compare against the server.
+let APP_VERSION = 0;
+try { const _pj = require('./package.json'); const _m = String((((_pj || {}).build || {}).win || {}).artifactName || '').match(/v(\d+)\.exe/); if (_m) APP_VERSION = parseInt(_m[1], 10); } catch (e) {}
 
 let win = null;
 let projectDir = process.cwd();
@@ -1048,6 +1052,35 @@ ipcMain.on('approval-response', (e, { id, ok }) => {
     if (resolve) { pendingApprovals.delete(id); resolve(!!ok); }
 });
 ipcMain.on('open-external', (e, url) => { shell.openExternal(url); });
+
+// ─── In-app updater (portable exe: download the newest build, then relaunch into it) ───
+ipcMain.handle('check-update', async () => {
+    try {
+        const r = await fetch(BACKEND + '/api/grgcode/version', { cache: 'no-store' });
+        const j = await r.json();
+        const latest = parseInt(j.version, 10) || 0;
+        return { current: APP_VERSION, latest: latest, filename: j.filename,
+                 url: BACKEND + j.url, updateAvailable: latest > APP_VERSION };
+    } catch (e) { return { current: APP_VERSION, latest: 0, error: e.message, updateAvailable: false }; }
+});
+ipcMain.handle('download-update', async (e, url, filename) => {
+    try {
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (buf.length < 1000000) throw new Error('download too small');
+        const dir = app.getPath('downloads') || app.getPath('temp');
+        const dest = path.join(dir, filename || ('GrgCode-update-' + Date.now() + '.exe'));
+        fs.writeFileSync(dest, buf);
+        return { ok: true, path: dest };
+    } catch (e2) { return { ok: false, error: e2.message }; }
+});
+ipcMain.handle('launch-update', async (e, p) => {
+    try { const err = await shell.openPath(p); if (err) throw new Error(err);
+          setTimeout(() => { try { app.quit(); } catch (x) {} }, 900); return { ok: true }; }
+    catch (e2) { return { ok: false, error: e2.message }; }
+});
+ipcMain.on('show-in-folder', (e, p) => { try { shell.showItemInFolder(p); } catch (x) {} });
 
 // Open a rendered preview in its own window (popout button in the preview panel).
 ipcMain.handle('open-preview', (e, html) => {

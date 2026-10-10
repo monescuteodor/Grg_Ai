@@ -27,76 +27,96 @@
     <div class="container">
         <a href="/" class="back">← Back to Grg AI</a>
         <h1>Privacy Policy</h1>
-        <p class="meta">Last updated: July 2026 · Effective immediately</p>
+        <p class="meta">Last updated: October 2026 · Effective immediately</p>
 
         <div class="highlight">
-            <p><strong>Summary:</strong> We collect your email and conversation history to provide the service. We never sell your data. You can delete everything at any time.</p>
+            <p><strong>Summary:</strong> We collect your email and the conversations you choose to save, to run the service. To answer you, your messages are sent to the AI model providers that generate the replies. We never sell your data, and you can delete everything at any time. Specialist "private" agents redact your sensitive data on your device before anything is sent.</p>
         </div>
 
         <h2>1. Who We Are</h2>
-        <p>Grg AI is a self-hosted AI programming assistant created and operated by Monescu Teodor, based in Brașov, Romania. Contact: <strong>teodor.monescu@icloud.com</strong></p>
+        <p>Grg AI is an AI assistant and developer platform created and operated by Monescu Teodor, based in Brașov, Romania. It includes the website at grg-ai.com and the GrgCode desktop application. Contact: <strong>teodor.monescu@icloud.com</strong></p>
 
         <h2>2. Data We Collect</h2>
         <p>When you create an account, we collect:</p>
         <ul>
-            <li><strong>Email address</strong> — used for authentication only</li>
-            <li><strong>Display name</strong> — shown in the interface</li>
-            <li><strong>Conversation history</strong> — your chats with Grg AI, stored in Firebase Firestore</li>
-            <li><strong>Account metadata</strong> — account creation date, last sign-in time (managed by Firebase Authentication)</li>
+            <li><strong>Email address</strong> — for authentication and account-related notices (e.g. email verification)</li>
+            <li><strong>Display name / profile</strong> — as provided by you or your Google account, shown in the interface</li>
+            <li><strong>Conversation history</strong> — the chats you save, stored in Firebase Firestore under your account</li>
+            <li><strong>Usage &amp; billing metadata</strong> — credits spent, message counts, the model used per message, plan/subscription status, and a prepaid wallet balance (we record counts and the model id, not the content of your prompts or replies)</li>
+            <li><strong>Account metadata</strong> — creation date and last sign-in (managed by Firebase Authentication)</li>
         </ul>
-        <p>When you use Grg AI without an account (guest mode), we store only a local message counter in your browser. No data is sent to our servers.</p>
+        <p>If you use Grg AI without signing in, we do not create a profile for you; anonymous use is limited by a per-IP rate limit and is not charged or saved to an account.</p>
 
         <h2>3. How We Use Your Data</h2>
         <ul>
-            <li>To authenticate you and keep you logged in across devices</li>
-            <li>To sync your conversation history across your devices</li>
-            <li>To improve the service (aggregate, anonymized usage patterns only)</li>
+            <li>To authenticate you (email/password or Google sign-in) and keep you signed in across devices</li>
+            <li>To send your messages to AI model providers so they can generate a response (see §5)</li>
+            <li>To save and sync the conversations you keep, so you can return to them</li>
+            <li>To meter usage and process payments for credits and subscriptions</li>
+            <li>To keep the service reliable and secure (rate limiting, abuse prevention)</li>
         </ul>
-        <p>We do <strong>not</strong> use your data to train AI models, serve ads, or sell to third parties.</p>
+        <p>We do <strong>not</strong> use your conversations to train AI models, serve ads, or sell your data to third parties.</p>
 
-        <h2>4. Data Storage</h2>
-        <p><strong>Firebase Authentication</strong> — your email and password hash are stored by Google Firebase, governed by Google's privacy policy.</p>
-        <p><strong>Firebase Firestore</strong> — your conversation history is stored in Google's cloud infrastructure in the EU region. Only you can read or write your own data (enforced by Firestore security rules).</p>
-        <p><strong>AI Processing</strong> — your messages are sent to our self-hosted AI model running on our own hardware. Messages are processed in memory and not permanently logged server-side.</p>
+        <h2>4. Specialist Agents &amp; Privacy Mode</h2>
+        <p>You can select a specialist "agent" (a persona with its own expertise). Agents marked <strong>PRIVATE</strong> turn on a client-side redaction pipeline: before your message leaves your device, structured sensitive data in the text you type — emails, phone numbers, national IDs (CNP), IBANs, card numbers and API secrets — is replaced with typed placeholders (e.g. <strong>[EMAIL_1]</strong>). The real values stay only in your browser/app memory and are substituted back locally in the reply. The model never receives those real values.</p>
+        <p>Private-agent sessions are treated as ephemeral and are not saved to your account. Note that redaction covers the structured data types above in what you type; it does not redact free-form names, and in GrgCode it does not alter the contents of files you ask the agent to read (that would break code).</p>
 
-        <h2>5. Third-Party Services</h2>
+        <h2>5. AI Model Providers</h2>
+        <p>To generate answers, the contents of your request (your messages, and in GrgCode any file contents or commands the agent uses) are sent over an encrypted connection to the model provider that serves the chosen model:</p>
         <ul>
-            <li><strong>Firebase (Google)</strong> — authentication and database. <a href="https://firebase.google.com/support/privacy" target="_blank">Firebase Privacy Policy</a></li>
-            <li><strong>Cloudflare</strong> — network tunneling and DDoS protection. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare Privacy Policy</a></li>
-            <li><strong>DuckDuckGo</strong> — web search (when triggered). Queries are sent without personal identifiers. <a href="https://duckduckgo.com/privacy" target="_blank">DuckDuckGo Privacy Policy</a></li>
+            <li><strong>Groq</strong> — runs the free "Grg" house models. <a href="https://groq.com/privacy-policy/" target="_blank">Groq Privacy Policy</a></li>
+            <li><strong>OpenRouter</strong> — routes premium models (e.g. Claude, GPT, Gemini) to their respective providers. <a href="https://openrouter.ai/privacy" target="_blank">OpenRouter Privacy Policy</a></li>
+        </ul>
+        <p>These providers process your request to return a response under their own privacy terms. On our server, requests are handled in memory to produce the reply and are not permanently logged as content; we retain only usage counters (tokens/credits and the model id).</p>
+
+        <h2>6. Payments</h2>
+        <p>Paid plans and credit top-ups are processed by our payment providers. <strong>We never see or store your full card number.</strong></p>
+        <ul>
+            <li><strong>Stripe</strong> — card payments and subscriptions. Card entry happens on Stripe's secure checkout. <a href="https://stripe.com/privacy" target="_blank">Stripe Privacy Policy</a></li>
+            <li><strong>nHash</strong> — optional cryptocurrency payments.</li>
+        </ul>
+        <p>We store only the result needed to run your account: your plan, credit balance and a payment/subscription reference id.</p>
+
+        <h2>7. The GrgCode Desktop App</h2>
+        <p>GrgCode runs on your own computer. It reads and writes files only in the project folder you select, and file writes and shell commands require your approval. To fulfil a task, relevant file contents and commands are sent to our backend and on to the model providers (§5), exactly like a chat message. Your code and files are not stored on our servers. The app can check for and download new versions from grg-ai.com; it sends only a version check for this.</p>
+
+        <h2>8. Sharing &amp; Publishing (optional)</h2>
+        <p>If you choose to <strong>Share</strong> a conversation or <strong>Publish</strong> a generated page, we store that content so it can be served at a public link you can give to others. Anyone with the link can view it. Don't share or publish anything you want to keep private; you can ask us to remove a shared/published item at any time.</p>
+
+        <h2>9. Data Storage &amp; Security</h2>
+        <p><strong>Firebase Authentication</strong> — your email and password hash are stored by Google Firebase. We never see your plain-text password. <a href="https://firebase.google.com/support/privacy" target="_blank">Firebase Privacy Policy</a></p>
+        <p><strong>Firebase Firestore</strong> — your saved conversations and account data live in Google's cloud. Firestore security rules ensure you can only read and write your own data. The app also derives a per-device key at sign-in used to encrypt conversation history cached locally on your device.</p>
+        <p><strong>In transit</strong> — all traffic is encrypted via HTTPS/TLS, and the site is served through Cloudflare. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare Privacy Policy</a></p>
+        <p><strong>Published pages</strong> are served sandboxed in an isolated origin so they cannot read grg-ai.com cookies or storage.</p>
+
+        <h2>10. Other Services</h2>
+        <ul>
+            <li><strong>Google sign-in</strong> — optional authentication with your Google account (via Firebase).</li>
+            <li><strong>DuckDuckGo</strong> — web search, when a task needs current information. Queries are sent without personal identifiers.</li>
+            <li><strong>Image search</strong> — when generated output needs real photos, an image proxy fetches openly-licensed images from sources such as Openverse, Wikimedia Commons and Picsum, based on keywords only.</li>
         </ul>
 
-        <h2>6. Data Retention</h2>
-        <p>Your data is stored for as long as your account exists. When you delete your account, all associated data (conversations, profile) is permanently deleted within 30 days.</p>
+        <h2>11. Data Retention</h2>
+        <p>Your account data is stored for as long as your account exists. When you delete your account, your associated data (saved conversations, profile, balances) is permanently deleted within 30 days. Shared/published items you created are removed when you delete them or on request.</p>
 
-        <h2>7. Your Rights (GDPR)</h2>
-        <p>As a user in Romania/EU, you have the following rights:</p>
+        <h2>12. Your Rights (GDPR)</h2>
+        <p>As a user in Romania/EU, you have the right to:</p>
         <ul>
-            <li><strong>Access</strong> — request a copy of all data we hold about you</li>
+            <li><strong>Access</strong> — request a copy of the data we hold about you</li>
             <li><strong>Rectification</strong> — correct inaccurate personal data</li>
-            <li><strong>Erasure</strong> — request deletion of your account and all data</li>
-            <li><strong>Portability</strong> — export your conversations via the app</li>
-            <li><strong>Objection</strong> — object to processing; you can stop using the service at any time</li>
-            <li><strong>Restriction</strong> — request we limit processing of your data</li>
+            <li><strong>Erasure</strong> — delete your account and all associated data</li>
+            <li><strong>Portability</strong> — export your conversations from the app</li>
+            <li><strong>Objection / Restriction</strong> — object to or limit processing; you can stop using the service at any time</li>
         </ul>
-        <p>To exercise any of these rights, email us at <strong>teodor.monescu@icloud.com</strong> with subject "GDPR Request".</p>
+        <p>To exercise any of these, email <strong>teodor.monescu@icloud.com</strong> with the subject "GDPR Request". Payments, model providers and Firebase act as separate processors under their own policies linked above.</p>
 
-        <h2>8. Security</h2>
-        <p>We implement the following security measures:</p>
-        <ul>
-            <li>Passwords are hashed by Firebase — we never see your plain-text password</li>
-            <li>All data in transit is encrypted via HTTPS/TLS</li>
-            <li>Firestore security rules ensure users can only access their own data</li>
-            <li>Our server is protected by Cloudflare</li>
-        </ul>
+        <h2>13. Children's Privacy</h2>
+        <p>Grg AI is not directed at children under 13. We do not knowingly collect data from children. If you believe a child has created an account, contact us and we will remove it.</p>
 
-        <h2>9. Children's Privacy</h2>
-        <p>Grg AI is not directed at children under 13. We do not knowingly collect data from children. If you believe a child has created an account, contact us immediately.</p>
+        <h2>14. Changes to This Policy</h2>
+        <p>We may update this policy as the service evolves. For significant changes we will notify users in the app. The "Last updated" date above always reflects the current version.</p>
 
-        <h2>10. Changes to This Policy</h2>
-        <p>We may update this policy. We will notify users via the app for significant changes. The "Last updated" date above will always reflect the most recent version.</p>
-
-        <h2>11. Contact</h2>
+        <h2>15. Contact</h2>
         <p>For any privacy questions: <strong>teodor.monescu@icloud.com</strong></p>
     </div>
 </body>

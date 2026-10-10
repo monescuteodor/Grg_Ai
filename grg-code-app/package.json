@@ -20,9 +20,9 @@
     "files": ["main.js", "preload.js", "renderer/**/*", "knowledge/**/*", "templates/**/*"],
     "win": {
       "target": "portable",
-      "artifactName": "GrgCode-win-x64-v35.exe",
+      "artifactName": "GrgCode-win-x64-v36.exe",
       "icon": "renderer/icon.ico"
     },
-    "portable": { "artifactName": "GrgCode-win-x64-v35.exe", "unicode": true }
+    "portable": { "artifactName": "GrgCode-win-x64-v36.exe", "unicode": true }
   }
 }

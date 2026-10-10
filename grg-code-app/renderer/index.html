@@ -80,6 +80,17 @@
     .sess:hover .sdel { opacity:1; } .sess .sdel:hover { color:var(--red); }
     .sess-empty { font-size:12px; color:var(--text-mute); padding:8px 12px; }
     .sb-foot { border-top:1px solid var(--border); padding:12px; }
+    .update-banner { display:none; margin-bottom:10px; padding:10px 11px; border-radius:10px; background:var(--accent-soft); border:1px solid rgba(139,92,246,.3); }
+    .update-banner.show { display:block; }
+    .update-banner .ub-title { font-size:12px; font-weight:600; color:var(--accent-2); display:flex; align-items:center; gap:6px; }
+    .update-banner .ub-title svg { width:13px; height:13px; }
+    .update-banner .ub-sub { font-size:11px; color:var(--text-mute); margin:3px 0 8px; }
+    .update-banner .ub-btn { width:100%; padding:7px 10px; border-radius:8px; border:0; cursor:pointer; font-family:var(--font); font-size:12px; font-weight:600; background:var(--accent-grad); color:#fff; display:flex; align-items:center; justify-content:center; gap:7px; }
+    .update-banner .ub-btn[disabled] { opacity:.65; cursor:default; }
+    .update-banner .ub-row { display:flex; gap:6px; }
+    .update-banner .ub-alt { flex:0 0 auto; padding:7px 9px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg); color:var(--text-dim); cursor:pointer; font-size:11px; }
+    .ub-spin { width:12px; height:12px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:ub-rot .7s linear infinite; }
+    @keyframes ub-rot { to { transform:rotate(360deg); } }
     .acct { display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:10px; background:var(--bg-surface); border:1px solid var(--border); cursor:pointer; transition:all .15s; }
     .acct:hover { border-color:var(--border-light); }
     .acct .av { width:28px; height:28px; border-radius:50%; background:var(--accent-grad); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0; }
@@ -328,7 +339,7 @@
         <div class="file-tree" id="file-tree"></div>
         <div class="sb-label">Sessions</div>
         <ul class="sessions" id="sessions"></ul>
-        <div class="sb-foot"><div id="acct-box"></div></div>
+        <div class="sb-foot"><div class="update-banner" id="update-banner"></div><div id="acct-box"></div></div>
     </aside>
 
     <div class="fv-overlay" id="fv-overlay" onclick="if(event.target===this)closeFileViewer()">
@@ -359,6 +370,7 @@
                     <div class="tools-item" onclick="openTemplates();closeToolsMenu()">Templates</div>
                     <div class="tools-item" onclick="openMemory();closeToolsMenu()">Project memory</div>
                     <div class="tools-item" onclick="openCheckpoints();closeToolsMenu()">Checkpoints / Undo</div>
+                    <div class="tools-item" onclick="checkForUpdates(true);closeToolsMenu()">Check for updates</div>
                 </div>
             </div>
             <button class="icon-btn nodrag" id="term-toggle" title="Toggle terminal">

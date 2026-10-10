@@ -226,6 +226,25 @@ async def sitemap_xml():
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+@app.get("/api/grgcode/version")
+async def grgcode_version():
+    """Latest GrgCode desktop version — auto-detected as the highest
+    GrgCode-win-x64-vN.exe in static/downloads (so uploading a new build is enough)."""
+    import re as _re
+    latest = 0
+    try:
+        for f in (STATIC_DIR / "downloads").iterdir():
+            m = _re.match(r"GrgCode-win-x64-v(\d+)\.exe$", f.name)
+            if m:
+                latest = max(latest, int(m.group(1)))
+    except Exception:  # noqa: BLE001
+        pass
+    if not latest:
+        latest = 35
+    return {"version": latest,
+            "filename": f"GrgCode-win-x64-v{latest}.exe",
+            "url": f"/static/downloads/GrgCode-win-x64-v{latest}.exe"}
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
