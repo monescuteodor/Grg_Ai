@@ -1156,6 +1156,45 @@ var _PII_PATTERNS = [
     ['CNP', '[1-8]\\d{12}'],
     ['PHONE', '(?:\\+?\\d{1,3}[ .\\-]?)?07\\d{2}[ .\\-]?\\d{3}[ .\\-]?\\d{3}|\\+\\d{10,14}']
 ];
+// ── On-device NAME redaction (best-effort NER, no model download) ──
+var _deaccent = function (s) { return String(s).toLowerCase().replace(/[șş]/g, 's').replace(/[țţ]/g, 't').replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i'); };
+var _FIRST_NAMES = new Set(('ion ioan gheorghe vasile nicolae constantin dumitru mihai mihail alexandru andrei cristian florin marian daniel adrian george gabriel stefan catalin bogdan ionut razvan vlad radu sorin marius dan paul victor emil petru petre cornel valentin ciprian claudiu octavian sebastian robert eduard lucian mircea traian liviu cosmin iulian ovidiu silviu tudor darius david matei luca rares denis alin teodor theodor horia sergiu nicu costel aurel ilie grigore iosif samuel iacob avram moise danut viorel sandu laurentiu leonard cristinel marcel remus dorin virgil doru gelu toma felix albert anton marin stelian dorel florentin nelu puiu mugur maria ana elena ioana andreea cristina mihaela alexandra gabriela daniela georgiana nicoleta simona raluca diana monica camelia carmen florentina larisa bianca roxana oana adriana mirela laura anca iuliana catalina ramona madalina denisa alina corina ecaterina viorica rodica doina aurelia lavinia teodora antonia sofia daria stefania patricia delia otilia paula irina natalia loredana cosmina florina marinela magdalena valentina violeta nadia liliana felicia cornelia emilia luminita mariana marioara margareta silvia tatiana veronica victoria eugenia iolanda sanda gina nina lidia aurora john james michael william thomas mark peter andrew richard charles joseph christopher chris alex alexander anna sarah emma julia nina kevin brian steve mike matthew joshua ryan jason justin nathan benjamin jack henry oscar leo noah liam ethan lucas mason logan jacob anthony tom tim ben sam max emily olivia sophia isabella mia charlotte amelia grace chloe lucy hannah').split(' '));
+var _NAME_TITLES = '[Dd]l|[Dd]na|[Dd]-l|[Dd]-na|[Dd]lui|[Dd]nei|[Dd]vs|[Dd]omnul|[Dd]oamna|[Dd]omnului|[Dd]oamnei|[Dd]ra|[Dd]r|[Pp]rof|[Ii]ng|[Aa]v|[Jj]r|[Ss]r|[Mm]r|[Mm]rs|[Mm]s|[Mm]iss|[Ss]ir';
+var _NAME_W = '[A-ZȘȚĂÂÎŞŢ][a-zșțăâîşţ\\-]+';
+var _NAME_CAP = function (w) { return /^[A-ZȘȚĂÂÎŞŢ][a-zșțăâîşţ\-]*$/.test(w); };
+var _NAME_STRIP = function (w) { return String(w).replace(/^[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+/, '').replace(/[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+$/, ''); };
+function _namePh(name) { name = String(name).trim(); if (_piiMap.o2p[name]) return _piiMap.o2p[name]; _piiCount['NAME'] = (_piiCount['NAME'] || 0) + 1; var ph = '[NAME_' + _piiCount['NAME'] + ']'; _piiMap.o2p[name] = ph; _piiMap.p2o[ph] = name; return ph; }
+function _nameDictPass(out) {
+    var parts = String(out).split(/(\s+)/), res = '', i = 0;
+    while (i < parts.length) {
+        var w = parts[i] || '';
+        if (/^\s+$/.test(w) || !w) { res += w; i++; continue; }
+        var core = _NAME_STRIP(w);
+        if (core && _NAME_CAP(core) && _FIRST_NAMES.has(_deaccent(core)) && !/[.,!?;:)\]]$/.test(w)) {
+            var spanEnd = i, count = 0, k = i + 2;
+            while (count < 2 && k < parts.length) {
+                var tk = parts[k] || '', nw = _NAME_STRIP(tk);
+                if (nw && _NAME_CAP(nw)) { spanEnd = k; count++; if (/[.,!?;:)\]]$/.test(tk)) break; k += 2; } else break;
+            }
+            if (spanEnd > i) {
+                var lead = w.slice(0, w.length - w.replace(/^[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+/, '').length);
+                var lastW = parts[spanEnd], lastCore = _NAME_STRIP(lastW);
+                var trail = lastW.slice(lastW.indexOf(lastCore) + lastCore.length);
+                var original = ''; for (var t = i; t <= spanEnd; t++) original += parts[t];
+                var nameText = original.slice(lead.length, original.length - trail.length);
+                res += lead + _namePh(nameText) + trail; i = spanEnd + 1; continue;
+            }
+        }
+        res += w; i++;
+    }
+    return res;
+}
+function _nameRedact(out) {
+    out = out.replace(new RegExp('\\b(?:' + _NAME_TITLES + ')\\.?\\s+(' + _NAME_W + '(?:\\s+' + _NAME_W + '){0,2})', 'g'),
+        function (m, nm) { return m.slice(0, m.length - nm.length) + _namePh(nm); });
+    out = _nameDictPass(out);
+    return out;
+}
 function _piiRedact(text) {
     if (!text || !_grgAgent) return text;
     var out = String(text);
@@ -1170,6 +1209,7 @@ function _piiRedact(text) {
             return ph;
         });
     }
+    out = _nameRedact(out);   // best-effort on-device name redaction
     return out;
 }
 function _piiRestore(text) {

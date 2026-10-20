@@ -11,7 +11,7 @@ const MAX_ITERS = 30;
 // This build's version number — BUMP with each release (must match the vN in artifactName).
 // Hardcoded on purpose: electron-builder strips the `build` field from the packaged
 // package.json, so reading artifactName at runtime returned 0 and the updater always fired.
-const APP_VERSION = 37;
+const APP_VERSION = 38;
 
 let win = null;
 let projectDir = process.cwd();
@@ -24,7 +24,7 @@ let agentUid = null;  // set from the renderer when signed in; used for premium 
 let activeAgent = null;  // {id,name,prompt,privacy} — a specialist agent chosen in the renderer (null = normal Grg Code)
 // Privacy preamble (only added for a PRIVATE agent): the renderer redacts the user's typed
 // PII to placeholders before it reaches the model, and restores them locally in the reply.
-const GRGAGENT_PRIVACY = 'PRIVACY MODE: the user\'s sensitive data (emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) in their typed messages has been REDACTED to typed placeholders like [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type, reason about it normally, and ALWAYS keep the exact placeholder tokens verbatim in your reply — never invent, alter or guess the real values; the client substitutes them back locally.';
+const GRGAGENT_PRIVACY = 'PRIVACY MODE: the user\'s sensitive data (names, emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) in their typed messages has been REDACTED to typed placeholders like [NAME_1], [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type, reason about it normally, and ALWAYS keep the exact placeholder tokens verbatim in your reply — never invent, alter or guess the real values; the client substitutes them back locally.';
 const pendingApprovals = new Map();
 let curCheckpoint = null;      // active per-task snapshot of files about to change
 const checkpoints = [];        // history of {id, ts, user, ops:[{path, before, existed}]}

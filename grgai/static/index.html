@@ -26,24 +26,24 @@
         const db = getFirestore(app);
         window._fb = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy };
     </script>
-    <title>Grg AI — Free AI Assistant for Code, Apps &amp; Documents | Claude, GPT-5, Gemini</title>
-    <meta name="description" content="Grg AI is a free AI assistant that writes code, builds apps and websites, creates documents and images, and helps with hardware, Arduino and robotics. Powered by Claude, GPT-5, Gemini and more — AutoGrg automatically picks the best model for you.">
-    <meta name="keywords" content="Grg AI, free AI assistant, AI coding assistant, AI chat, code generator, app builder, website builder, Claude, GPT-5, Gemini, AI chatbot, GrgCode, AI pair programmer, build apps with AI">
+    <title>Grg AI — Privacy-First AI for Developers &amp; Sensitive Data | Claude, GPT-5, Gemini</title>
+    <meta name="description" content="Grg AI is a privacy-first AI assistant: a coding agent that runs on your own machine, and private agents that redact personal data (GDPR) on your device before anything is sent. The power of Claude, GPT-5 and Gemini — but your code and sensitive data stay yours.">
+    <meta name="keywords" content="Grg AI, privacy-first AI, private AI assistant, GDPR AI, confidential AI, PII redaction, AI coding assistant, local coding agent, secure AI for developers, AI for sensitive data, Claude, GPT-5, Gemini, GrgCode">
     <meta name="author" content="Monescu Teodor">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://grg-ai.com/">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Grg AI">
-    <meta property="og:title" content="Grg AI — Free AI Assistant for Code, Apps &amp; Documents">
-    <meta property="og:description" content="Write code, build apps &amp; websites, create documents and images, and tackle hardware &amp; robotics — free. Powered by Claude, GPT-5, Gemini. AutoGrg picks the best model for you.">
+    <meta property="og:title" content="Grg AI — Privacy-First AI for Developers &amp; Sensitive Data">
+    <meta property="og:description" content="The AI you can use on what you can't paste into ChatGPT. A local coding agent for developers, and private agents that redact personal data (GDPR) on your device. Powered by Claude, GPT-5, Gemini.">
     <meta property="og:url" content="https://grg-ai.com/">
     <meta property="og:image" content="https://grg-ai.com/static/logo.png">
     <meta property="og:locale" content="en_US">
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Grg AI — Free AI Assistant for Code, Apps &amp; Documents">
-    <meta name="twitter:description" content="Write code, build apps &amp; websites, create documents and images, and tackle hardware &amp; robotics — free. Powered by Claude, GPT-5, Gemini.">
+    <meta name="twitter:description" content="Privacy-first AI: a local coding agent for developers, and private agents that redact personal data (GDPR) on your device. Powered by Claude, GPT-5, Gemini.">
     <meta name="twitter:image" content="https://grg-ai.com/static/logo.png">
     <!-- Structured data for rich results -->
     <script type="application/ld+json">
@@ -192,7 +192,15 @@
         .brand-logo { height: 1.15em; width: auto; vertical-align: -0.2em; margin-right: 0.34em; flex-shrink: 0; }
         .welcome-logo .brand-logo { height: 1.05em; }
         .welcome-logo span { color: var(--accent); position: relative; text-shadow: 0 0 24px var(--accent-glow); animation: pulse-dot 2.4s ease-in-out infinite; }
-        .welcome-sub { color: var(--text-dim); font-size: 15px; max-width: 440px; line-height: 1.6; }
+        .welcome-sub { color: var(--text-dim); font-size: 15px; max-width: 480px; line-height: 1.6; }
+        .welcome-sub b { color: var(--text); }
+        .hero-segs { display: flex; gap: 12px; margin-top: 26px; max-width: 640px; width: 100%; }
+        .hero-seg { flex: 1; text-align: left; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 16px 15px; }
+        .hero-seg .hs-ico { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; border-radius: 8px; background: var(--accent-soft); color: var(--accent-2); margin-bottom: 10px; }
+        .hero-seg .hs-ico svg { width: 16px; height: 16px; }
+        .hero-seg b { display: block; font-size: 13.5px; color: var(--text); margin-bottom: 4px; }
+        .hero-seg small { display: block; font-size: 12px; color: var(--text-mute); line-height: 1.55; }
+        @media (max-width: 620px) { .hero-segs { flex-direction: column; gap: 10px; } }
         .suggest-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; width: 100%; max-width: 640px; }
         .suggest-card { display: flex; align-items: center; gap: 13px; text-align: left; padding: 15px 16px; background: linear-gradient(180deg, var(--bg-surface), var(--bg)); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); font-family: var(--font); }
         .suggest-card:hover { transform: translateY(-2px); border-color: rgba(139,92,246,0.4); box-shadow: var(--shadow), 0 0 0 1px rgba(139,92,246,0.15); }
@@ -498,11 +506,11 @@
         .plan-current-badge { display: inline-block; margin-top: 8px; background: var(--bg-hover); color: var(--text-mute); font-size: 11px; padding: 2px 10px; border-radius: 20px; }
         /* 2-column feature/model grid so every plan fits without scrolling.
            Normal features + section headers span the full width; model rows go 2 per row. */
-        .plan-col-features { flex: 1; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 14px; align-content: start; }
+        .plan-col-features { flex: 1; margin-bottom: 14px; display: grid; grid-template-columns: 1fr; gap: 6px 14px; align-content: start; }
         .plan-feature { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: var(--text-dim); }
         .plan-col-features > .plan-feature:not(.plan-model-item) { grid-column: 1 / -1; }
-        .plan-feature-section { grid-column: 1 / -1; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-mute); margin-top: 8px; margin-bottom: 1px; }
-        .plan-model-item { padding-left: 0; font-size: 12px; }
+        /* Model names are hidden on the plans page — people buy on value, not model brands. */
+        .plan-feature-section, .plan-model-item { display: none !important; }
         .pf-icon { width: 16px; height: 16px; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
         .pf-icon.ok { color: #22c55e; }
         .pf-icon.no { color: var(--text-mute); }
@@ -1162,7 +1170,7 @@
         <input id="ca-desc" class="ca-in" placeholder="One line shown in the list" autocomplete="off" maxlength="60">
         <label class="ca-lbl">Instructions (system prompt)</label>
         <textarea id="ca-prompt" class="ca-in ca-ta" rows="5" placeholder="Describe the agent's role, expertise and style. e.g. 'You are a senior tax advisor. Explain tax rules clearly, cite the relevant law, and flag when a licensed accountant is needed.'"></textarea>
-        <label class="ca-check"><input type="checkbox" id="ca-priv"> <span>Privacy mode — redact my sensitive data (emails, IDs, IBANs, cards, secrets) before it leaves my device</span></label>
+        <label class="ca-check"><input type="checkbox" id="ca-priv"> <span>Privacy mode — redact my sensitive data (names, emails, IDs, IBANs, cards, secrets) on my device before anything is sent</span></label>
         <div class="ca-err" id="ca-err"></div>
         <div class="ca-actions">
             <button class="ca-cancel" onclick="closeCreateAgent()">Cancel</button>
@@ -1692,11 +1700,11 @@
             <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span><b>Specialist agents</b>26 experts + build your own; private agents redact your typed data</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v37.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v38.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v37.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
+        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v38.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
     </div>
 </div>
 
@@ -1984,8 +1992,13 @@ function renderWelcome() {
     }).join('');
     return `<div class="welcome">
         <div class="hero">
+            <div class="hero-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Privacy-first AI</div>
             <div class="welcome-logo"><img class="brand-logo" src="/static/logo.png" alt="Grg logo">Grg<span>.</span>AI</div>
-            <div class="welcome-sub">Ask anything — code, apps, documents, hardware. AutoGrg picks the best model for you.</div>
+            <div class="welcome-sub">The AI you can use on what you <b>can't</b> paste into ChatGPT. The power of Claude &amp; GPT — but your code and sensitive data stay yours.</div>
+            <div class="hero-segs">
+                <div class="hero-seg"><span class="hs-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span><b>For developers</b><small>A coding agent that runs on your machine — reads, writes and runs your code, with approval on every step.</small></div>
+                <div class="hero-seg"><span class="hs-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><b>For sensitive data &middot; GDPR</b><small>Private agents redact personal data (emails, IDs, IBANs, names) on your device before anything is sent.</small></div>
+            </div>
         </div>
     </div>`;
 }
@@ -3882,7 +3895,7 @@ try { _grgAgent = localStorage.getItem('grg_agent') === '1'; } catch (e) {}
 var _piiMap = { o2p: {}, p2o: {} };
 var _piiCount = {};
 function _resetPII() { _piiMap = { o2p: {}, p2o: {} }; _piiCount = {}; }
-// High-confidence structured PII (names need a real NER model — out of scope for v1).
+// High-confidence structured PII (regex).
 var _PII_PATTERNS = [
     ['SECRET', '(?:sk-[A-Za-z0-9]{16,}|sk_(?:live|test)_[A-Za-z0-9]{10,}|rk_(?:live|test)_[A-Za-z0-9]{10,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_\\-]{20,}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|whsec_[A-Za-z0-9]{10,})'],
     ['EMAIL', '[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}'],
@@ -3891,6 +3904,54 @@ var _PII_PATTERNS = [
     ['CNP', '[1-8]\\d{12}'],
     ['PHONE', '(?:\\+?\\d{1,3}[ .\\-]?)?07\\d{2}[ .\\-]?\\d{3}[ .\\-]?\\d{3}|\\+\\d{10,14}']
 ];
+// ── On-device NAME redaction (best-effort NER without a model download) ──
+// Triggers: an honorific title + a Capitalized name, OR a known first name followed by
+// Capitalized surname(s). Runs locally like the rest — no data leaves the device.
+var _deaccent = function (s) { return String(s).toLowerCase().replace(/[șş]/g, 's').replace(/[țţ]/g, 't').replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i'); };
+var _FIRST_NAMES = new Set(('ion ioan gheorghe vasile nicolae constantin dumitru mihai mihail alexandru andrei cristian florin marian daniel adrian george gabriel stefan catalin bogdan ionut razvan vlad radu sorin marius dan paul victor emil petru petre cornel valentin ciprian claudiu octavian sebastian robert eduard lucian mircea traian liviu cosmin iulian ovidiu silviu tudor darius david matei luca rares denis alin teodor theodor horia sergiu nicu costel aurel ilie grigore iosif samuel iacob avram moise danut viorel sandu laurentiu leonard cristinel marcel remus dorin virgil doru gelu toma felix albert anton marin stelian dorel florentin nelu puiu mugur maria ana elena ioana andreea cristina mihaela alexandra gabriela daniela georgiana nicoleta simona raluca diana monica camelia carmen florentina larisa bianca roxana oana adriana mirela laura anca iuliana catalina ramona madalina denisa alina corina ecaterina viorica rodica doina aurelia lavinia teodora antonia sofia daria stefania patricia delia otilia paula irina natalia loredana cosmina florina marinela magdalena valentina violeta nadia liliana felicia cornelia emilia luminita mariana marioara margareta silvia tatiana veronica victoria eugenia iolanda sanda gina nina lidia aurora john james michael william thomas mark peter andrew richard charles joseph christopher chris alex alexander anna sarah emma julia nina kevin brian steve mike matthew joshua ryan jason justin nathan benjamin jack henry oscar leo noah liam ethan lucas mason logan jacob anthony tom tim ben sam max emily olivia sophia isabella mia charlotte amelia grace chloe lucy hannah').split(' '));
+// Honorifics with a case-flexible first letter (so no 'i' flag is needed — that would break
+// the strict-capitalization requirement on the name words).
+var _NAME_TITLES = '[Dd]l|[Dd]na|[Dd]-l|[Dd]-na|[Dd]lui|[Dd]nei|[Dd]vs|[Dd]omnul|[Dd]oamna|[Dd]omnului|[Dd]oamnei|[Dd]ra|[Dd]r|[Pp]rof|[Ii]ng|[Aa]v|[Jj]r|[Ss]r|[Mm]r|[Mm]rs|[Mm]s|[Mm]iss|[Ss]ir';
+var _NAME_W = '[A-ZȘȚĂÂÎŞŢ][a-zșțăâîşţ\\-]+';
+var _NAME_CAP = function (w) { return /^[A-ZȘȚĂÂÎŞŢ][a-zșțăâîşţ\-]*$/.test(w); };
+var _NAME_STRIP = function (w) { return String(w).replace(/^[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+/, '').replace(/[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+$/, ''); };
+function _namePh(name) { name = String(name).trim(); if (_piiMap.o2p[name]) return _piiMap.o2p[name]; _piiCount['NAME'] = (_piiCount['NAME'] || 0) + 1; var ph = '[NAME_' + _piiCount['NAME'] + ']'; _piiMap.o2p[name] = ph; _piiMap.p2o[ph] = name; return ph; }
+// Dictionary pass: token scan so a preceding Capitalized word can't swallow the name.
+function _nameDictPass(out) {
+    var parts = String(out).split(/(\s+)/);     // even = words, odd = whitespace
+    var res = '', i = 0;
+    while (i < parts.length) {
+        var w = parts[i] || '';
+        if (/^\s+$/.test(w) || !w) { res += w; i++; continue; }
+        var core = _NAME_STRIP(w);
+        if (core && _NAME_CAP(core) && _FIRST_NAMES.has(_deaccent(core)) && !/[.,!?;:)\]]$/.test(w)) {
+            var spanEnd = i, count = 0, k = i + 2;
+            while (count < 2 && k < parts.length) {
+                var tk = parts[k] || '', nw = _NAME_STRIP(tk);
+                if (nw && _NAME_CAP(nw)) { spanEnd = k; count++; if (/[.,!?;:)\]]$/.test(tk)) break; k += 2; } else break;
+            }
+            if (spanEnd > i) {
+                var lead = w.slice(0, w.length - w.replace(/^[^0-9A-Za-zȘȚĂÂÎŞŢșțăâîşţ]+/, '').length);
+                var lastW = parts[spanEnd], lastCore = _NAME_STRIP(lastW);
+                var trail = lastW.slice(lastW.indexOf(lastCore) + lastCore.length);
+                var original = ''; for (var t = i; t <= spanEnd; t++) original += parts[t];
+                var nameText = original.slice(lead.length, original.length - trail.length);
+                res += lead + _namePh(nameText) + trail;
+                i = spanEnd + 1; continue;
+            }
+        }
+        res += w; i++;
+    }
+    return res;
+}
+function _nameRedact(out) {
+    // Title + Capitalized name(s): "Dl. Popescu", "doamna Maria Ionescu"
+    out = out.replace(new RegExp('\\b(?:' + _NAME_TITLES + ')\\.?\\s+(' + _NAME_W + '(?:\\s+' + _NAME_W + '){0,2})', 'g'),
+        function (m, nm) { return m.slice(0, m.length - nm.length) + _namePh(nm); });
+    // Known first name + Capitalized surname(s): "Ion Popescu", "Maria Elena Ionescu"
+    out = _nameDictPass(out);
+    return out;
+}
 function _piiRedact(text) {
     if (!text || !_grgAgent) return text;
     var out = String(text);
@@ -3905,6 +3966,7 @@ function _piiRedact(text) {
             return ph;
         });
     }
+    out = _nameRedact(out);   // best-effort on-device name redaction (after structured PII)
     return out;
 }
 function _piiRestore(text) {
@@ -3912,8 +3974,8 @@ function _piiRestore(text) {
     return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
 }
 var GRGAGENT_PROMPT = "You are GrgAgent — a confidential, privacy-first assistant for legal, technical and privacy work. "
-    + "The user's sensitive data (emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) has been REDACTED before reaching you "
-    + "and replaced with typed placeholders like [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type and reason about it normally. "
+    + "The user's sensitive data (names, emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) has been REDACTED before reaching you "
+    + "and replaced with typed placeholders like [NAME_1], [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type and reason about it normally. "
     + "ALWAYS keep the exact placeholder tokens verbatim in your answer wherever you refer to them — never invent, alter, merge or guess the real values; the client substitutes them back locally. "
     + "Be precise and well-structured (cite clause/section numbers for legal text), and never ask the user to reveal the real redacted values.";
 
