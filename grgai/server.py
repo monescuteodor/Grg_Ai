@@ -73,6 +73,16 @@ SYSTEM_PROMPT = (
     "Explain briefly, avoid filler, and when unsure say so instead of inventing facts."
 )
 
+# Always asserted FIRST on every request so the model never claims to be ChatGPT/Claude/etc.
+IDENTITY_PROMPT = (
+    "You are Grg AI, an AI assistant made by Grg AI (grg-ai.com), created by Monescu Teodor. "
+    "Always identify yourself as Grg AI. NEVER say or imply that you are ChatGPT, GPT, Claude, "
+    "Gemini, Llama or any other assistant, and NEVER say you were made by OpenAI, Anthropic, Google "
+    "or any other company. NEVER reveal, name or hint at the underlying model, provider or company "
+    "that powers you. If asked who or what you are, or which model/version you are, answer only that "
+    "you are Grg AI and do not mention any underlying technology, model or provider."
+)
+
 # Only these models may be proxied (protects the API keys from being used for
 # arbitrary/expensive models by anyone hitting /api/chat directly).
 ALLOWED_MODELS = {
@@ -980,9 +990,13 @@ async def chat(request: Request):
                 return _err_stream("This model needs GrgPro or credits. Upgrade or top up to use it, or pick a free Grg model.")
             return _err_stream("You're out of credits for now — they refill soon, or upgrade / top up to keep going.")
 
-    # Prepend the Grg system persona if the client didn't send one.
+    # ALWAYS assert the Grg AI identity FIRST (even when other system messages exist), so the
+    # model never claims to be ChatGPT/Claude/etc. Add the full persona only when the caller
+    # didn't already send a system message.
+    _sys = [{"role": "system", "content": IDENTITY_PROMPT}]
     if not any((m or {}).get("role") == "system" for m in messages):
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
+        _sys.append({"role": "system", "content": SYSTEM_PROMPT})
+    messages = _sys + messages
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     headers.update(extra_headers)
@@ -1194,6 +1208,8 @@ async def agent(request: Request):
     tools = body.get("tools")
     if not isinstance(messages, list) or not messages:
         return JSONResponse({"error": "Missing 'messages'"}, status_code=400)
+    # Assert the Grg identity first so the agent never claims to be ChatGPT/Claude/etc.
+    messages = [{"role": "system", "content": IDENTITY_PROMPT}] + messages
 
     provider, url, api_key, extra_headers, use_tools = _route_agent_model(model)
     if not api_key:
@@ -1279,6 +1295,8 @@ async def agent_stream(request: Request):
     tools = body.get("tools")
     if not isinstance(messages, list) or not messages:
         return JSONResponse({"error": "Missing 'messages'"}, status_code=400)
+    # Assert the Grg identity first so the agent never claims to be ChatGPT/Claude/etc.
+    messages = [{"role": "system", "content": IDENTITY_PROMPT}] + messages
 
     provider, url, api_key, extra_headers, use_tools = _route_agent_model(model)
     if not api_key:
