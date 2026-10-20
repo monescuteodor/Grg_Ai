@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Grg AI — Privacy-First AI for Developers &amp; Sensitive Data</title>
+    <meta name="description" content="Why Grg AI exists: the AI you can use on what you can't paste into ChatGPT. For developers who can't ship their code to a third party, and professionals who handle GDPR / sensitive data. Your code and data stay yours.">
+    <meta property="og:title" content="Why Grg AI — Privacy-First AI">
+    <meta property="og:description" content="The AI you can use on what you can't paste into ChatGPT. For developers and professionals who handle sensitive data. Your code and data stay yours.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://grg-ai.com/about">
+    <link rel="canonical" href="https://grg-ai.com/about">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0a0711; --bg2: #0e0b17; --surface: #15111f; --surface2: #1b1530;
+            --border: #241d38; --border2: #372c50;
+            --text: #ece9f6; --dim: #a79fc0; --mute: #6f6690;
+            --accent: #8b5cf6; --accent2: #a78bfa; --accent-soft: rgba(139,92,246,0.12);
+            --green: #34d399; --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+        a { color: var(--accent2); text-decoration: none; } a:hover { text-decoration: underline; }
+        .wrap { max-width: 820px; margin: 0 auto; padding: 0 20px; }
+        .topbar { position: sticky; top: 0; z-index: 10; background: rgba(10,7,17,0.82); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+        .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+        .brand { font-weight: 800; font-size: 18px; letter-spacing: -0.01em; display: inline-flex; align-items: center; }
+        .brand .dot { color: var(--accent); }
+        .brand .tag { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent2); background: var(--accent-soft); border: 1px solid rgba(139,92,246,.28); padding: 2px 6px; border-radius: 5px; margin-left: 8px; }
+        .open-btn { background: var(--accent); color: #fff; font-size: 13.5px; font-weight: 600; padding: 8px 16px; border-radius: 9px; }
+        .open-btn:hover { background: #7c3aed; text-decoration: none; }
+        /* hero */
+        .hero { text-align: center; padding: 70px 0 44px; }
+        .badge { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent2); background: var(--accent-soft); border: 1px solid rgba(139,92,246,.24); padding: 6px 14px; border-radius: 20px; margin-bottom: 22px; }
+        .badge svg { width: 12px; height: 12px; }
+        h1 { font-size: 40px; line-height: 1.12; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; }
+        h1 .hl { background: linear-gradient(120deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .lead { font-size: 18px; color: var(--dim); max-width: 620px; margin: 0 auto; }
+        .lead b { color: var(--text); }
+        section { padding: 30px 0; border-top: 1px solid var(--border); }
+        section:first-of-type { border-top: none; }
+        h2 { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 12px; }
+        h3 { font-size: 23px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px; }
+        p { color: var(--dim); margin-bottom: 14px; }
+        p strong, li strong { color: var(--text); }
+        .pull { font-size: 21px; line-height: 1.5; color: var(--text); font-weight: 600; border-left: 3px solid var(--accent); padding: 6px 0 6px 18px; margin: 10px 0; }
+        /* persona cards */
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 6px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+        .card .ico { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent2); margin-bottom: 14px; }
+        .card .ico svg { width: 20px; height: 20px; }
+        .card h4 { font-size: 16px; margin-bottom: 4px; }
+        .card .who { font-size: 12px; color: var(--mute); margin-bottom: 10px; }
+        .card p { font-size: 14px; margin-bottom: 0; }
+        /* promise list */
+        .promise { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+        .promise li { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; }
+        .promise .pf { flex-shrink: 0; width: 22px; height: 22px; color: var(--green); margin-top: 1px; }
+        .promise .pt { font-size: 14.5px; color: var(--dim); } .promise .pt b { color: var(--text); }
+        /* ladder */
+        .ladder { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+        .step { display: flex; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+        .step .n { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent2); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .step .b { font-size: 14.5px; }
+        .step .b b { color: var(--text); display: block; margin-bottom: 2px; }
+        .step .b span { color: var(--mute); }
+        .step.now { border-color: rgba(139,92,246,.5); background: rgba(139,92,246,.06); }
+        .note { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+        .note p { margin-bottom: 8px; font-size: 14.5px; } .note p:last-child { margin-bottom: 0; }
+        .cta { text-align: center; padding: 48px 0 20px; }
+        .cta h3 { margin-bottom: 18px; }
+        .cta a.big { display: inline-flex; align-items: center; gap: 9px; background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; font-size: 16px; font-weight: 600; padding: 14px 26px; border-radius: 12px; box-shadow: 0 8px 28px rgba(139,92,246,.3); }
+        .cta a.big:hover { transform: translateY(-1px); text-decoration: none; }
+        footer { border-top: 1px solid var(--border); padding: 26px 0 50px; text-align: center; color: var(--mute); font-size: 13px; }
+        footer a { color: var(--dim); margin: 0 9px; }
+        @media (max-width: 640px) {
+            h1 { font-size: 30px; } .lead { font-size: 16px; } h3 { font-size: 20px; }
+            .cards { grid-template-columns: 1fr; } .hero { padding: 48px 0 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="wrap">
+            <a href="/" class="brand">Grg<span class="dot">.</span>AI<span class="tag">Why</span></a>
+            <a href="/" class="open-btn">Open Grg AI</a>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="hero">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Privacy-first AI</div>
+            <h1>The AI you can use on what you <span class="hl">can't paste</span> into ChatGPT</h1>
+            <p class="lead">The power of Claude &amp; GPT — but your <b>code</b> and your <b>sensitive data</b> stay yours. Built for the people who can't just hand their most important material to a public AI.</p>
+        </div>
+
+        <section>
+            <h2>The problem</h2>
+            <h3>The people who need AI most on their hardest work are the ones who can't use it</h3>
+            <p>Everyone uses ChatGPT and Claude today. But there's a whole group of people who simply can't — not because they don't want to, but because <strong>their most valuable material isn't allowed to leave their machine.</strong></p>
+            <p>A <strong>developer</strong> has proprietary code, keys, a client's infrastructure. A <strong>lawyer, accountant, HR or healthcare professional</strong> has regulated personal data (GDPR). Paste a contract full of names, national IDs and IBANs into a US AI service and you've broken the rules and risked a fine. So they either avoid AI on the work that matters — or take a quiet risk.</p>
+        </section>
+
+        <section>
+            <h2>The insight</h2>
+            <h3>You don't win on a "smarter AI". You win on control.</h3>
+            <p>The big players can't easily fix this — their whole model is "send us everything, we process it in our cloud." And we're not trying to out-model them; we use the same Claude and GPT anyone can.</p>
+            <p class="pull">We don't sell intelligence. We sell control and confidentiality — the AI you can use on what you can't paste into ChatGPT.</p>
+            <p>That's a space the giants leave wide open, because closing it would work against how they're built.</p>
+        </section>
+
+        <section>
+            <h2>Who it's for</h2>
+            <h3>Two people, one promise</h3>
+            <div class="cards">
+                <div class="card">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                    <h4>Developers</h4>
+                    <div class="who">who can't ship their code to a third party</div>
+                    <p>GrgCode runs on your own machine. It reads, writes and runs your code — but file writes and commands need your approval, with a diff before every change. Your codebase stays local; only what the model actually needs is sent. Control, not "I handed everything to the cloud."</p>
+                </div>
+                <div class="card">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <h4>Sensitive data · GDPR</h4>
+                    <div class="who">lawyers, finance, HR, healthcare</div>
+                    <p>Turn on a private agent and Grg AI redacts the sensitive data in what you type — names, emails, national IDs, IBANs, cards, secrets — <strong>on your device, before anything is sent.</strong> The model works on placeholders; your real values are restored only on your screen.</p>
+                </div>
+            </div>
+            <p style="margin-top:16px">The common thread: <strong>both have something they can't leak — and Grg AI is the one that gives them AI without forcing them to hand it over.</strong></p>
+        </section>
+
+        <section>
+            <h2>How we keep the promise</h2>
+            <h3>Every feature serves one thing: your data stays yours</h3>
+            <ul class="promise">
+                <li><svg class="pf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span class="pt"><b>On-device redaction</b> — names, emails, national IDs, IBANs, cards and secrets are replaced with placeholders before they ever leave your device.</span></li>
+                <li><svg class="pf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span class="pt"><b>Specialist agents</b> — pick an expert for your field (legal, GDPR, dev, security and more), or build your own.</span></li>
+                <li><svg class="pf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span class="pt"><b>GrgCode runs locally</b> — approval on every file write and command, diffs, checkpoints and undo. Your code never lives on our servers.</span></li>
+                <li><svg class="pf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span class="pt"><b>EU hosting &amp; isolation</b> — TLS everywhere, strict access rules, and published pages sandboxed in an isolated origin.</span></li>
+                <li><svg class="pf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span class="pt"><b>Zero-persistence private sessions</b> — what's sensitive isn't saved.</span></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Where it's going</h2>
+            <h3>A ladder of trust — each step lets you keep more on your side</h3>
+            <div class="ladder">
+                <div class="step now"><div class="n">1</div><div class="b"><b>Today — on-device redaction + EU hosting</b><span>Use AI on real, sensitive work right now, with your data protected before it's sent.</span></div></div>
+                <div class="step"><div class="n">2</div><div class="b"><b>Next — private models on your own servers</b><span>An open model + RAG grounded in your documents, running on infrastructure you control. "Your data never leaves our/your servers." A premium, on-prem tier.</span></div></div>
+                <div class="step"><div class="n">3</div><div class="b"><b>Later — a dedicated instance per client</b><span>Full isolation for the strictest regulated teams.</span></div></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>What we're honest about</h2>
+            <div class="note">
+                <p>We're not "smarter than Claude" — we use the same frontier models everyone has. Our edge is control and confidentiality, not a better brain.</p>
+                <p>Today, requests are still processed by model providers (our sub-processors); on-device redaction is the safeguard, which is exactly why step 2 — private models on your own servers — matters for the strictest clients.</p>
+                <p>Name redaction is best-effort (a dictionary plus smart rules), not a perfect model. We'd rather over-redact than leak.</p>
+            </div>
+        </section>
+
+        <div class="cta">
+            <h3>Powerful AI, without handing over your data.</h3>
+            <a class="big" href="/">Start with Grg AI
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="wrap">
+            <a href="/">Home</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="https://github.com/monescuteodor/Grg_Ai" target="_blank" rel="noopener">GitHub</a>
+            <div style="margin-top:10px">© 2026 Monescu Teodor · Grg AI</div>
+        </div>
+    </footer>
+</body>
+</html>

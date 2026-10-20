@@ -215,6 +215,14 @@ async def privacy():
 async def terms():
     return FileResponse(STATIC_DIR / "terms.html")
 
+@app.get("/about")
+async def about():
+    return FileResponse(STATIC_DIR / "about.html")
+
+@app.get("/why")
+async def why():
+    return FileResponse(STATIC_DIR / "about.html")
+
 # ─── SEO: robots + sitemap (help Google index the site) ───
 @app.get("/robots.txt")
 async def robots_txt():
@@ -228,6 +236,7 @@ async def sitemap_xml():
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
            f'  <url><loc>https://grg-ai.com/</loc><lastmod>{today}</lastmod>'
            '<changefreq>weekly</changefreq><priority>1.0</priority></url>\n'
+           '  <url><loc>https://grg-ai.com/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n'
            '  <url><loc>https://grg-ai.com/privacy</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>\n'
            '  <url><loc>https://grg-ai.com/terms</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>\n'
            '</urlset>\n')
