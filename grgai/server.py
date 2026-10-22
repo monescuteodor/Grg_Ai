@@ -247,22 +247,22 @@ if STATIC_DIR.exists():
 
 @app.get("/api/grgcode/version")
 async def grgcode_version():
-    """Latest GrgCode desktop version — auto-detected as the highest
-    GrgCode-win-x64-vN.exe in static/downloads (so uploading a new build is enough)."""
+    """Latest GrgApp (ex-GrgCode) desktop version — auto-detected as the highest-versioned
+    GrgApp-/GrgCode-win-x64-vN.exe in static/downloads, returning that file's real name
+    (so old GrgCode builds seamlessly update to the renamed GrgApp exe)."""
     import re as _re
     latest = 0
+    fname = None
     try:
         for f in (STATIC_DIR / "downloads").iterdir():
-            m = _re.match(r"GrgCode-win-x64-v(\d+)\.exe$", f.name)
-            if m:
-                latest = max(latest, int(m.group(1)))
+            m = _re.match(r"(?:GrgApp|GrgCode)-win-x64-v(\d+)\.exe$", f.name)
+            if m and int(m.group(1)) > latest:
+                latest = int(m.group(1)); fname = f.name
     except Exception:  # noqa: BLE001
         pass
-    if not latest:
-        latest = 35
-    return {"version": latest,
-            "filename": f"GrgCode-win-x64-v{latest}.exe",
-            "url": f"/static/downloads/GrgCode-win-x64-v{latest}.exe"}
+    if not fname:
+        latest = 39; fname = "GrgApp-win-x64-v39.exe"
+    return {"version": latest, "filename": fname, "url": f"/static/downloads/{fname}"}
 
 @app.get("/grgcode-auth")
 async def grgcode_auth_page():

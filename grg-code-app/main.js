@@ -11,7 +11,7 @@ const MAX_ITERS = 30;
 // This build's version number — BUMP with each release (must match the vN in artifactName).
 // Hardcoded on purpose: electron-builder strips the `build` field from the packaged
 // package.json, so reading artifactName at runtime returned 0 and the updater always fired.
-const APP_VERSION = 38;
+const APP_VERSION = 39;
 
 let win = null;
 let projectDir = process.cwd();
@@ -37,7 +37,7 @@ function createWindow() {
         minWidth: 720,
         minHeight: 520,
         backgroundColor: '#0a0711',
-        title: 'Grg Code',
+        title: 'GrgApp',
         icon: path.join(__dirname, 'renderer', 'icon.ico'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
@@ -515,7 +515,7 @@ function systemPrompt() {
     return {
         role: 'system',
         content: [
-            'You are Grg Code, a SENIOR AI software engineer working on the user\'s machine — as capable as the best coding agents (Claude Code, Cursor, Codex). You plan, build, run and verify real software.',
+            'You are GrgApp — the Grg AI desktop app — a senior AI assistant that works on the user\'s machine. You can act as a specialist in any field AND plan, build, run and verify real software (as capable as the best coding agents). Help with whatever the user needs, not only code.',
             (projectDir
                 ? 'Project folder: ' + projectDir + ' (OS: ' + process.platform + ').'
                 : 'No project folder is selected (OS: ' + process.platform + '). You can answer and write code inline; to read/create files, ask the user to pick a folder (top-right).'),
@@ -1114,7 +1114,7 @@ ipcMain.handle('start-google-auth', async () => {
 ipcMain.handle('open-preview', (e, html) => {
     try {
         const pw = new BrowserWindow({
-            width: 1024, height: 768, backgroundColor: '#ffffff', title: 'Grg Code — Preview',
+            width: 1024, height: 768, backgroundColor: '#ffffff', title: 'GrgApp — Preview',
             webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false }
         });
         pw.setMenuBarVisibility(false);

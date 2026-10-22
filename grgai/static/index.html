@@ -28,7 +28,7 @@
     </script>
     <title>Grg AI — Privacy-First AI for Developers &amp; Sensitive Data | Claude, GPT-5, Gemini</title>
     <meta name="description" content="Grg AI is a privacy-first AI assistant: a coding agent that runs on your own machine, and private agents that redact personal data (GDPR) on your device before anything is sent. The power of Claude, GPT-5 and Gemini — but your code and sensitive data stay yours.">
-    <meta name="keywords" content="Grg AI, privacy-first AI, private AI assistant, GDPR AI, confidential AI, PII redaction, AI coding assistant, local coding agent, secure AI for developers, AI for sensitive data, Claude, GPT-5, Gemini, GrgCode">
+    <meta name="keywords" content="Grg AI, privacy-first AI, private AI assistant, GDPR AI, confidential AI, PII redaction, AI for lawyers, AI for doctors, AI for developers, AI for accountants, secure AI for developers, AI for sensitive data, Claude, GPT-5, Gemini, GrgApp">
     <meta name="author" content="Monescu Teodor">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://grg-ai.com/">
@@ -201,6 +201,9 @@
         .hero-seg b { display: block; font-size: 13.5px; color: var(--text); margin-bottom: 4px; }
         .hero-seg small { display: block; font-size: 12px; color: var(--text-mute); line-height: 1.55; }
         @media (max-width: 620px) { .hero-segs { flex-direction: column; gap: 10px; } }
+        .hero-pros { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; margin-top: 20px; max-width: 640px; }
+        .hero-pros .hp-label { font-size: 12px; color: var(--text-mute); margin-right: 2px; }
+        .hero-pros .hp-pill { font-size: 12px; font-weight: 600; color: var(--accent-2); background: var(--accent-soft); border: 1px solid rgba(139,92,246,0.22); padding: 4px 11px; border-radius: 20px; }
         .suggest-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; width: 100%; max-width: 640px; }
         .suggest-card { display: flex; align-items: center; gap: 13px; text-align: left; padding: 15px 16px; background: linear-gradient(180deg, var(--bg-surface), var(--bg)); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); font-family: var(--font); }
         .suggest-card:hover { transform: translateY(-2px); border-color: rgba(139,92,246,0.4); box-shadow: var(--shadow), 0 0 0 1px rgba(139,92,246,0.15); }
@@ -1489,8 +1492,8 @@
             Plans
         </button>
         <button class="mode-btn" id="btn-grgcode-mode" onclick="openGrgCodeSection()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            GrgCode
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            GrgApp
         </button>
         <button class="mode-btn" id="btn-nhash-mode" onclick="openNhashSection()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8v8M14.5 8v8M8.5 10.5h8M8 13.5h8"/></svg>
@@ -1691,21 +1694,21 @@
     <div class="plans-card" style="max-width:600px">
         <button class="plans-close" onclick="closeGrgCodeSection()">✕</button>
         <div class="gc-hero">
-            <div class="gc-logo"><img class="brand-logo" src="/static/logo.png" alt="">Grg<span>.</span>AI<span class="gc-badge">Code</span></div>
-            <div class="gc-sub">An AI coding agent for your desktop. Talk to Grg and it reads, writes and runs code on your machine — with your approval on every command.</div>
+            <div class="gc-logo"><img class="brand-logo" src="/static/logo.png" alt="">Grg<span>.</span>AI<span class="gc-badge">App</span></div>
+            <div class="gc-sub">The full Grg AI on your desktop — chat, specialist agents for every field (legal, medical, dev, finance, HR) and on-device privacy, plus a built-in agent that works on your files with your approval.</div>
         </div>
         <div class="gc-features">
-            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span><b>Agentic editing</b>Reads, writes &amp; edits files in your project folder</span></div>
-            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span><b>Runs commands</b>Builds, tests and runs code — you approve each step</span></div>
-            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span><b>Safe by default</b>Every file write &amp; command needs your OK</span></div>
-            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span><b>Specialist agents</b>26 experts + build your own; private agents redact your typed data</span></div>
+            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span><b>Everything on the site</b>Chat &amp; specialist agents for lawyers, doctors, developers, accountants, HR — and build your own</span></div>
+            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span><b>Private by default</b>Private agents redact your sensitive data on your device before anything is sent</span></div>
+            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span><b>Works on your files</b>Reads, writes &amp; edits files in a folder you choose — your data stays local</span></div>
+            <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span><b>Safe by default</b>Every file write &amp; command needs your approval</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgCode-win-x64-v38.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgApp-win-x64-v39.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgCode-win-x64-v38.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
+        <div class="gc-note">Single portable app · just run <b>GrgApp-win-x64-v39.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
     </div>
 </div>
 
@@ -1999,6 +2002,10 @@ function renderWelcome() {
             <div class="hero-segs">
                 <div class="hero-seg"><span class="hs-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span><b>For developers</b><small>A coding agent that runs on your machine — reads, writes and runs your code, with approval on every step.</small></div>
                 <div class="hero-seg"><span class="hs-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><b>For sensitive data &middot; GDPR</b><small>Private agents redact personal data (emails, IDs, IBANs, names) on your device before anything is sent.</small></div>
+            </div>
+            <div class="hero-pros">
+                <span class="hp-label">Private specialist agents for</span>
+                <span class="hp-pill">Lawyers</span><span class="hp-pill">Doctors</span><span class="hp-pill">Developers</span><span class="hp-pill">Accountants</span><span class="hp-pill">HR</span><span class="hp-pill">&amp; more</span>
             </div>
         </div>
     </div>`;

@@ -266,7 +266,7 @@ function addMsg(role, text) {
     if (role === 'user') { const pc = document.getElementById('plan-card'); if (pc) pc.remove(); }  // fresh plan per task
     const wrap = atBottom();
     const div = document.createElement('div'); div.className = 'msg';
-    div.innerHTML = `<div class="msg-head"><div class="av2 ${role === 'user' ? 'user' : 'ai'}">${role === 'user' ? 'U' : 'G'}</div><div class="who">${role === 'user' ? 'You' : 'Grg Code'}</div></div><div class="body">${fmt(text)}</div>`;
+    div.innerHTML = `<div class="msg-head"><div class="av2 ${role === 'user' ? 'user' : 'ai'}">${role === 'user' ? 'U' : 'G'}</div><div class="who">${role === 'user' ? 'You' : 'GrgApp'}</div></div><div class="body">${fmt(text)}</div>`;
     msgs.appendChild(div); if (wrap) scroll();
 }
 // Visible task plan (TODO checklist) driven by the agent's update_plan tool.
@@ -1059,7 +1059,7 @@ function ensureStreamBubble() {
     clearStatus(); clearWelcome();
     const wrap = atBottom();
     const div = document.createElement('div'); div.className = 'msg';
-    div.innerHTML = '<div class="msg-head"><div class="av2 ai">G</div><div class="who">Grg Code</div></div><div class="body"></div>';
+    div.innerHTML = '<div class="msg-head"><div class="av2 ai">G</div><div class="who">GrgApp</div></div><div class="body"></div>';
     msgs.appendChild(div); streamBody = div.querySelector('.body');
     if (wrap) scroll();
 }
@@ -1219,15 +1219,20 @@ function _piiRestore(text) {
 var _AGENTS = [
     // LEGAL
     { id:'law-litig',  cat:'Legal',    name:'Litigation Lawyer',   desc:'Disputes, pleadings, strategy', privacy:true,
-      prompt:'You are a senior litigation lawyer. Analyze disputes, draft pleadings and legal arguments, assess risk and procedure, and cite the relevant statutes/case-law structure. Be precise, hedge where the law is uncertain, and flag when a licensed local lawyer is required.' },
+      prompt:'You are a senior litigation lawyer. For a dispute: (1) restate the facts and the legal question, (2) identify the claims/defences and the elements each side must prove, (3) assess strengths, weaknesses and procedural posture, (4) outline evidence and next procedural steps with deadlines to watch, and (5) give a clear strategy and realistic outcome range. Draft pleadings/letters in a formal structure with numbered paragraphs. Argue both sides before concluding. Describe the TYPE of statute/case-law that applies rather than inventing citations; never fabricate a case or article number. Always flag when a licensed local lawyer and the exact jurisdiction/limitation period must be confirmed.' },
     { id:'law-contract', cat:'Legal',  name:'Contracts Lawyer',    desc:'Draft & review contracts', privacy:true,
-      prompt:'You are a senior contracts lawyer. Draft, review and red-line contracts clause by clause, explain risky terms in plain language, suggest fallback wording, and keep numbering/clause structure. Note jurisdiction-specific caveats.' },
+      prompt:'You are a senior contracts lawyer. To REVIEW: go clause by clause, keep the numbering, and for each risky clause give (a) the risk in plain language, (b) which side it favours, (c) suggested re-wording, and (d) a fallback position (ideal / acceptable / walk-away). Surface missing clauses (liability cap, confidentiality duration, data protection/DPA, governing law, termination). To DRAFT: produce clean, numbered, defined-term-consistent text. Tailor to the client\'s side (buyer vs supplier). State the assumed governing law and flag where a local-law check is needed.' },
     { id:'law-gdpr',   cat:'Legal',    name:'GDPR / Privacy Auditor', desc:'Data-protection compliance', privacy:true,
-      prompt:'You are a GDPR and data-protection auditor. Assess processing activities against GDPR principles, lawful bases, DPIAs, data-subject rights, retention and transfers; produce actionable, prioritized compliance findings with article references.' },
+      prompt:'You are a GDPR / data-protection auditor. Assess processing against the Art. 5 principles, the Art. 6 lawful basis (and Art. 9 for special-category data), controller/processor roles and DPAs, sub-processors and international transfers (SCCs), data-subject rights, retention, DPIA need and breach duties. Output prioritized, actionable findings (Risk -> Why -> Fix), reference the relevant GDPR article by number where you are certain, and give concrete remediation. Flag high-risk processing that needs a DPIA or a DPO/lawyer.' },
     { id:'law-labor',  cat:'Legal',    name:'Employment Lawyer',   desc:'Labor law & HR', privacy:true,
-      prompt:'You are an employment/labor lawyer. Advise on contracts, dismissals, working time, discrimination and HR policy, balancing employer and employee perspectives, with clear procedure and risk flags.' },
+      prompt:'You are an employment/labour lawyer. Advise on contracts, dismissals, working time, discrimination, disciplinary procedure and HR policy. Always give the correct PROCEDURE step by step (notice, documentation, timelines) because process errors create liability, present both employer and employee perspectives, and flag the risks. Note jurisdiction-specific rules to confirm and when a licensed local lawyer is required. Draft letters/policies in clear, compliant structure.' },
     { id:'law-ip',     cat:'Legal',    name:'IP Lawyer',           desc:'Trademarks, patents, copyright', privacy:true,
-      prompt:'You are an intellectual-property lawyer. Advise on trademarks, patents, copyright and licensing, infringement risk and filing strategy, with clear next steps.' },
+      prompt:'You are an intellectual-property lawyer. Clarify which right applies (trademark, patent, copyright, trade secret, design) and advise on ownership, licensing, infringement risk, and filing/registration strategy with concrete next steps and typical timelines. For licensing/assignment, give clause-level guidance (scope, territory, exclusivity, royalties, moral rights). Flag deadlines (priority, renewals) and when a registered IP attorney / jurisdiction search is required. Never invent registration numbers or case law.' },
+    // HEALTHCARE
+    { id:'med-clinical', cat:'Healthcare', name:'Clinical Assistant', desc:'Notes, documentation, decision support', privacy:true,
+      prompt:'You are a clinical assistant FOR healthcare professionals — you SUPPORT documentation and clinical reasoning, you do NOT replace a clinician and do NOT give a definitive diagnosis, prescription or treatment decision. Produce structured documentation the clinician then verifies: SOAP notes, referral and discharge letters, and plain-language explanations for the patient (clinician approves). Offer a differential and red-flags as PROMPTS, not conclusions. Flag emergency symptoms needing urgent care. NEVER invent drug doses, guideline figures or studies — say to verify against the current local guideline. Treat patient data as special-category: keep every placeholder verbatim. End patient-impacting output with "clinician to review and confirm."' },
+    { id:'med-research', cat:'Healthcare', name:'Medical Research', desc:'Evidence, guidelines, literature', privacy:false,
+      prompt:'You are a medical research assistant for professionals. Summarise conditions, mechanisms, guideline-level management and the evidence base clearly and at a high level, always stating that guidance is general and must be checked against the current local guideline and the treating clinician. Present differentials and investigations as considerations, not decisions. NEVER fabricate studies, statistics or doses. This is not medical advice to patients.' },
     // DEVELOPMENT
     { id:'dev-arch',   cat:'Development', name:'Senior Architect',  desc:'System & app architecture', privacy:false,
       prompt:'You are a principal software architect. Design robust, scalable systems; weigh trade-offs explicitly; produce clean folder structures, data models and sequence of steps; prefer boring, proven tech. Write production-quality code.' },
@@ -1255,6 +1260,8 @@ var _AGENTS = [
       prompt:'You are a senior business analyst. Clarify requirements, model processes, analyze data and trade-offs, and produce clear, structured recommendations for decisions.' },
     { id:'biz-market',  cat:'Business', name:'Marketing Strategist', desc:'Growth, positioning, copy', privacy:false,
       prompt:'You are a marketing strategist. Craft positioning, growth and content strategy with concrete, measurable actions and channels; be specific, not generic.' },
+    { id:'biz-accountant', cat:'Business', name:'Accountant / Tax', desc:'Bookkeeping, statements, VAT, tax concepts', privacy:true,
+      prompt:'You are an experienced accountant / bookkeeper. Help with bookkeeping, financial statements (P&L, balance sheet, cash flow), VAT and invoicing concepts, expense categorisation, and explaining tax concepts clearly. Always show the calculation and assumptions. You are NOT a substitute for a licensed tax advisor/auditor: flag where local tax law and a licensed professional must confirm, note jurisdiction-specific rules, and NEVER invent specific tax rates, thresholds or filing deadlines — say to verify current local figures. Treat financial/personal data as sensitive and keep any placeholders verbatim.' },
     { id:'biz-finance', cat:'Business', name:'Financial Analyst',   desc:'Models, metrics, unit economics', privacy:false,
       prompt:'You are a financial analyst. Build models, analyze metrics and unit economics, and explain assumptions and sensitivities clearly. You are not a licensed financial advisor — add that caveat for personal-investment questions.' },
     { id:'biz-startup', cat:'Business', name:'Startup Advisor',     desc:'Product, GTM, fundraising', privacy:false,
@@ -1277,9 +1284,10 @@ var _AGENTS = [
     { id:'gen-translate', cat:'Other', name:'Translator / Localizer', desc:'Natural translation & tone', privacy:true,
       prompt:'You are a professional translator and localizer. Translate naturally (not literally), preserve tone and formatting, and keep any [REDACTED] placeholders untouched.' }
 ];
-var _AGENT_CATS = ['Legal','Development','Security','Business','Writing','Data & AI','Other'];
+var _AGENT_CATS = ['Legal','Healthcare','Development','Security','Business','Writing','Data & AI','Other'];
 var _AGENT_ICONS = {
     'Legal':       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M7 7l-3 6a3 3 0 0 0 6 0z"/><path d="M17 7l-3 6a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg>',
+    'Healthcare':  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg>',
     'Development': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     'Security':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
     'Business':    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="20" x2="21" y2="20"/><rect x="5" y="11" width="3" height="7"/><rect x="10.5" y="6" width="3" height="12"/><rect x="16" y="13" width="3" height="5"/></svg>',

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grg Code</title>
+<title>GrgApp</title>
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
@@ -338,7 +338,7 @@
 </head>
 <body>
     <aside class="sidebar">
-        <div class="sb-top drag"><div class="brand nodrag"><img class="brand-ico" src="logo.png" alt="">Grg<span class="dot">.</span>AI<span class="tag">Code</span></div></div>
+        <div class="sb-top drag"><div class="brand nodrag"><img class="brand-ico" src="logo.png" alt="">Grg<span class="dot">.</span>AI<span class="tag">App</span></div></div>
         <button class="new-btn" id="new-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New session</button>
         <div class="sb-label sb-collapse" id="files-toggle">Explorer <span class="sb-caret" id="files-caret">▾</span> <button class="sb-mini" id="files-refresh" title="Refresh">⟳</button></div>
         <div class="file-tree" id="file-tree"></div>
@@ -411,7 +411,7 @@
                             <svg id="mode-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                             <span id="mode-label">Ask for approval</span>
                         </button>
-                        <div class="cmodel-dd" id="cmodel-dd">
+                        <div class="cmodel-dd" id="cmodel-dd" style="display:none">
                             <button class="cbtn cmodel-btn" id="cmodel-btn"><span id="cmodel-label">Grg Model</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg></button>
                             <div class="cmodel-menu" id="cmodel-menu"></div>
                         </div>
@@ -436,13 +436,13 @@
             <div class="agent-head">
                 <div>
                     <div class="agent-title">Choose an agent</div>
-                    <div class="agent-sub">A specialist on top of Grg Code. <span style="color:#22c55e;font-weight:600">PRIVATE</span> agents redact your typed data locally. Agent runs use more credits.</div>
+                    <div class="agent-sub">A specialist on top of GrgApp. <span style="color:#22c55e;font-weight:600">PRIVATE</span> agents redact your typed data locally. Agent runs use more credits.</div>
                 </div>
                 <button class="agent-close" onclick="closeAgentPicker()">✕</button>
             </div>
             <input id="agent-search" class="agent-search" placeholder="Search agents…" oninput="renderAgentList(this.value)" autocomplete="off">
             <div class="agent-list" id="agent-list"></div>
-            <button class="agent-none" onclick="clearAgent()">Use normal Grg Code (no agent)</button>
+            <button class="agent-none" onclick="clearAgent()">Use normal GrgApp (no agent)</button>
         </div>
     </div>
 
@@ -660,7 +660,7 @@
     <div class="bill-ov" id="mcp-ov" onclick="if(event.target===this)closeMcp()">
         <div class="bill-card" style="width:min(580px,95vw)">
             <div class="bill-head"><span>MCP servers — connect external tools</span><button class="auth-x" onclick="closeMcp()">✕</button></div>
-            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">Give Grg Code superpowers: filesystem, GitHub, databases, browsers and more via the Model Context Protocol. Servers run via <code>npx</code> and their tools appear to the agent automatically.</div>
+            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">Give GrgApp superpowers: filesystem, GitHub, databases, browsers and more via the Model Context Protocol. Servers run via <code>npx</code> and their tools appear to the agent automatically.</div>
             <div id="mcp-body"></div>
         </div>
     </div>
@@ -688,14 +688,14 @@
     <div class="bill-ov" id="mem-ov" onclick="if(event.target===this)closeMemory()">
         <div class="bill-card" style="width:min(640px,96vw)">
             <div class="bill-head"><span>Project memory — GRGCODE.md</span><button class="auth-x" onclick="closeMemory()">✕</button></div>
-            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">Durable notes about this project (how to run/build/test, conventions, gotchas). Grg Code loads this into context every session.</div>
+            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">Durable notes about this project (how to run/build/test, conventions, gotchas). GrgApp loads this into context every session.</div>
             <div id="mem-body"></div>
         </div>
     </div>
     <div class="bill-ov" id="cp-ov" onclick="if(event.target===this)closeCheckpoints()">
         <div class="bill-card" style="width:min(560px,95vw)">
             <div class="bill-head"><span>Checkpoints / Undo</span><button class="auth-x" onclick="closeCheckpoints()">✕</button></div>
-            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">Grg Code snapshots files before it changes them in a task. Revert any task's changes with one click.</div>
+            <div style="font-size:12px;color:var(--text-mute);margin:-6px 0 14px;line-height:1.5">GrgApp snapshots files before it changes them in a task. Revert any task's changes with one click.</div>
             <div id="cp-body"></div>
         </div>
     </div>
