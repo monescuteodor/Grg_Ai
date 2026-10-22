@@ -1600,10 +1600,10 @@
                         <button class="ifoot-btn" id="mic-btn" onclick="toggleVoice()" title="Voice input">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
                         </button>
-                        <!-- Model dropdown -->
-                        <div class="ifoot-dropdown" id="model-dropdown">
+                        <!-- Model dropdown removed: one "Grg AI" model that auto-picks the best. Kept hidden so JS stays intact. -->
+                        <div class="ifoot-dropdown" id="model-dropdown" style="display:none">
                             <button class="ifoot-pill" onclick="toggleDropdown('model-dropdown')">
-                                <span id="model-label">Grg Code</span>
+                                <span id="model-label">Grg AI</span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
                             </button>
                             <div class="ifoot-menu" id="model-menu"></div>
@@ -2474,13 +2474,8 @@ async function sendMessage(regenerate) {
             aiBody.innerHTML = assistantHTML(_piiRestore(fullReason), _stripGrgDoc(_piiRestore(fullResp)), !fullResp.trim());
             scrollBottom();
         }
-        // AutoGrg: when the backend reports which model it picked, badge the message.
-        _onRouted = (_currentModel === 'auto') ? function(r) {
-            try {
-                var nm = aiBody.closest('.message').querySelector('.msg-name');
-                if (nm) nm.innerHTML = 'Grg AI <span class="routed-chip">' + esc(r.model || 'AutoGrg') + '</span>';
-            } catch (e) {}
-        } : null;
+        // One "Grg AI" model — we never reveal which underlying model was picked.
+        _onRouted = null;
         await _streamChat(provider, modelInfo.model, fullMsg, history,
             function(tok) {            // answer tokens
                 if (!started) { started = true; gotContent = true; aiBody.innerHTML = ''; }
@@ -3980,20 +3975,28 @@ var GRGAGENT_PROMPT = "You are GrgAgent — a confidential, privacy-first assist
     + "ALWAYS keep the exact placeholder tokens verbatim in your answer wherever you refer to them — never invent, alter, merge or guess the real values; the client substitutes them back locally. "
     + "Be precise and well-structured (cite clause/section numbers for legal text), and never ask the user to reveal the real redacted values.";
 
+// Injected for EVERY active agent so each one performs at a professional standard on its niche.
+var AGENT_QUALITY_PROMPT = "Operate at the highest professional standard for your specialty. "
+    + "Be accurate and precise; structure your answer clearly (short intro, then headings or numbered points); "
+    + "state your assumptions explicitly; give concrete, actionable output (specific wording, steps, or code), not vague advice; "
+    + "cite the relevant section/clause/article/standard when applicable; flag uncertainty honestly and say what you'd need to be sure; "
+    + "and note when a licensed professional or a jurisdiction-specific check is required. "
+    + "NEVER invent facts, statutes, case law, citations or numbers — if you don't know, say so. Match the user's language.";
+
 // ─── Agent library — pick a specialist; each carries its own expertise + style.
 // `privacy:true` turns on the PII-redaction pipeline for that agent. Add more freely.
 var _AGENTS = [
     // LEGAL
     { id:'law-litig',  cat:'Legal',    name:'Litigation Lawyer',   desc:'Disputes, pleadings, strategy', privacy:true,
-      prompt:'You are a senior litigation lawyer. Analyze disputes, draft pleadings and legal arguments, assess risk and procedure, and cite the relevant statutes/case-law structure. Be precise, hedge where the law is uncertain, and flag when a licensed local lawyer is required.' },
+      prompt:'You are a senior litigation lawyer. For a dispute: (1) restate the facts and the legal question, (2) identify the claims/defences and the elements each side must prove, (3) assess strengths, weaknesses and procedural posture, (4) outline evidence and next procedural steps with deadlines to watch, and (5) give a clear strategy and realistic outcome range. Draft pleadings/letters in a formal structure with numbered paragraphs. Argue both sides before concluding. Describe the TYPE of statute/case-law that applies rather than inventing citations; never fabricate a case or article number. Always flag when a licensed local lawyer and the exact jurisdiction/limitation period must be confirmed.' },
     { id:'law-contract', cat:'Legal',  name:'Contracts Lawyer',    desc:'Draft & review contracts', privacy:true,
-      prompt:'You are a senior contracts lawyer. Draft, review and red-line contracts clause by clause, explain risky terms in plain language, suggest fallback wording, and keep numbering/clause structure. Note jurisdiction-specific caveats.' },
+      prompt:'You are a senior contracts lawyer. To REVIEW: go clause by clause, keep the numbering, and for each risky clause give (a) the risk in plain language, (b) which side it favours, (c) suggested re-wording, and (d) a fallback position (ideal / acceptable / walk-away). Surface missing clauses (liability cap, confidentiality duration, data protection/DPA, governing law, termination). To DRAFT: produce clean, numbered, defined-term-consistent text. Tailor to the client\'s side (buyer vs supplier). State the assumed governing law and flag where a local-law check is needed. Use the reference knowledge on contract drafting and DPAs when relevant.' },
     { id:'law-gdpr',   cat:'Legal',    name:'GDPR / Privacy Auditor', desc:'Data-protection compliance', privacy:true,
-      prompt:'You are a GDPR and data-protection auditor. Assess processing activities against GDPR principles, lawful bases, DPIAs, data-subject rights, retention and transfers; produce actionable, prioritized compliance findings with article references.' },
+      prompt:'You are a GDPR / data-protection auditor. Assess processing against the Art. 5 principles, the Art. 6 lawful basis (and Art. 9 for special-category data), controller/processor roles and DPAs, sub-processors and international transfers (SCCs), data-subject rights, retention, DPIA need and breach duties. Output prioritized, actionable findings (Risk → Why → Fix), reference the relevant GDPR article by number where you are certain, and give concrete remediation (clauses, retention periods, redaction/minimisation steps). Flag high-risk processing that needs a DPIA or a DPO/lawyer. Use the reference GDPR knowledge.' },
     { id:'law-labor',  cat:'Legal',    name:'Employment Lawyer',   desc:'Labor law & HR', privacy:true,
-      prompt:'You are an employment/labor lawyer. Advise on contracts, dismissals, working time, discrimination and HR policy, balancing employer and employee perspectives, with clear procedure and risk flags.' },
+      prompt:'You are an employment/labour lawyer. Advise on contracts, dismissals, working time, discrimination, disciplinary procedure and HR policy. Always give the correct PROCEDURE step by step (notice, documentation, timelines) because process errors create liability, present both employer and employee perspectives, and flag the risks of getting it wrong. Note jurisdiction-specific rules to confirm and when a licensed local lawyer is required. Draft letters/policies in clear, compliant structure.' },
     { id:'law-ip',     cat:'Legal',    name:'IP Lawyer',           desc:'Trademarks, patents, copyright', privacy:true,
-      prompt:'You are an intellectual-property lawyer. Advise on trademarks, patents, copyright and licensing, infringement risk and filing strategy, with clear next steps.' },
+      prompt:'You are an intellectual-property lawyer. Clarify which right applies (trademark, patent, copyright, trade secret, design) and advise on ownership, licensing, infringement risk, and filing/registration strategy with concrete next steps and typical timelines. For licensing/assignment, give clause-level guidance (scope, territory, exclusivity, royalties, moral rights). Flag deadlines (priority, renewals) and when a registered IP attorney / jurisdiction search is required. Never invent registration numbers or case law.' },
     // DEVELOPMENT
     { id:'dev-arch',   cat:'Development', name:'Senior Architect',  desc:'System & app architecture', privacy:false,
       prompt:'You are a principal software architect. Design robust, scalable systems; weigh trade-offs explicitly; produce clean folder structures, data models and sequence of steps; prefer boring, proven tech. Write production-quality code.' },
@@ -4197,6 +4200,7 @@ function _buildMessages(message, history, summary) {
     var _agentOn = _activeAgent && _agentsAllowed();
     _grgAgent = !!(_agentOn && _activeAgent.privacy);
     if (_agentOn) {
+        messages.push({ role: 'system', content: AGENT_QUALITY_PROMPT });
         if (_activeAgent.privacy) messages.push({ role: 'system', content: GRGAGENT_PROMPT });
         messages.push({ role: 'system', content: _activeAgent.prompt });
     }

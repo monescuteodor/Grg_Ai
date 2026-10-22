@@ -811,6 +811,8 @@ _KB_KW = {
     "linux-apps": [" gtk", " qt ", "flatpak", "appimage", "pyqt", "pyside"],
     "backend-apis": ["fastapi", "express", "rest api", "backend api", "endpoint"],
     "office-docs": [".pptx", ".xlsx", ".docx", "powerpoint", " excel", "word document", "spreadsheet"],
+    "gdpr-ai": ["gdpr", "data protection", "personal data", "date cu caracter personal", "protectia datelor", "data processing agreement", " dpo", "dpia", "dsar", "subject access", "lawful basis", "data breach", "sub-processor", "subprocessor", "data retention", "anonymiz", "pseudonymiz", "right to be forgotten", "data subject", "cross-border transfer", " scc ", "privacy compliance", "special category"],
+    "legal-contracts": ["contract", "contracte", "clause", "clauza", "clauze", "non-disclosure", "confidentiality agreement", "terms of service", "agreement", "legal review", "red-line", "redline", "liability", "indemnif", "governing law", "jurisdiction", "termination clause", "avocat", "juridic", "law firm", "contract review", "boilerplate", "force majeure", " nda"],
     "agent-playbook": [],
     "ui-ux": ["ui/ux", "design system", "figma"],
     "boilerplates": [],
