@@ -1478,7 +1478,7 @@ setTimeout(function () { try { checkForUpdates(false); } catch (e) {} }, 2500);
 const AGENT_MODELS = [
     // Grg (Groq, free — full tool use)
     { id: 'auto', name: 'AutoGrg', family: 'Grg', tag: 'Auto', free: true },
-    { id: 'openai/gpt-oss-120b', name: 'Grg Code', family: 'Grg', tag: 'Flagship', free: true },
+    { id: 'openai/gpt-oss-120b', name: 'Grg Core', family: 'Grg', tag: 'Flagship', free: true },
     { id: 'poolside/laguna-s-2.1:free', name: 'Grg Coder', family: 'Grg', tag: 'Code', free: true },
     { id: 'openai/gpt-oss-20b', name: 'Grg Fast', family: 'Grg', tag: 'Fast', free: true },
     // Anthropic
@@ -1625,6 +1625,17 @@ function initAuth() {
 // ─── Billing / credits (mirrors the website; card entry happens in the browser) ───
 let _account = null;
 function bFmtTok(n) { n = Number(n) || 0; if (n >= 1e6) return (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M'; if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k'; return String(n); }
+// Everything is "Grg AI" — map any underlying model id to a Grg-branded name.
+function _grgModelName(mid) {
+    mid = String(mid || '').toLowerCase();
+    if (mid.indexOf('image') !== -1) return 'Grg Image';
+    if (mid.indexOf('codex') !== -1 || mid.indexOf('coder') !== -1 || mid.indexOf('code') !== -1 || mid.indexOf('codestral') !== -1) return 'Grg Code';
+    if (mid.indexOf('gpt-oss-20b') !== -1) return 'Grg Fast';
+    if (mid.indexOf('gpt-oss') !== -1 || mid.indexOf('groq') !== -1) return 'Grg Core';
+    if (mid.indexOf('opus') !== -1 || mid.indexOf('gpt-5.6') !== -1 || mid.indexOf('gpt-5.5') !== -1 || mid.indexOf('ultra') !== -1 || mid.indexOf('kimi-k3') !== -1) return 'Grg Max';
+    if (mid.indexOf('sonnet') !== -1 || mid.indexOf('gemini') !== -1 || mid.indexOf('gpt-5') !== -1 || mid.indexOf('grok') !== -1 || mid.indexOf('kimi') !== -1 || mid.indexOf('glm') !== -1 || mid.indexOf('deepseek') !== -1 || mid.indexOf('llama') !== -1 || mid.indexOf('qwen') !== -1 || mid.indexOf('mistral') !== -1 || mid.indexOf('nemotron') !== -1 || mid.indexOf('fable') !== -1 || mid.indexOf('gemma') !== -1 || mid.indexOf('ling') !== -1) return 'Grg Pro';
+    return 'Grg AI';
+}
 async function loadAccount() {
     if (!_user) { _account = null; return; }
     try { _account = await window.grg.billAccount(_user.uid); } catch (e) { _account = null; }
@@ -1652,7 +1663,7 @@ function renderBilling() {
     const um = a.usage_models || {}; const ids = Object.keys(um).sort((x, y) => (um[y].tokens || 0) - (um[x].tokens || 0));
     if (ids.length) {
         html += '<div style="margin-top:8px">';
-        ids.slice(0, 6).forEach(id => { html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid var(--border);font-size:12px"><span style="color:var(--text-dim)">' + esc(id.split('/').pop()) + '</span><span style="color:var(--accent-2)">' + bFmtTok(um[id].tokens) + ' tok</span></div>'; });
+        ids.slice(0, 6).forEach(id => { html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid var(--border);font-size:12px"><span style="color:var(--text-dim)">' + esc(_grgModelName(id)) + '</span><span style="color:var(--accent-2)">' + bFmtTok(um[id].tokens) + ' tok</span></div>'; });
         html += '</div>';
     } else { html += '<div style="margin-top:8px;font-size:11.5px;color:var(--text-mute)">No premium usage yet.</div>'; }
     $('bc-meta').innerHTML = html;

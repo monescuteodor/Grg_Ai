@@ -20,9 +20,9 @@
     "files": ["main.js", "preload.js", "renderer/**/*", "knowledge/**/*", "templates/**/*"],
     "win": {
       "target": "portable",
-      "artifactName": "GrgApp-win-x64-v39.exe",
+      "artifactName": "GrgApp-win-x64-v40.exe",
       "icon": "renderer/icon.ico"
     },
-    "portable": { "artifactName": "GrgApp-win-x64-v39.exe", "unicode": true }
+    "portable": { "artifactName": "GrgApp-win-x64-v40.exe", "unicode": true }
   }
 }

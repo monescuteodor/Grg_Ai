@@ -1704,11 +1704,11 @@
             <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span><b>Safe by default</b>Every file write &amp; command needs your approval</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgApp-win-x64-v39.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgApp-win-x64-v40.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgApp-win-x64-v39.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
+        <div class="gc-note">Single portable app · just run <b>GrgApp-win-x64-v40.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
     </div>
 </div>
 
@@ -3711,7 +3711,7 @@ var _currentEffort = 'ultra';
 var _MODELS = {
     // ⭐ Grg house models — tuned for code
     'auto':       { label:'AutoGrg',    family:'Grg', provider:'auto',       model:'auto',                                  badge:'Auto',     bt:'purple', free:true, flagship:true },
-    'grg':        { label:'Grg Code',   family:'Grg', provider:'groq',       model:'openai/gpt-oss-120b',                   badge:'Flagship', bt:'purple', free:true },
+    'grg':        { label:'Grg Core',   family:'Grg', provider:'groq',       model:'openai/gpt-oss-120b',                   badge:'Flagship', bt:'purple', free:true },
     'grg-coder':  { label:'Grg Coder',  family:'Grg', provider:'openrouter', model:'poolside/laguna-s-2.1:free',            badge:'Code',     bt:'green',  free:true },
     'grg-fast':   { label:'Grg Fast',   family:'Grg', provider:'groq',       model:'openai/gpt-oss-20b',                    badge:'Fast',     bt:'green',  free:true },
     'grg-image':  { label:'Grg Image',  family:'Grg', kind:'image', imgBackend:'pollinations',                          badge:'Image',    bt:'green',  free:true },
@@ -4395,8 +4395,20 @@ function fmtTok(n) {
     if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
     return String(n);
 }
+// Everything is "Grg AI" to the user — map any underlying model id to a Grg-branded tier
+// name so the usage breakdown never shows Claude/GPT/Gemini/etc.
+function _grgModelName(mid) {
+    mid = String(mid || '').toLowerCase();
+    if (mid.indexOf('image') !== -1) return 'Grg Image';
+    if (mid.indexOf('codex') !== -1 || mid.indexOf('coder') !== -1 || mid.indexOf('code') !== -1 || mid.indexOf('codestral') !== -1) return 'Grg Code';
+    if (mid.indexOf('gpt-oss-20b') !== -1) return 'Grg Fast';
+    if (mid.indexOf('gpt-oss') !== -1 || mid.indexOf('groq') !== -1) return 'Grg Core';
+    if (mid.indexOf('opus') !== -1 || mid.indexOf('gpt-5.6') !== -1 || mid.indexOf('gpt-5.5') !== -1 || mid.indexOf('ultra') !== -1 || mid.indexOf('kimi-k3') !== -1) return 'Grg Max';
+    if (mid.indexOf('sonnet') !== -1 || mid.indexOf('gemini') !== -1 || mid.indexOf('gpt-5') !== -1 || mid.indexOf('grok') !== -1 || mid.indexOf('kimi') !== -1 || mid.indexOf('glm') !== -1 || mid.indexOf('deepseek') !== -1 || mid.indexOf('llama') !== -1 || mid.indexOf('qwen') !== -1 || mid.indexOf('mistral') !== -1 || mid.indexOf('nemotron') !== -1 || mid.indexOf('fable') !== -1 || mid.indexOf('gemma') !== -1 || mid.indexOf('ling') !== -1) return 'Grg Pro';
+    return 'Grg AI';
+}
 var _MODEL_LABEL_BY_ID = {};
-(function(){ try { Object.keys(_MODELS).forEach(function(id){ var m=_MODELS[id]; if(m.model) _MODEL_LABEL_BY_ID[m.model]=m.label; }); } catch(e){} })();
+(function(){ try { Object.keys(_MODELS).forEach(function(id){ var m=_MODELS[id]; if(m.model) _MODEL_LABEL_BY_ID[m.model]=_grgModelName(m.model); }); } catch(e){} })();
 // credits/1M tokens for a premium model, from the live account rates
 function _modelRate(m) {
     if (!m || !m.premium || !m.model || !_account || !_account.model_rates) return null;
@@ -4485,7 +4497,7 @@ function renderBilling() {
         if (ids.length) {
             html += '<div class="usage-list">';
             ids.forEach(function(id){
-                var row = um[id]; var label = _MODEL_LABEL_BY_ID[id] || id;
+                var row = um[id]; var label = _grgModelName(id);
                 html += '<div class="usage-row"><span class="ur-name">' + label + '</span>'
                      +  '<span class="ur-tok">' + fmtTok(row.tokens) + ' tok</span>'
                      +  '<span class="ur-eur">' + fmtTok(row.credits || 0) + ' cr</span></div>';
