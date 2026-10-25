@@ -77,6 +77,12 @@ def _docx(spec):
         d.add_heading(str(spec["title"])[:200], 0)
     secs = spec.get("sections") or []
     for sec in secs:
+        if isinstance(sec, str):          # tolerate a section given as plain text
+            if sec.strip():
+                d.add_paragraph(sec)
+            continue
+        if not isinstance(sec, dict):
+            continue
         if sec.get("heading"):
             lvl = int(sec.get("level", 1) or 1)
             d.add_heading(str(sec["heading"])[:200], max(1, min(4, lvl)))
@@ -84,10 +90,15 @@ def _docx(spec):
             d.add_paragraph(str(para))
         for b in (sec.get("bullets") or []):
             d.add_paragraph(str(b), style="List Bullet")
-    if not secs and spec.get("body"):
-        for para in str(spec["body"]).split("\n\n"):
-            if para.strip():
-                d.add_paragraph(para.strip())
+    if not secs:                          # tolerate a flat docx (top-level paragraphs/bullets/body)
+        for para in (spec.get("paragraphs") or []):
+            d.add_paragraph(str(para))
+        for b in (spec.get("bullets") or []):
+            d.add_paragraph(str(b), style="List Bullet")
+        if spec.get("body"):
+            for para in str(spec["body"]).split("\n\n"):
+                if para.strip():
+                    d.add_paragraph(para.strip())
     buf = io.BytesIO(); d.save(buf); return buf.getvalue()
 
 
@@ -96,6 +107,13 @@ def generate(spec):
     if not isinstance(spec, dict):
         raise ValueError("spec must be an object")
     t = (spec.get("type") or "").lower()
+    if t not in MIME:                     # infer from shape so a missing/typo'd type still builds
+        if spec.get("slides"):
+            t = "pptx"
+        elif spec.get("sheets") or spec.get("rows") or spec.get("headers"):
+            t = "xlsx"
+        elif spec.get("sections") or spec.get("paragraphs") or spec.get("body"):
+            t = "docx"
     if t not in MIME:
         raise ValueError("type must be pptx, xlsx or docx")
     data = {"pptx": _pptx, "xlsx": _xlsx, "docx": _docx}[t](spec)

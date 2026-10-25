@@ -4044,6 +4044,20 @@ var AGENT_QUALITY_PROMPT = "Operate at the highest professional standard for you
     + "and note when a licensed professional or a jurisdiction-specific check is required. "
     + "NEVER invent facts, statutes, case law, citations or numbers — if you don't know, say so. Match the user's language.";
 
+// Injected for EVERY active agent so professional drafts come back as a real downloadable
+// Word/Excel file (what a lawyer/doctor/accountant actually needs), not just chat text.
+var AGENT_DOC_PROMPT = "DELIVERABLE DOCUMENTS. When the user wants a document they will actually use "
+    + "(a pleading, court filing, demand/notice letter, contract, agreement, policy, report, SOP, or a table/register/schedule), "
+    + "DELIVER it as a downloadable file, not only as chat text: write ONE short intro sentence, then a fenced code block tagged grgdoc "
+    + "containing ONLY strict JSON, which Grg turns into a real Word/Excel file with a Download button. "
+    + "Use docx for prose documents (letters, pleadings, contracts, policies) and xlsx for tabular data (registers, schedules, evidence/exhibit lists). Schemas: "
+    + 'docx = {"type":"docx","filename":"name","title":"Doc Title","sections":[{"heading":"H","level":1,"paragraphs":["para","para"],"bullets":["b1"]}]}; '
+    + 'xlsx = {"type":"xlsx","filename":"name","sheets":[{"name":"Sheet1","headers":["A","B"],"rows":[["x",1],["y",2]]}]}. '
+    + "STRICT JSON RULES so the file never fails to build: double quotes only; NO comments; NO trailing commas; NO markdown, backticks or ** inside values; "
+    + "put each paragraph as its OWN string in paragraphs[] and NEVER place a raw line break inside a JSON string. "
+    + "Make the content rich and complete — fill everything you reasonably can; use a short blank like \"____\" ONLY for details you genuinely don't have (names, dates, addresses). "
+    + "Keep any [NAME_1]/[CNP_1]/[EMAIL_1]… placeholders verbatim inside the JSON. Emit a grgdoc block ONLY when the user actually wants a document.";
+
 // ─── Agent library — pick a specialist; each carries its own expertise + style.
 // `privacy:true` turns on the PII-redaction pipeline for that agent. Add more freely.
 var _AGENTS = [
@@ -4271,6 +4285,7 @@ function _buildMessages(message, history, summary) {
     _grgAgent = !!(_agentOn && _activeAgent.privacy);
     if (_agentOn) {
         messages.push({ role: 'system', content: AGENT_QUALITY_PROMPT });
+        messages.push({ role: 'system', content: AGENT_DOC_PROMPT });
         if (_activeAgent.privacy) messages.push({ role: 'system', content: GRGAGENT_PROMPT });
         messages.push({ role: 'system', content: _activeAgent.prompt });
     }
@@ -4300,10 +4315,21 @@ function _buildMessages(message, history, summary) {
 // Unified streaming chat through the backend proxy. API keys stay server-side.
 // onToken(delta) for answer chunks; onReasoning(delta) for chain-of-thought.
 // ─── grgdoc: turn a model-emitted spec into a downloadable Office file ───
+function _lenientJsonParse(s) {
+    s = String(s || '').trim().replace(/^json\s*/i, '');     // drop an accidental inner ```json tag
+    var a = s.indexOf('{'), b = s.lastIndexOf('}');
+    if (a > -1 && b > a) s = s.slice(a, b + 1);               // isolate the outermost {...}
+    try { return JSON.parse(s); } catch (e) {}
+    // repair the common model slips: block comments + trailing commas before } or ]
+    var r = s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/,\s*([}\]])/g, '$1');
+    try { return JSON.parse(r); } catch (e) {}
+    return null;
+}
 function _extractGrgDoc(text) {
-    var m = String(text || '').match(/```grgdoc\s*([\s\S]*?)```/);
+    var m = String(text || '').match(/```grgdoc\s*([\s\S]*?)```/i);
     if (!m) return null;
-    try { return { spec: JSON.parse(m[1].trim()) }; } catch (e) { return { error: true }; }
+    var spec = _lenientJsonParse(m[1]);
+    return (spec && typeof spec === 'object') ? { spec: spec } : { error: true };
 }
 function _stripGrgDoc(text) {
     return String(text || '').replace(/```grgdoc\s*[\s\S]*?```/g, '').trim();
