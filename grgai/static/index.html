@@ -1897,6 +1897,10 @@ function _mdIsTableSep(l) {
 }
 function formatMsg(text) {
     var h = esc(text);
+    // Models emit literal <br> inside markdown table cells (tables can't hold real
+    // newlines). esc() turned those into &lt;br&gt; — turn only that one safe void tag
+    // back into a real line break (anywhere: tables, paragraphs, lists).
+    h = h.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
     // 1) Fenced code blocks — pulled out first so nothing else touches them.
     //    Kept exactly as before so Run / Copy / Code-panel buttons still work.
     var codeBlocks = [];
