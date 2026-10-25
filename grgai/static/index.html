@@ -935,6 +935,16 @@
         .agent-banner.on { display: inline-flex; }
         .agent-banner .ab-x { margin-left: 4px; cursor: pointer; opacity: .7; }
         .agent-banner .ab-x:hover { opacity: 1; }
+        /* Privacy preview — shows exactly what leaves the device when a privacy agent is on */
+        .privacy-preview { display: none; margin: 0 0 8px; padding: 9px 11px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(139,92,246,0.28); }
+        .privacy-preview.show { display: block; }
+        .privacy-preview .pp-head { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: var(--accent-2); }
+        .privacy-preview .pp-head svg { width: 13px; height: 13px; flex-shrink: 0; }
+        .privacy-preview .pp-count { margin-left: auto; font-weight: 500; color: var(--text-mute); text-align: right; }
+        .privacy-preview .pp-body { margin-top: 6px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; line-height: 1.55; color: var(--text-dim); max-height: 80px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+        .privacy-preview .pp-tag { background: rgba(139,92,246,0.22); color: var(--accent-2); border-radius: 4px; padding: 0 4px; font-weight: 600; }
+        .msg-priv-badge { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(139,92,246,0.28); color: var(--accent-2); font-size: 10px; font-weight: 600; vertical-align: middle; }
+        .msg-priv-badge svg { width: 10px; height: 10px; }
         .agent-create { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px; margin-bottom: 8px; border: 1px dashed var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--accent-2); font-family: var(--font); font-size: 13.5px; font-weight: 600; cursor: pointer; }
         .agent-create:hover { background: rgba(139,92,246,0.14); }
         .agent-create .ac-plus { font-size: 16px; line-height: 1; }
@@ -1588,6 +1598,8 @@
             </button>
             <!-- Attachments bar -->
             <div class="attachments-bar" id="attachments-bar"></div>
+            <!-- Privacy preview: shows exactly what leaves the device (privacy agents only) -->
+            <div class="privacy-preview" id="privacy-preview"></div>
             <div class="input-box">
                 <!-- Textarea -->
                 <textarea class="input-field" id="input" placeholder="Ask anything..." rows="1" autofocus></textarea>
@@ -2307,7 +2319,9 @@ async function sendMessage(regenerate) {
     $input.disabled = true;
     _abortController = new AbortController();
     addMsgUI('user', displayMsg, true);
+    if (_grgAgent) { try { var _pp = _piiPreview(msg); if (_pp.total > 0) { var _umh = $msgs.querySelector('.message:last-child .msg-header'); if (_umh) { var _b = document.createElement('span'); _b.className = 'msg-priv-badge'; _b.title = _pp.total + ' date sensibile redactate înainte de trimitere'; _b.innerHTML = _PP_SHIELD + _pp.total + ' redactate'; _umh.appendChild(_b); } } } catch (e) {} }
     $input.value = ''; $input.style.height = 'auto';
+    try { updatePrivacyPreview(); } catch (e) {}
 
     const aiBody = addMsgUI('assistant', '', false);
     var lowerMsg = fullMsg.toLowerCase();
@@ -2709,6 +2723,7 @@ function toggleTheme() {
 
 $input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 $input.addEventListener('input', () => { $input.style.height = 'auto'; $input.style.height = Math.min($input.scrollHeight, 200) + 'px'; });
+$input.addEventListener('input', function(){ try { updatePrivacyPreview(); } catch (e) {} });
 
 // ─── CODE EDITOR PANEL ───
 var _currentCodeLang = 'code';
@@ -3980,6 +3995,41 @@ function _piiRestore(text) {
     if (!text || !_grgAgent) return text;
     return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
 }
+// ── Visible redaction preview: show exactly what leaves the device (privacy agents) ──
+var _PP_LABELS = { NAME: 'nume', EMAIL: 'email', CNP: 'CNP', PHONE: 'telefon', IBAN: 'IBAN', CARD: 'card', SECRET: 'secret' };
+var _PP_SHIELD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+// Run the real redaction on a COPY of the maps so the live preview never pollutes the
+// actual send/restore mapping. Returns the redacted text + per-type counts.
+function _piiPreview(text) {
+    var sM = _piiMap, sC = _piiCount;
+    _piiMap = { o2p: {}, p2o: {} }; _piiCount = {};
+    var red = _piiRedact(String(text || ''));
+    var counts = _piiCount;
+    _piiMap = sM; _piiCount = sC;
+    var total = 0; for (var k in counts) total += counts[k];
+    return { redacted: red, total: total, counts: counts };
+}
+function _piiCountLabel(counts) {
+    var parts = []; for (var k in counts) parts.push(counts[k] + ' ' + (_PP_LABELS[k] || k.toLowerCase()));
+    return parts.join(', ');
+}
+function _ppHighlight(s) {
+    // esc() first, then wrap each [TYPE_N] placeholder in a highlight tag.
+    return esc(String(s)).replace(/\[[A-Z]+_\d+\]/g, function (m) { return '<span class="pp-tag">' + m + '</span>'; });
+}
+function updatePrivacyPreview() {
+    var el = document.getElementById('privacy-preview');
+    if (!el) return;
+    var txt = (typeof $input !== 'undefined' && $input) ? $input.value : '';
+    if (!_grgAgent || !txt.trim()) { el.className = 'privacy-preview'; el.innerHTML = ''; return; }
+    var p = _piiPreview(txt);
+    if (p.total === 0) { el.className = 'privacy-preview'; el.innerHTML = ''; return; }
+    el.className = 'privacy-preview show';
+    el.innerHTML = '<div class="pp-head">' + _PP_SHIELD
+        + '<span>Ce pleacă de pe dispozitiv</span>'
+        + '<span class="pp-count">' + p.total + ' redactate · ' + esc(_piiCountLabel(p.counts)) + '</span></div>'
+        + '<div class="pp-body">' + _ppHighlight(p.redacted) + '</div>';
+}
 var GRGAGENT_PROMPT = "You are GrgAgent — a confidential, privacy-first assistant for legal, technical and privacy work. "
     + "The user's sensitive data (names, emails, phone numbers, national IDs/CNP, IBANs, card numbers, API secrets) has been REDACTED before reaching you "
     + "and replaced with typed placeholders like [NAME_1], [EMAIL_1], [IBAN_1], [SECRET_1]. Treat each placeholder as a real value of that type and reason about it normally. "
@@ -4104,6 +4154,7 @@ function selectAgent(id) {
     try { if (a) localStorage.setItem('grg_active_agent', a.id); else localStorage.removeItem('grg_active_agent'); } catch (e) {}
     if (typeof updateAgentUI === 'function') updateAgentUI();
     try { closeAgentPicker(); } catch (e) {}
+    try { updatePrivacyPreview(); } catch (e) {}
 }
 function clearAgent() { selectAgent(null); }
 
