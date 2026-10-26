@@ -251,6 +251,15 @@
     .agent-banner .ab-ico svg { width:14px; height:14px; vertical-align:-2px; }
     .agent-banner .ab-x { margin-left:4px; cursor:pointer; opacity:.7; }
     .agent-banner .ab-x:hover { opacity:1; }
+    .privacy-preview { display:none; margin:0 0 8px; padding:9px 11px; border-radius:10px; background:var(--accent-soft); border:1px solid rgba(139,92,246,0.28); }
+    .privacy-preview.show { display:block; }
+    .privacy-preview .pp-head { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; letter-spacing:0.02em; color:var(--accent-2); }
+    .privacy-preview .pp-head svg { width:13px; height:13px; flex-shrink:0; }
+    .privacy-preview .pp-count { margin-left:auto; font-weight:500; color:var(--text-mute); text-align:right; }
+    .privacy-preview .pp-body { margin-top:6px; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:11px; line-height:1.55; color:var(--text-dim); max-height:80px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+    .privacy-preview .pp-tag { background:rgba(139,92,246,0.22); color:var(--accent-2); border-radius:4px; padding:0 4px; font-weight:600; }
+    .msg-priv-badge { display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:1px 7px; border-radius:999px; background:var(--accent-soft); border:1px solid rgba(139,92,246,0.28); color:var(--accent-2); font-size:10px; font-weight:600; vertical-align:middle; }
+    .msg-priv-badge svg { width:10px; height:10px; }
     .agent-create { width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; margin-bottom:8px; border:1px dashed var(--accent); border-radius:10px; background:var(--accent-soft); color:var(--accent-2); font-family:var(--font); font-size:13.5px; font-weight:600; cursor:pointer; }
     .agent-create:hover { background:rgba(139,92,246,0.14); }
     .agent-create .ac-plus { font-size:16px; line-height:1; }
@@ -405,6 +414,7 @@
                     <div class="cmd-hint" id="cmd-hint"></div>
                     <div class="cmd-hint" id="file-hint"></div>
                     <div class="agent-banner" id="agent-banner"></div>
+                    <div class="privacy-preview" id="privacy-preview"></div>
                     <textarea id="input" rows="1" placeholder="Describe a task…  (/ for commands · @ to reference a file)"></textarea>
                     <div class="cfoot">
                         <button class="cbtn" id="mode-btn" title="Toggle how Grg handles commands &amp; file writes">

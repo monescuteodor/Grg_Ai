@@ -11,7 +11,7 @@ const MAX_ITERS = 30;
 // This build's version number — BUMP with each release (must match the vN in artifactName).
 // Hardcoded on purpose: electron-builder strips the `build` field from the packaged
 // package.json, so reading artifactName at runtime returned 0 and the updater always fired.
-const APP_VERSION = 40;
+const APP_VERSION = 41;
 
 let win = null;
 let projectDir = process.cwd();
@@ -82,7 +82,7 @@ const TOOLS = [
     { type: 'function', function: { name: 'search', description: 'Search the project files for a text/regex pattern (like grep).', parameters: { type: 'object', properties: { query: { type: 'string' }, path: { type: 'string', description: 'Subdirectory to search, default "."' } }, required: ['query'] } } },
     { type: 'function', function: { name: 'git', description: 'Run a git command in the project folder, e.g. "status -s", "diff", "log --oneline -10", "add -A", "commit -m \\"message\\"". Read-only subcommands (status, diff, log, show, branch, remote, ls-files, rev-parse, describe, blame) run without approval; anything that changes the repo requires user approval.', parameters: { type: 'object', properties: { args: { type: 'string', description: 'Arguments after "git", e.g. "status -s".' } }, required: ['args'] } } },
     { type: 'function', function: { name: 'knowledge', description: 'Load Grg Code\'s app/web-building knowledge base (best practices, patterns, boilerplates). Call with no topic to list available topics; call with a topic to read that guide. Use it BEFORE scaffolding or building an app/website so you follow current best practices.', parameters: { type: 'object', properties: { topic: { type: 'string', description: 'A topic slug from the list (e.g. "nextjs"). Omit to list all topics.' } } } } },
-    { type: 'function', function: { name: 'create_document', description: 'Create a real Office file — PowerPoint (.pptx), Excel (.xlsx) or Word (.docx) — and save it to the folder. Use for presentations, spreadsheets, and documents. Requires user approval.', parameters: { type: 'object', properties: { spec: { type: 'string', description: 'JSON spec. pptx: {"type":"pptx","filename":"name","title":"...","slides":[{"title":"...","bullets":["..."]}]}. xlsx: {"type":"xlsx","filename":"name","sheets":[{"name":"Sheet1","headers":["A","B"],"rows":[["x",1]]}]}. docx: {"type":"docx","filename":"name","title":"...","sections":[{"heading":"H","level":1,"paragraphs":["..."],"bullets":["..."]}]}.' } }, required: ['spec'] } } },
+    { type: 'function', function: { name: 'create_document', description: 'Create a real file — PowerPoint (.pptx), Excel (.xlsx), Word (.docx) or PDF (.pdf) — and save it to the folder. Use for presentations, spreadsheets, documents, and ready-to-print/file PDFs (contracts, pleadings, letters, reports). Requires user approval.', parameters: { type: 'object', properties: { spec: { type: 'string', description: 'JSON spec. pptx: {"type":"pptx","filename":"name","title":"...","slides":[{"title":"...","bullets":["..."]}]}. xlsx: {"type":"xlsx","filename":"name","sheets":[{"name":"Sheet1","headers":["A","B"],"rows":[["x",1]]}]}. docx: {"type":"docx","filename":"name","title":"...","sections":[{"heading":"H","level":1,"paragraphs":["..."],"bullets":["..."]}]}. pdf: same shape as docx with "type":"pdf" (use for a ready-to-print/file version). Use docx for an editable document, pdf to print/file, xlsx for tables.' } }, required: ['spec'] } } },
     { type: 'function', function: { name: 'web_search', description: 'Search the web (DuckDuckGo) for CURRENT info: library versions, APIs, docs, app-store rules, prices, hardware. Returns titles, URLs and snippets. Read-only, no approval needed.', parameters: { type: 'object', properties: { query: { type: 'string' }, n: { type: 'integer', description: 'max results (default 5)' } }, required: ['query'] } } },
     { type: 'function', function: { name: 'fetch_url', description: 'Fetch a web page and return its readable text — use to read a doc/page found via web_search. Read-only, no approval needed.', parameters: { type: 'object', properties: { url: { type: 'string' } }, required: ['url'] } } },
     { type: 'function', function: { name: 'update_plan', description: 'Create or update your visible step-by-step task plan (a TODO checklist shown to the user). Call it at the START of any multi-step task and whenever a step changes status. Use it to think through the work and track progress so you never stop early.', parameters: { type: 'object', properties: { steps: { type: 'array', items: { type: 'object', properties: { title: { type: 'string' }, status: { type: 'string', enum: ['pending', 'in_progress', 'done'] } }, required: ['title'] } } }, required: ['steps'] } } },
@@ -358,10 +358,10 @@ async function executeTool(name, args, callId) {
             let spec;
             try { spec = typeof args.spec === 'string' ? JSON.parse(args.spec) : args.spec; }
             catch (e) { return 'Invalid document spec JSON: ' + e.message; }
-            if (!spec || !spec.type) return 'Document spec needs a "type" (pptx/xlsx/docx).';
+            if (!spec || !spec.type) return 'Document spec needs a "type" (pptx/xlsx/docx/pdf).';
             const dir = projectDir || app.getPath('documents') || os.homedir();
             let fname = String(spec.filename || spec.title || 'document').replace(/[^A-Za-z0-9 ._-]/g, '').trim() || 'document';
-            if (!/\.(pptx|xlsx|docx)$/i.test(fname)) fname += '.' + spec.type;
+            if (!/\.(pptx|xlsx|docx|pdf)$/i.test(fname)) fname += '.' + spec.type;
             const dest = path.join(dir, fname);
             const ok = await requestApproval({ kind: 'write', title: 'Create document', path: dest, diffOld: '', diffNew: '(' + String(spec.type).toUpperCase() + ' document: ' + (spec.title || fname) + ')' });
             if (!ok) return 'User denied creating ' + fname;
@@ -528,7 +528,7 @@ function systemPrompt() {
             '5) Implement: edit_file (unique old_string) or write_file for one file; apply_patch for a multi-file change in one shot.',
             '6) VERIFY: run the build/tests with run_command, read the errors, and fix until it actually works. Do not claim done without verifying.',
             '7) Finish with a short summary of what changed and how to run it. When you learn a durable repo convention (build/test cmd, style, gotcha), save it with remember.',
-            'Use web_search + fetch_url for current library versions, APIs, docs, app-store rules, pricing and hardware. Use create_document for real .pptx/.xlsx/.docx. Use git (read-only runs freely; commits need approval).',
+            'Use web_search + fetch_url for current library versions, APIs, docs, app-store rules, pricing and hardware. Use create_document for real .pptx/.xlsx/.docx/.pdf — when the user wants a usable document (contract, pleading, letter, report, table), DELIVER it as a real file (docx to edit, pdf to print/file, xlsx for tables), not just chat text. Use git (read-only runs freely; commits need approval).',
             'IMAGES: when what you build needs photos, use REAL ones — in web/HTML embed <img src="https://grg-ai.com/img?q=<comma,keywords>&w=1600&h=900"> (resolves to a real photo, no download), or use add_image to download a real photo into the project for native/local use; image_search previews options. NEVER leave broken placeholder images.',
             (skills.length ? 'Skills you can load (knowledge <topic>): ' + skills.join(', ') + '.' : ''),
             (tpls.length ? 'Scaffold templates (scaffold <name>): ' + tpls.join(', ') + '.' : ''),
