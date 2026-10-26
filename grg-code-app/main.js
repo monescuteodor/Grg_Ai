@@ -11,7 +11,7 @@ const MAX_ITERS = 30;
 // This build's version number — BUMP with each release (must match the vN in artifactName).
 // Hardcoded on purpose: electron-builder strips the `build` field from the packaged
 // package.json, so reading artifactName at runtime returned 0 and the updater always fired.
-const APP_VERSION = 41;
+const APP_VERSION = 42;
 
 let win = null;
 let projectDir = process.cwd();
