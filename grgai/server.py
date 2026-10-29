@@ -69,6 +69,11 @@ _PROVIDERS = {
 # never real identities.
 LOCAL_LLM_URL   = os.environ.get("LOCAL_LLM_URL", "http://192.168.50.206:11434").rstrip("/")
 LOCAL_LLM_MODEL = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:3b")
+# Unload the model from the GPU after this much idle time → the 980 drops to its
+# low-power state (cool, quiet fans) when nobody is using it. Short = greener/quieter
+# but a ~3-5s reload on the next request after an idle gap. Ollama honours this on the
+# OpenAI endpoint. Set LOCAL_KEEP_ALIVE=0 to unload immediately, or e.g. "10m" to stay warm.
+LOCAL_KEEP_ALIVE = os.environ.get("LOCAL_KEEP_ALIVE", "2m")
 try:
     LOCAL_MAX_CONCURRENT = max(1, int(os.environ.get("LOCAL_MAX_CONCURRENT", "2")))
 except (TypeError, ValueError):
@@ -1090,6 +1095,9 @@ async def chat(request: Request):
     # Ask the provider to report exact token usage so we charge precisely (money at stake).
     if is_premium:
         payload["stream_options"] = {"include_usage": True}
+    # Grg Private: let the 980 idle-down (cool + quiet) by unloading the model after a short gap.
+    if provider == "local":
+        payload["keep_alive"] = LOCAL_KEEP_ALIVE
 
     _is_local = (provider == "local")
 
