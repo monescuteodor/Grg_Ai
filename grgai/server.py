@@ -61,6 +61,46 @@ _PROVIDERS = {
     ),
 }
 
+# ─── Grg Private: local inference on the user's OWN GPU box (980 PC, via Ollama) ──
+# The Pi serves the site and ROUTES here first; the 980 does the heavy processing. When
+# the box is busy (too many users at once) or unreachable, we spill over to the cloud API
+# — and the client is told which engine answered. Client-side PII redaction still runs
+# first, so even a cloud overflow only ever sees placeholders ([NAME_1], [CNP_1]…),
+# never real identities.
+LOCAL_LLM_URL   = os.environ.get("LOCAL_LLM_URL", "http://192.168.50.206:11434").rstrip("/")
+LOCAL_LLM_MODEL = os.environ.get("LOCAL_LLM_MODEL", "qwen2.5:3b")
+try:
+    LOCAL_MAX_CONCURRENT = max(1, int(os.environ.get("LOCAL_MAX_CONCURRENT", "2")))
+except (TypeError, ValueError):
+    LOCAL_MAX_CONCURRENT = 2
+LOCAL_OVERFLOW_PROVIDER = os.environ.get("LOCAL_OVERFLOW_PROVIDER", "groq")
+LOCAL_OVERFLOW_MODEL    = os.environ.get("LOCAL_OVERFLOW_MODEL", "openai/gpt-oss-20b")
+PRIVATE_MODEL_ID = "grg/private"
+
+# Ollama exposes an OpenAI-compatible endpoint, so the existing SSE proxy works unchanged.
+_PROVIDERS["local"] = (f"{LOCAL_LLM_URL}/v1/chat/completions", lambda: "ollama", {})
+
+# In-flight generations the local box handles before we spill to cloud.
+_local_inflight = 0
+_local_health = {"ok": False, "ts": 0.0}
+
+async def _local_healthy():
+    """Is the 980 box reachable right now? Cached ~15s so we don't ping it every message."""
+    import time
+    now = time.time()
+    if now - _local_health["ts"] < 15:
+        return _local_health["ok"]
+    ok = False
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(3.0, connect=2.0)) as c:
+            r = await c.get(f"{LOCAL_LLM_URL}/api/tags")
+            ok = (r.status_code == 200)
+    except Exception:  # noqa: BLE001 — unreachable/offline → overflow to cloud
+        ok = False
+    _local_health.update(ok=ok, ts=now)
+    return ok
+
+
 SYSTEM_PROMPT = (
     "You are Grg AI, an expert programming assistant created by Monescu Teodor. "
     "You are especially strong at writing, explaining, debugging and reviewing code. "
@@ -86,6 +126,8 @@ IDENTITY_PROMPT = (
 # Only these models may be proxied (protects the API keys from being used for
 # arbitrary/expensive models by anyone hitting /api/chat directly).
 ALLOWED_MODELS = {
+    # Grg Private — local models on the user's own GPU box (980 PC via Ollama)
+    "grg/private", "qwen2.5:3b", "qwen2.5:7b",
     # Groq (free)
     "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "groq/compound",
     # OpenAI
@@ -874,6 +916,7 @@ def _kb_match(text, cap=4800):
 
 @app.post("/api/chat")
 async def chat(request: Request):
+    global _local_inflight
     try:
         body = await request.json()
     except Exception:
@@ -885,6 +928,26 @@ async def chat(request: Request):
     temperature = body.get("temperature", 0.7)
     max_tokens = body.get("max_tokens", 2048)
     effort = str(body.get("effort") or "low")
+
+    # ─── Grg Private routing ── prefer the user's own 980 GPU box; spill to cloud when busy/down.
+    # Normal path: everything runs LOCAL on the 980 (free, private, fast). Only when the box is
+    # saturated (≥ LOCAL_MAX_CONCURRENT generations in flight) or unreachable do we switch to the
+    # cloud API, and we tell the client which engine served the reply so the switch is visible.
+    engine_info = None
+    if model == PRIVATE_MODEL_ID or provider == "local":
+        if not (isinstance(messages, list) and messages):   # validate BEFORE claiming a slot (no leak)
+            return JSONResponse({"error": "Missing 'messages'"}, status_code=400)
+        _healthy = await _local_healthy()          # await FIRST, outside the capacity check
+        if _healthy and _local_inflight < LOCAL_MAX_CONCURRENT:
+            _local_inflight += 1                   # atomic check+claim (no await between) → no race
+            provider, model = "local", LOCAL_LLM_MODEL
+            engine_info = {"engine": "local",
+                           "label": "Procesat local, pe serverul tău (GPU 980) — nimic nu pleacă pe cloud."}
+        else:
+            provider, model = LOCAL_OVERFLOW_PROVIDER, LOCAL_OVERFLOW_MODEL
+            _why = "ocupat" if _healthy else "momentan indisponibil"
+            engine_info = {"engine": "cloud",
+                           "label": f"Serverul local e {_why} — comutat pe cloud (datele rămân redactate)."}
 
     # AutoGrg: classify the task, then route to the best model the user can afford
     # (premium if they have a Pro plan or credits; free otherwise) + inject expertise.
@@ -998,7 +1061,7 @@ async def chat(request: Request):
     # Specialist agents cost AGENT_MULT× more (heavier workload) — flagged by the client.
     _agent_mult = (AGENT_MULT if (_BILLING_OK and body.get("agent")) else 1.0)
     _charge = {"cost": 0, "charged": 0, "balance": None}
-    if _BILLING_OK and uid:
+    if _BILLING_OK and uid and not engine_info:   # Grg Private (local/overflow) is free
         _charge = charge_message(uid, model, effort,
                                  est_in_tokens=_est_in, max_out_tokens=max_tokens,
                                  agent_mult=_agent_mult)
@@ -1028,9 +1091,16 @@ async def chat(request: Request):
     if is_premium:
         payload["stream_options"] = {"include_usage": True}
 
+    _is_local = (provider == "local")
+
     async def event_stream():
+        global _local_inflight
         out_chars = 0
         real_usage = None
+        # NB: the local slot was already claimed at decision time (above) to avoid a
+        # race where simultaneous requests all read the counter before any increment.
+        if engine_info:
+            yield "data: " + json.dumps({"engine": engine_info}) + "\n\n"
         if routed:
             yield "data: " + json.dumps({"routed": routed}) + "\n\n"
         # Free models: flat charge, show it right away. Premium: the up-front charge is a
@@ -1107,6 +1177,9 @@ async def chat(request: Request):
             yield "data: " + json.dumps({"error": "Upstream timed out"}) + "\n\n"
         except Exception as e:  # noqa: BLE001
             yield "data: " + json.dumps({"error": f"Proxy error: {e}"}) + "\n\n"
+        finally:
+            if _is_local:
+                _local_inflight -= 1
 
     return StreamingResponse(
         event_stream(),

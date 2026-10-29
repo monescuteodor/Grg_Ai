@@ -3734,6 +3734,7 @@ var _MODELS = {
     'grg-coder':  { label:'Grg Coder',  family:'Grg', provider:'openrouter', model:'poolside/laguna-s-2.1:free',            badge:'Code',     bt:'green',  free:true },
     'grg-fast':   { label:'Grg Fast',   family:'Grg', provider:'groq',       model:'openai/gpt-oss-20b',                    badge:'Fast',     bt:'green',  free:true },
     'grg-image':  { label:'Grg Image',  family:'Grg', kind:'image', imgBackend:'pollinations',                          badge:'Image',    bt:'green',  free:true },
+    'grg-private':{ label:'Grg Private',family:'Grg', provider:'local',      model:'grg/private',                           badge:'Privat',   bt:'green',  free:true },
     // Qwen
     'qwen-27b':   { label:'Qwen3.8 27B', family:'Qwen', provider:'groq',      model:'qwen/qwen3.8-27b',                      badge:'Reason',   bt:'orange', free:true },
     'qwen-coder': { label:'Qwen3 Coder', family:'Qwen', provider:'openrouter',model:'qwen/qwen3-coder',                      badge:'Code',     bt:'purple', premium:true },
@@ -3783,7 +3784,7 @@ var _FAMILY_ORDER = ['Grg','Anthropic','OpenAI','Google'];
 // brands (Claude / GPT / Gemini) stay individually selectable. Every OTHER model in
 // _MODELS is still defined, priced and routable — it just lives inside the AutoGrg
 // pool (AutoGrg scans availability and picks the right one) instead of cluttering the menu.
-var _MENU_MODELS = ['auto','grg-image','claude-opus','claude-sonnet','claude-fable','gpt-56','gpt-55','gpt-4o','gpt-codex','gemini-pro','gemini-25pro'];
+var _MENU_MODELS = ['auto','grg-private','grg-image','claude-opus','claude-sonnet','claude-fable','gpt-56','gpt-55','gpt-4o','gpt-codex','gemini-pro','gemini-25pro'];
 
 // Build the model dropdown grouped by family.
 // ─── Live model availability (which AIs actually work right now) ───
@@ -4394,6 +4395,7 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             catch (e) { continue; }   // partial / non-JSON keep-alive
             if (p.error) throw new Error(p.error);
             if (p.routed && typeof _onRouted === 'function') { try { _onRouted(p.routed); } catch (e) {} }
+            if (p.engine) { try { window._lastEngine = p.engine; if (p.engine.label) flashToast(p.engine.label); } catch (e) {} }
             if (p.charge) { try { _applyCharge(p.charge); } catch (e) {} }
             if (p.reasoning && onReasoning) onReasoning(p.reasoning);
             if (p.token) onToken(p.token);
