@@ -1026,7 +1026,7 @@ async def chat(request: Request):
         return JSONResponse({"error": f"Unknown provider '{provider}'"}, status_code=400)
     if not model:
         return JSONResponse({"error": "Missing 'model'"}, status_code=400)
-    if model not in ALLOWED_MODELS:
+    if provider != "local" and model not in ALLOWED_MODELS:   # local model is admin-set via LOCAL_LLM_MODEL, not user-supplied
         return JSONResponse({"error": f"Model '{model}' is not enabled"}, status_code=403)
     if not isinstance(messages, list) or not messages:
         return JSONResponse({"error": "Missing 'messages'"}, status_code=400)
