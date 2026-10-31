@@ -2324,7 +2324,7 @@ async function sendMessage(regenerate) {
     $input.disabled = true;
     _abortController = new AbortController();
     addMsgUI('user', displayMsg, true);
-    if (_grgAgent) { try { var _pp = _piiPreview(msg); if (_pp.total > 0) { var _umh = $msgs.querySelector('.message:last-child .msg-header'); if (_umh) { var _b = document.createElement('span'); _b.className = 'msg-priv-badge'; _b.title = _pp.total + ' date sensibile redactate înainte de trimitere'; _b.innerHTML = _PP_SHIELD + _pp.total + ' redactate'; _umh.appendChild(_b); } } } catch (e) {} }
+    if (_redactOn()) { try { var _pp = _piiPreview(msg); if (_pp.total > 0) { var _umh = $msgs.querySelector('.message:last-child .msg-header'); if (_umh) { var _b = document.createElement('span'); _b.className = 'msg-priv-badge'; _b.title = _pp.total + ' date sensibile redactate înainte de trimitere'; _b.innerHTML = _PP_SHIELD + _pp.total + ' redactate'; _umh.appendChild(_b); } } } catch (e) {} }
     $input.value = ''; $input.style.height = 'auto';
     try { updatePrivacyPreview(); } catch (e) {}
 
@@ -3980,8 +3980,14 @@ function _nameRedact(out) {
     out = _nameDictPass(out);
     return out;
 }
+function _redactOn() {
+    // Redact PII before anything goes to a THIRD-PARTY CLOUD (Groq / OpenRouter / Auto).
+    // The local "Grg Private" tier runs on your own box, so no redaction is needed there.
+    if (_grgAgent) return true;
+    try { var m = _MODELS[_currentModel]; if (!m) return false; if (m.provider === 'local') return false; if (m.kind === 'image') return false; return true; } catch (e) { return false; }
+}
 function _piiRedact(text) {
-    if (!text || !_grgAgent) return text;
+    if (!text || !_redactOn()) return text;
     var out = String(text);
     for (var k = 0; k < _PII_PATTERNS.length; k++) {
         var type = _PII_PATTERNS[k][0];
@@ -3998,7 +4004,7 @@ function _piiRedact(text) {
     return out;
 }
 function _piiRestore(text) {
-    if (!text || !_grgAgent) return text;
+    if (!text) return text;   // safe no-op when nothing was redacted (no map entries)
     return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
 }
 // ── Visible redaction preview: show exactly what leaves the device (privacy agents) ──
