@@ -1358,7 +1358,7 @@
                         <span>+ all Grg house models</span>
                     </div>
                 </div>
-                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startUpgrade('pro');closePlansModal()">Upgrade to Pro — €5/mo</button>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startCryptoPay('subscription',{plan:'pro'});closePlansModal()">🪙 Pay with crypto — €5/mo</button>
                 <button class="plan-col-btn nhash-btn" onclick="payWithNhash()"><svg viewBox="0 0 40 40" width="16" height="16" aria-hidden="true"><defs><linearGradient id="nhgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect x="2" y="2" width="36" height="36" rx="10" fill="url(#nhgB)"/><text x="18" y="28" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="20" fill="#fff">n</text></svg>Pay with nHash</button>
             </div>
 
@@ -1384,7 +1384,7 @@
                     <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span><strong>Gemini 3 Pro</strong></span></div>
                     <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span>+ all GrgPro models</span></div>
                 </div>
-                <button class="plan-col-btn pro-btn" id="plans-upgrade-ultra-btn" onclick="startUpgrade('ultra');closePlansModal()">Upgrade to Ultra — €20/mo</button>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-ultra-btn" onclick="startCryptoPay('subscription',{plan:'ultra'});closePlansModal()">🪙 Pay with crypto — €20/mo</button>
             </div>
         </div>
     </div>
@@ -3739,7 +3739,6 @@ var _MODELS = {
     'grg-coder':  { label:'Grg Coder',  family:'Grg', provider:'openrouter', model:'poolside/laguna-s-2.1:free',            badge:'Code',     bt:'green',  free:true },
     'grg-fast':   { label:'Grg Fast',   family:'Grg', provider:'groq',       model:'openai/gpt-oss-20b',                    badge:'Fast',     bt:'green',  free:true },
     'grg-image':  { label:'Grg Image',  family:'Grg', kind:'image', imgBackend:'pollinations',                          badge:'Image',    bt:'green',  free:true },
-    'grg-private':{ label:'Grg Private',family:'Grg', provider:'local',      model:'grg/private',                           badge:'Privat',   bt:'green',  free:true },
     // Qwen
     'qwen-27b':   { label:'Qwen3.8 27B', family:'Qwen', provider:'groq',      model:'qwen/qwen3.8-27b',                      badge:'Reason',   bt:'orange', free:true },
     'qwen-coder': { label:'Qwen3 Coder', family:'Qwen', provider:'openrouter',model:'qwen/qwen3-coder',                      badge:'Code',     bt:'purple', premium:true },
@@ -3789,7 +3788,7 @@ var _FAMILY_ORDER = ['Grg','Anthropic','OpenAI','Google'];
 // brands (Claude / GPT / Gemini) stay individually selectable. Every OTHER model in
 // _MODELS is still defined, priced and routable — it just lives inside the AutoGrg
 // pool (AutoGrg scans availability and picks the right one) instead of cluttering the menu.
-var _MENU_MODELS = ['auto','grg-private','grg-image','claude-opus','claude-sonnet','claude-fable','gpt-56','gpt-55','gpt-4o','gpt-codex','gemini-pro','gemini-25pro'];
+var _MENU_MODELS = ['auto','grg-image','claude-opus','claude-sonnet','claude-fable','gpt-56','gpt-55','gpt-4o','gpt-codex','gemini-pro','gemini-25pro'];
 
 // Build the model dropdown grouped by family.
 // ─── Live model availability (which AIs actually work right now) ───
@@ -4824,7 +4823,7 @@ function showPlansModal() {
         if (freeBadge) freeBadge.style.display = 'block';
         if (proBadge)  proBadge.style.display = 'none';
         if (ultraBadge) ultraBadge.style.display = 'none';
-        if (upgradeBtn) { upgradeBtn.textContent = 'Upgrade to Pro — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startUpgrade('pro'); closePlansModal(); }; }
+        if (upgradeBtn) { upgradeBtn.textContent = '🪙 Pay with crypto — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startCryptoPay('subscription',{plan:'pro'}); closePlansModal(); }; }
         if (freeBtn) freeBtn.textContent = 'Current Plan';
     }
 
