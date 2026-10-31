@@ -175,6 +175,12 @@ from stripe_handler import (
     confirm_topup,
 )
 try:
+    from lemonsqueezy_handler import create_ls_checkout, ls_webhook, ls_enabled
+    _LS_OK = True
+except Exception as _e:  # noqa: BLE001
+    print(f"[lemonsqueezy] not available: {_e}")
+    _LS_OK = False
+try:
     from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
@@ -493,6 +499,23 @@ async def topup(request: Request):
 @app.post("/api/topup-confirm")
 async def topup_confirm(request: Request):
     return await confirm_topup(request)
+
+# ─── Lemon Squeezy (Merchant of Record) — card payments without our own company ───
+@app.post("/api/ls/checkout")
+async def ls_checkout_route(request: Request):
+    if not _LS_OK:
+        return JSONResponse({"error": "Lemon Squeezy not available"}, status_code=503)
+    return await create_ls_checkout(request)
+
+@app.post("/api/ls/webhook")
+async def ls_webhook_route(request: Request):
+    if not _LS_OK:
+        return JSONResponse({"error": "Lemon Squeezy not available"}, status_code=503)
+    return await ls_webhook(request)
+
+@app.get("/api/ls/enabled")
+async def ls_enabled_route():
+    return JSONResponse({"enabled": bool(_LS_OK and ls_enabled())})
 
 @app.get("/api/account")
 async def account(request: Request):

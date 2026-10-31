@@ -4594,18 +4594,27 @@ function renderBilling() {
     }
 }
 
+// Prefer Lemon Squeezy (merchant of record) for card payments when it's configured
+// server-side; otherwise fall back to Stripe. Lets us accept cards before having a company.
+window._lsEnabled = false;
+(function(){ try { fetch('/api/ls/enabled').then(function(r){return r.json();}).then(function(d){ window._lsEnabled = !!(d && d.enabled); }).catch(function(){}); } catch(e){} })();
+
 async function startTopup(eur) {
     if (!_currentUser) { openAuthModal(false); return; }
     eur = Math.round(Number(eur) * 100) / 100;
     if (!(eur >= 1 && eur <= 500)) { flashToast('Enter an amount between €1 and €500'); return; }
     try {
-        var res = await fetch('/api/create-topup', {
+        var url = window._lsEnabled ? '/api/ls/checkout' : '/api/create-topup';
+        var payload = window._lsEnabled
+            ? { uid: _currentUser.uid, email: _currentUser.email, kind: 'topup', eur: eur }
+            : { uid: _currentUser.uid, email: _currentUser.email, eur: eur };
+        var res = await fetch(url, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: _currentUser.uid, email: _currentUser.email, eur: eur })
+            body: JSON.stringify(payload)
         });
         var data = await res.json();
         if (data.url) window.location.href = data.url;
-        else alert((data && data.detail) || 'Could not start checkout. Please try again.');
+        else alert((data && (data.detail || data.error)) || 'Could not start checkout. Please try again.');
     } catch(e) { alert('Payment error. Please try again.'); }
 }
 function startTopupCustom() {
@@ -4776,10 +4785,14 @@ async function startUpgrade(plan) {
     plan = (plan === 'ultra') ? 'ultra' : 'pro';
     if (!_currentUser) { closeUpgrade(); openAuthModal(false); return; }
     try {
-        var res = await fetch('/api/create-checkout', {
+        var url = window._lsEnabled ? '/api/ls/checkout' : '/api/create-checkout';
+        var payload = window._lsEnabled
+            ? { uid: _currentUser.uid, email: _currentUser.email, kind: 'subscription', interval: _billingInterval, plan: plan }
+            : { uid: _currentUser.uid, email: _currentUser.email, interval: _billingInterval, plan: plan };
+        var res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: _currentUser.uid, email: _currentUser.email, interval: _billingInterval, plan: plan })
+            body: JSON.stringify(payload)
         });
         var data = await res.json().catch(function(){ return {}; });
         if (data.url) { window.location.href = data.url; return; }
