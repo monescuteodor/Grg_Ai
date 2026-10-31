@@ -111,7 +111,7 @@ async def create_crypto_checkout(request: Request):
         "created_at": time.time(),
     })
 
-    msg = f"Grg AI — credit €{('%g' % eur)}" if kind == "topup" else f"Grg {plan.capitalize()} (30 zile)"
+    msg = f"Grg AI — credit €{('%g' % eur)}" if kind == "topup" else f"Grg {plan.capitalize()} (30 days)"
     pay_url = (f"solana:{SOL_ADDRESS}?amount={usdc}&spl-token={USDC_MINT}"
                f"&reference={reference}&label={quote('Grg AI')}&message={quote(msg)}")
     return JSONResponse({

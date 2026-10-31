@@ -1123,7 +1123,7 @@
             <div class="pay-methods" style="margin-top:10px;display:flex;gap:10px;justify-content:center;align-items:center;font-size:11px;flex-wrap:wrap">
                 <span style="color:var(--accent-2);font-weight:600">🪙 USDC · Solana</span>
                 <span style="color:var(--text-mute);opacity:.45;text-decoration:line-through">💳 Card</span>
-                <span style="color:var(--text-mute)">(în curând)</span>
+                <span style="color:var(--text-mute)">(coming soon)</span>
             </div>
             <div class="credit-meta" id="credit-meta"></div>
         </div>
@@ -4631,7 +4631,7 @@ function _cryptoModal(){
     document.head.appendChild(css);
     m = document.createElement('div');
     m.id = 'crypto-modal'; m.className = 'crypto-ov';
-    m.innerHTML = '<div class="crypto-card"><h3>Plată cu crypto</h3><div class="cc-sub">Scanează cu wallet-ul sau trimite exact suma în <b>USDC pe Solana</b>.</div><div class="cc-qr" id="cc-qr"></div><div class="cc-amt" id="cc-amt"></div><div class="cc-net">USDC · rețeaua Solana</div><div class="cc-addr" id="cc-addr"></div><button class="cc-copy" id="cc-copy">Copiază adresa</button><div class="cc-status" id="cc-status"><span class="cc-spin"></span> Aștept plata…</div><button class="cc-close" id="cc-close">Închide</button></div>';
+    m.innerHTML = '<div class="crypto-card"><h3>Pay with crypto</h3><div class="cc-sub">Scan with your wallet, or send the exact amount in <b>USDC on Solana</b>.</div><div class="cc-qr" id="cc-qr"></div><div class="cc-amt" id="cc-amt"></div><div class="cc-net">USDC · Solana network</div><div class="cc-addr" id="cc-addr"></div><button class="cc-copy" id="cc-copy">Copy address</button><div class="cc-status" id="cc-status"><span class="cc-spin"></span> Waiting for payment…</div><button class="cc-close" id="cc-close">Close</button></div>';
     document.body.appendChild(m);
     m.querySelector('#cc-close').onclick = function(){ _closeCrypto(); };
     m.addEventListener('click', function(e){ if (e.target === m) _closeCrypto(); });
@@ -4646,14 +4646,14 @@ async function startCryptoPay(kind, opts){
             body: JSON.stringify({ uid:_currentUser.uid, email:_currentUser.email, kind:kind, plan:opts.plan, eur:opts.eur })
         });
         var d = await res.json();
-        if (!d || !d.address) { alert((d && (d.error||d.detail)) || 'Nu am putut crea plata.'); return; }
+        if (!d || !d.address) { alert((d && (d.error||d.detail)) || 'Could not start the payment.'); return; }
         var m = _cryptoModal();
         m.querySelector('#cc-amt').textContent = d.amount_usdc + ' USDC';
         m.querySelector('#cc-addr').textContent = d.address;
-        m.querySelector('#cc-copy').onclick = function(){ try{ navigator.clipboard.writeText(d.address).then(function(){ flashToast('Adresă copiată'); }); }catch(e){} };
-        var st = m.querySelector('#cc-status'); st.innerHTML = '<span class="cc-spin"></span> Aștept plata…';
+        m.querySelector('#cc-copy').onclick = function(){ try{ navigator.clipboard.writeText(d.address).then(function(){ flashToast('Address copied'); }); }catch(e){} };
+        var st = m.querySelector('#cc-status'); st.innerHTML = '<span class="cc-spin"></span> Waiting for payment…';
         var qd = m.querySelector('#cc-qr'); qd.innerHTML = '';
-        _ensureQR(function(){ try { if (window.QRCode) new QRCode(qd, { text:d.solana_url, width:180, height:180, correctLevel: QRCode.CorrectLevel.M }); else qd.textContent='Copiază adresa în wallet'; } catch(e){ qd.textContent=''; } });
+        _ensureQR(function(){ try { if (window.QRCode) new QRCode(qd, { text:d.solana_url, width:180, height:180, correctLevel: QRCode.CorrectLevel.M }); else qd.textContent='Copy the address into your wallet'; } catch(e){ qd.textContent=''; } });
         m.classList.add('visible');
         if (_cryptoPoll) clearInterval(_cryptoPoll);
         var tries = 0;
@@ -4665,16 +4665,16 @@ async function startCryptoPay(kind, opts){
                 var s2 = await r2.json();
                 if (s2.status === 'paid') {
                     clearInterval(_cryptoPoll); _cryptoPoll=null;
-                    st.innerHTML = '✅ Plată confirmată!';
-                    flashToast('Plată confirmată — mulțumim!');
+                    st.innerHTML = '✅ Payment confirmed!';
+                    flashToast('Payment confirmed — thank you!');
                     setTimeout(function(){ _closeCrypto(); try{ loadAccount(); loadSubscriptionStatus(); }catch(e){} }, 1500);
                 } else if (s2.status === 'expired') {
                     clearInterval(_cryptoPoll); _cryptoPoll=null;
-                    st.textContent = 'Comanda a expirat. Închide și reîncearcă.';
+                    st.textContent = 'Order expired. Close and try again.';
                 }
             } catch(e){}
         }, 5000);
-    } catch(e){ alert('Eroare la plată. Încearcă din nou.'); }
+    } catch(e){ alert('Payment error. Please try again.'); }
 }
 
 async function startTopup(eur) {
