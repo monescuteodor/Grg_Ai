@@ -4395,7 +4395,7 @@ async function _streamChat(provider, modelName, message, history, onToken, onRea
             catch (e) { continue; }   // partial / non-JSON keep-alive
             if (p.error) throw new Error(p.error);
             if (p.routed && typeof _onRouted === 'function') { try { _onRouted(p.routed); } catch (e) {} }
-            if (p.engine) { try { window._lastEngine = p.engine; if (p.engine.label) flashToast(p.engine.label); } catch (e) {} }
+            if (p.engine) { try { window._lastEngine = p.engine; } catch (e) {} }
             if (p.charge) { try { _applyCharge(p.charge); } catch (e) {} }
             if (p.reasoning && onReasoning) onReasoning(p.reasoning);
             if (p.token) onToken(p.token);
