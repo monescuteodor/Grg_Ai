@@ -181,6 +181,12 @@ except Exception as _e:  # noqa: BLE001
     print(f"[lemonsqueezy] not available: {_e}")
     _LS_OK = False
 try:
+    from crypto_handler import create_crypto_checkout, check_crypto_status, crypto_enabled
+    _CRYPTO_OK = True
+except Exception as _e:  # noqa: BLE001
+    print(f"[crypto] not available: {_e}")
+    _CRYPTO_OK = False
+try:
     from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
@@ -516,6 +522,23 @@ async def ls_webhook_route(request: Request):
 @app.get("/api/ls/enabled")
 async def ls_enabled_route():
     return JSONResponse({"enabled": bool(_LS_OK and ls_enabled())})
+
+# ─── Crypto (Solana USDC via Solana Pay) — non-custodial, no processor, no KYC ───
+@app.post("/api/crypto/checkout")
+async def crypto_checkout_route(request: Request):
+    if not _CRYPTO_OK:
+        return JSONResponse({"error": "Crypto not available"}, status_code=503)
+    return await create_crypto_checkout(request)
+
+@app.post("/api/crypto/status")
+async def crypto_status_route(request: Request):
+    if not _CRYPTO_OK:
+        return JSONResponse({"error": "Crypto not available"}, status_code=503)
+    return await check_crypto_status(request)
+
+@app.get("/api/crypto/enabled")
+async def crypto_enabled_route():
+    return JSONResponse({"enabled": bool(_CRYPTO_OK and crypto_enabled())})
 
 @app.get("/api/account")
 async def account(request: Request):

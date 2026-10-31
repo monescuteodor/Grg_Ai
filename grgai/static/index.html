@@ -1120,6 +1120,11 @@
                 <input id="topup-custom-amt" type="number" min="1" max="500" step="1" placeholder="Custom amount" inputmode="decimal" onkeydown="if(event.key==='Enter'){event.preventDefault();startTopupCustom();}">
                 <button class="topup-btn tc-go" onclick="startTopupCustom()">Add</button>
             </div>
+            <div class="pay-methods" style="margin-top:10px;display:flex;gap:10px;justify-content:center;align-items:center;font-size:11px;flex-wrap:wrap">
+                <span style="color:var(--accent-2);font-weight:600">🪙 USDC · Solana</span>
+                <span style="color:var(--text-mute);opacity:.45;text-decoration:line-through">💳 Card</span>
+                <span style="color:var(--text-mute)">(în curând)</span>
+            </div>
             <div class="credit-meta" id="credit-meta"></div>
         </div>
         <div class="account-danger">
@@ -4594,15 +4599,83 @@ function renderBilling() {
     }
 }
 
-// Prefer Lemon Squeezy (merchant of record) for card payments when it's configured
-// server-side; otherwise fall back to Stripe. Lets us accept cards before having a company.
+// Payment methods: crypto (Solana USDC) takes priority when configured, then Lemon
+// Squeezy (merchant of record), then Stripe.
 window._lsEnabled = false;
-(function(){ try { fetch('/api/ls/enabled').then(function(r){return r.json();}).then(function(d){ window._lsEnabled = !!(d && d.enabled); }).catch(function(){}); } catch(e){} })();
+window._cryptoEnabled = false;
+(function(){
+    try { fetch('/api/ls/enabled').then(function(r){return r.json();}).then(function(d){ window._lsEnabled = !!(d && d.enabled); }).catch(function(){}); } catch(e){}
+    try { fetch('/api/crypto/enabled').then(function(r){return r.json();}).then(function(d){ window._cryptoEnabled = !!(d && d.enabled); }).catch(function(){}); } catch(e){}
+})();
+
+function _ensureQR(cb){
+    if (window.QRCode) { cb(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = cb; s.onerror = function(){ cb(); };
+    document.head.appendChild(s);
+}
+var _cryptoPoll = null;
+function _closeCrypto(){ var m=document.getElementById('crypto-modal'); if(m) m.classList.remove('visible'); if(_cryptoPoll){ clearInterval(_cryptoPoll); _cryptoPoll=null; } }
+function _cryptoModal(){
+    var m = document.getElementById('crypto-modal');
+    if (m) return m;
+    var css = document.createElement('style');
+    css.textContent = '.crypto-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}.crypto-ov.visible{opacity:1;pointer-events:auto}.crypto-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:22px;max-width:380px;width:92%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.55)}.crypto-card h3{margin:0 0 4px;font-size:17px;color:var(--text)}.crypto-card .cc-sub{color:var(--text-dim);font-size:12.5px;margin-bottom:14px}.cc-qr{background:#fff;padding:12px;border-radius:12px;display:inline-block;margin:0 auto 14px;line-height:0}.cc-amt{font-size:22px;font-weight:700;color:var(--text)}.cc-net{font-size:11px;color:var(--text-mute);margin:2px 0 12px}.cc-addr{font-family:ui-monospace,monospace;font-size:11px;word-break:break-all;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text-dim)}.cc-copy{margin-top:8px;background:var(--bg-hover);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer}.cc-status{margin-top:14px;font-size:13px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;gap:8px}.cc-spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:ccspin 1s linear infinite}.cc-close{margin-top:14px;background:none;border:none;color:var(--text-mute);font-size:12px;cursor:pointer}@keyframes ccspin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(css);
+    m = document.createElement('div');
+    m.id = 'crypto-modal'; m.className = 'crypto-ov';
+    m.innerHTML = '<div class="crypto-card"><h3>Plată cu crypto</h3><div class="cc-sub">Scanează cu wallet-ul sau trimite exact suma în <b>USDC pe Solana</b>.</div><div class="cc-qr" id="cc-qr"></div><div class="cc-amt" id="cc-amt"></div><div class="cc-net">USDC · rețeaua Solana</div><div class="cc-addr" id="cc-addr"></div><button class="cc-copy" id="cc-copy">Copiază adresa</button><div class="cc-status" id="cc-status"><span class="cc-spin"></span> Aștept plata…</div><button class="cc-close" id="cc-close">Închide</button></div>';
+    document.body.appendChild(m);
+    m.querySelector('#cc-close').onclick = function(){ _closeCrypto(); };
+    m.addEventListener('click', function(e){ if (e.target === m) _closeCrypto(); });
+    return m;
+}
+async function startCryptoPay(kind, opts){
+    if (!_currentUser) { openAuthModal(false); return; }
+    opts = opts || {};
+    try {
+        var res = await fetch('/api/crypto/checkout', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ uid:_currentUser.uid, email:_currentUser.email, kind:kind, plan:opts.plan, eur:opts.eur })
+        });
+        var d = await res.json();
+        if (!d || !d.address) { alert((d && (d.error||d.detail)) || 'Nu am putut crea plata.'); return; }
+        var m = _cryptoModal();
+        m.querySelector('#cc-amt').textContent = d.amount_usdc + ' USDC';
+        m.querySelector('#cc-addr').textContent = d.address;
+        m.querySelector('#cc-copy').onclick = function(){ try{ navigator.clipboard.writeText(d.address).then(function(){ flashToast('Adresă copiată'); }); }catch(e){} };
+        var st = m.querySelector('#cc-status'); st.innerHTML = '<span class="cc-spin"></span> Aștept plata…';
+        var qd = m.querySelector('#cc-qr'); qd.innerHTML = '';
+        _ensureQR(function(){ try { if (window.QRCode) new QRCode(qd, { text:d.solana_url, width:180, height:180, correctLevel: QRCode.CorrectLevel.M }); else qd.textContent='Copiază adresa în wallet'; } catch(e){ qd.textContent=''; } });
+        m.classList.add('visible');
+        if (_cryptoPoll) clearInterval(_cryptoPoll);
+        var tries = 0;
+        _cryptoPoll = setInterval(async function(){
+            tries++;
+            if (tries > 150) { clearInterval(_cryptoPoll); _cryptoPoll=null; return; }
+            try {
+                var r2 = await fetch('/api/crypto/status', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ order_id:d.order_id }) });
+                var s2 = await r2.json();
+                if (s2.status === 'paid') {
+                    clearInterval(_cryptoPoll); _cryptoPoll=null;
+                    st.innerHTML = '✅ Plată confirmată!';
+                    flashToast('Plată confirmată — mulțumim!');
+                    setTimeout(function(){ _closeCrypto(); try{ loadAccount(); loadSubscriptionStatus(); }catch(e){} }, 1500);
+                } else if (s2.status === 'expired') {
+                    clearInterval(_cryptoPoll); _cryptoPoll=null;
+                    st.textContent = 'Comanda a expirat. Închide și reîncearcă.';
+                }
+            } catch(e){}
+        }, 5000);
+    } catch(e){ alert('Eroare la plată. Încearcă din nou.'); }
+}
 
 async function startTopup(eur) {
     if (!_currentUser) { openAuthModal(false); return; }
     eur = Math.round(Number(eur) * 100) / 100;
     if (!(eur >= 1 && eur <= 500)) { flashToast('Enter an amount between €1 and €500'); return; }
+    if (window._cryptoEnabled) { startCryptoPay('topup', { eur: eur }); return; }
     try {
         var url = window._lsEnabled ? '/api/ls/checkout' : '/api/create-topup';
         var payload = window._lsEnabled
@@ -4784,6 +4857,7 @@ function closeUpgrade() {
 async function startUpgrade(plan) {
     plan = (plan === 'ultra') ? 'ultra' : 'pro';
     if (!_currentUser) { closeUpgrade(); openAuthModal(false); return; }
+    if (window._cryptoEnabled) { closeUpgrade(); startCryptoPay('subscription', { plan: plan }); return; }
     try {
         var url = window._lsEnabled ? '/api/ls/checkout' : '/api/create-checkout';
         var payload = window._lsEnabled
