@@ -440,6 +440,65 @@ def premium_allowed(uid: str) -> dict:
     return {"allowed": False, "reason": "no_funds"}
 
 
+# ─────────────── GrgAPI (B2B) billing — charge the account that owns the key ───────────────
+def api_funds_credits(uid: str) -> int:
+    """Spendable credits for GrgAPI usage = the premium monthly bucket + the bought wallet.
+    Used by the GrgAPI precheck: >0 means the account may call the API, 0 means blocked."""
+    if not uid or not FIREBASE_AVAILABLE:
+        return 0
+    data = _user_data(uid)
+    prem = _roll_premium(data)
+    wallet = float(data.get("wallet_eur", 0.0))
+    return int(prem.get("premium_credits", 0)) + eur_to_credits(wallet)
+
+
+def charge_api(uid: str, model: str, in_tokens: int, out_tokens: int,
+               agent_mult: float = 1.0) -> dict:
+    """Charge ONE GrgAPI call to the account that owns the key. Cost = REAL usage × MARKUP
+    (credits, ceil), deducted from the PREMIUM bucket first, then the bought wallet — the
+    exact margin-safe economics as premium chat, so the owner always profits. If the balance
+    can't cover the whole call (it ran out mid-call) we take it to zero: the tiny remainder
+    is the bounded transition-call cost, and the NEXT call is blocked by the precheck.
+    Fail-OPEN on backend error (never hard-fail a paid request over a transient Firestore
+    hiccup; the loss is bounded to the one in-flight call)."""
+    cost = premium_actual_credits(model, in_tokens, out_tokens, agent_mult)
+    if not uid or not FIREBASE_AVAILABLE:
+        return {"allowed": True, "cost": cost, "charged": 0, "balance": None}
+    try:
+        ref = _get_user_ref(uid)
+        if not ref:
+            return {"allowed": True, "cost": cost, "charged": 0, "balance": None}
+        data = ref.get().to_dict() or {}
+        prem = _roll_premium(data)
+        wallet = float(data.get("wallet_eur", 0.0))
+        premium_credits = int(prem["premium_credits"])
+        wallet_credits = eur_to_credits(wallet)
+        usable = premium_credits + wallet_credits
+        use_bucket = min(premium_credits, cost)
+        use_wallet = min(wallet_credits, cost - use_bucket)
+        charged = use_bucket + use_wallet
+        um = dict(data.get("usage_models", {}))
+        cur = um.get(model, {})
+        um[model] = {"messages": int(cur.get("messages", 0)) + 1,
+                     "credits": int(cur.get("credits", 0)) + charged,
+                     "tokens": int(cur.get("tokens", 0)) + max(0, int(in_tokens)) + max(0, int(out_tokens))}
+        updates = {
+            "premium_credits": premium_credits - use_bucket,
+            "premium_credits_period": prem["premium_credits_period"],
+            "wallet_eur": max(0.0, wallet - use_wallet * CREDIT_EUR),
+            "usage_models": um,
+            "api_msgs_used": firestore.Increment(1) if firestore else int(data.get("api_msgs_used", 0)) + 1,
+            "credits_spent_total": firestore.Increment(charged) if firestore else int(data.get("credits_spent_total", 0)) + charged,
+            "tokens_used": firestore.Increment(max(0, int(in_tokens)) + max(0, int(out_tokens))) if firestore else int(data.get("tokens_used", 0)) + max(0, int(in_tokens)) + max(0, int(out_tokens)),
+            "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+        }
+        ref.set(updates, merge=True)
+        return {"allowed": True, "cost": cost, "charged": charged, "balance": max(0, usable - cost)}
+    except Exception as e:  # noqa: BLE001 — never hard-fail a paid API call on a billing hiccup
+        print(f"[charge_api ERROR] {e}")
+        return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "error": str(e)[:120]}
+
+
 def charge_usage(uid: str, model: str, in_tokens: int, out_tokens: int, images: int = 0,
                  agent_mult: float = 1.0) -> dict:
     """Consume the plan's token allowance first (free to the user); charge any

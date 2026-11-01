@@ -187,7 +187,7 @@ except Exception as _e:  # noqa: BLE001
     print(f"[crypto] not available: {_e}")
     _CRYPTO_OK = False
 try:
-    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT
+    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT, api_funds_credits, charge_api
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
     print(f"[billing] not available: {_e}")
@@ -606,6 +606,75 @@ async def grgapi_validate(request: Request):
     except Exception as e:  # noqa: BLE001
         print(f"[grgapi validate] {e}")
     return JSONResponse({"valid": False})
+
+# ─── GrgAPI usage billing: the box precheck/charges the account that owns the key ───
+# Only the GrgAPI box may call these (they move money). Allowlist by source IP so the
+# public tunnel (which arrives as localhost/cloudflared) can't drain accounts.
+_GRGAPI_BOX_IPS = set(x.strip() for x in os.environ.get(
+    "GRGAPI_BOX_IPS", "192.168.50.206").split(",") if x.strip())
+
+def _grgapi_internal_ok(request: "Request") -> bool:
+    host = (request.client.host if request.client else "") or ""
+    return host in _GRGAPI_BOX_IPS
+
+def _grgapi_uid_for_key(db, key: str) -> str:
+    try:
+        d = db.collection("apikeys").document(key).get().to_dict() or {}
+        if d.get("active"):
+            return d.get("uid", "") or ""
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi uid] {e}")
+    return ""
+
+@app.post("/api/grgapi/precheck")
+async def grgapi_precheck(request: Request):
+    """Box asks BEFORE forwarding: does the key's account have credits? allowed=False → box returns 402."""
+    if not _grgapi_internal_ok(request):
+        return JSONResponse({"allowed": False, "reason": "forbidden"}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"allowed": False}, status_code=400)
+    key = body.get("key", "")
+    db = _fb_db()
+    if not key or not db or not _BILLING_OK:
+        return JSONResponse({"allowed": True, "uid": ""})          # billing off → don't block
+    uid = _grgapi_uid_for_key(db, key)
+    if not uid:
+        return JSONResponse({"allowed": True, "uid": ""})          # static/non-account key → not billed
+    try:
+        funds = api_funds_credits(uid)
+        return JSONResponse({"allowed": bool(funds > 0), "uid": uid, "credits": int(funds),
+                             "reason": "" if funds > 0 else "out_of_credits"})
+    except Exception as e:  # noqa: BLE001 — fail-open on a backend hiccup
+        print(f"[grgapi precheck] {e}")
+        return JSONResponse({"allowed": True, "uid": uid})
+
+@app.post("/api/grgapi/charge")
+async def grgapi_charge(request: Request):
+    """Box reports AFTER a completion: deduct real usage × MARKUP from the key's account."""
+    if not _grgapi_internal_ok(request):
+        return JSONResponse({"ok": False, "reason": "forbidden"}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False}, status_code=400)
+    key = body.get("key", "")
+    model = body.get("model", "") or ""
+    in_tok = int(body.get("in_tokens", 0) or 0)
+    out_tok = int(body.get("out_tokens", 0) or 0)
+    db = _fb_db()
+    if not key or not db or not _BILLING_OK:
+        return JSONResponse({"ok": True, "charged": 0})
+    uid = _grgapi_uid_for_key(db, key)
+    if not uid:
+        return JSONResponse({"ok": True, "charged": 0})
+    try:
+        res = charge_api(uid, model, in_tok, out_tok)
+        return JSONResponse({"ok": True, "charged": int(res.get("charged", 0) or 0), "balance": res.get("balance")})
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi charge] {e}")
+        return JSONResponse({"ok": True, "charged": 0})
 
 @app.get("/api/account")
 async def account(request: Request):
