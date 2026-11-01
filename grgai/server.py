@@ -548,11 +548,29 @@ def _fb_db():
     except Exception:  # noqa: BLE001
         return None
 
+async def _verify_uid(request):
+    """Return the caller's uid from their verified Firebase ID token
+    (Authorization: Bearer <id_token>), or None. The uid comes from the TOKEN — never from a
+    client-supplied field — so one user cannot read or mutate another account by guessing a uid."""
+    h = request.headers.get("authorization", "")
+    tok = h[7:].strip() if h.lower().startswith("bearer ") else ""
+    if not tok:
+        return None
+    try:
+        from firebase_admin import auth as _fbauth
+        decoded = _fbauth.verify_id_token(tok)
+        return decoded.get("uid") or decoded.get("user_id")
+    except Exception as e:  # noqa: BLE001
+        print(f"[verify_uid] {e}")
+        return None
+
 @app.get("/api/grgapi/key")
 async def grgapi_get_key(request: Request):
-    uid = request.query_params.get("uid")
+    uid = await _verify_uid(request)        # uid from the verified Firebase token, not the client
+    if not uid:
+        return JSONResponse({"key": None, "error": "auth"}, status_code=401)
     db = _fb_db()
-    if not uid or not db:
+    if not db:
         return JSONResponse({"key": None})
     try:
         data = db.collection("users").document(uid).get().to_dict() or {}
@@ -563,13 +581,16 @@ async def grgapi_get_key(request: Request):
 
 @app.post("/api/grgapi/key")
 async def grgapi_make_key(request: Request):
+    uid = await _verify_uid(request)        # uid from the verified token, never from the body
+    if not uid:
+        return JSONResponse({"error": "Sign in required"}, status_code=401)
     try:
         body = await request.json()
     except Exception:
-        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
-    uid = body.get("uid"); email = body.get("email", "")
+        body = {}
+    email = body.get("email", "") or ""
     db = _fb_db()
-    if not uid or not db:
+    if not db:
         return JSONResponse({"error": "Sign in required"}, status_code=400)
     try:
         key = "grgk_" + secrets.token_hex(20)
@@ -678,7 +699,10 @@ async def grgapi_charge(request: Request):
 
 @app.get("/api/account")
 async def account(request: Request):
-    uid = request.query_params.get("uid")
+    # Prefer the verified token's uid (website). Fall back to the query uid only for the
+    # already-distributed desktop app that doesn't send a token yet; once it's updated to
+    # send getIdToken(), this fallback can be removed to fully close uid-guessing reads.
+    uid = await _verify_uid(request) or request.query_params.get("uid")
     if not uid:
         return JSONResponse({"error": "uid required"}, status_code=400)
     defaults = {"plan": "free", "premium_available": False, "has_credit": False,

@@ -4482,7 +4482,8 @@ function _syncBalanceSoon() {
 async function loadAccount() {
     if (!_currentUser) { _account = null; return; }
     try {
-        var res = await fetch('/api/account?uid=' + _currentUser.uid);
+        var _tok = await _currentUser.getIdToken();
+        var res = await fetch('/api/account', { headers: { 'Authorization': 'Bearer ' + _tok } });
         _account = await res.json();
     } catch(e) { _account = null; }
     renderBilling();
@@ -4983,14 +4984,15 @@ function _apiFillSnippets(key){
 }
 async function loadApiKey(){
     if(!_currentUser){ _apiFillSnippets(null); var g=document.getElementById('api-gen-btn'); if(g) g.textContent='Sign in first'; return; }
-    try{ var r=await fetch('/api/grgapi/key?uid='+_currentUser.uid); var d=await r.json(); _apiFillSnippets(d && d.key ? d.key : null); }
+    try{ var _tok=await _currentUser.getIdToken(); var r=await fetch('/api/grgapi/key',{headers:{'Authorization':'Bearer '+_tok}}); var d=await r.json(); _apiFillSnippets(d && d.key ? d.key : null); }
     catch(e){ _apiFillSnippets(null); }
 }
 async function generateApiKey(){
     if(!_currentUser){ closeApiSection(); openAuthModal(false); return; }
     var g=document.getElementById('api-gen-btn'); if(g){ g.disabled=true; g.textContent='Generating…'; }
     try{
-        var r=await fetch('/api/grgapi/key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:_currentUser.uid,email:_currentUser.email})});
+        var _tok=await _currentUser.getIdToken();
+        var r=await fetch('/api/grgapi/key',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({email:_currentUser.email})});
         var d=await r.json();
         if(d && d.key){ _apiFillSnippets(d.key); flashToast('API key ready'); }
         else { alert((d&&(d.error||d.detail))||'Could not generate the key.'); }
