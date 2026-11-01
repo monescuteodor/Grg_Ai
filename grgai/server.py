@@ -540,6 +540,73 @@ async def crypto_status_route(request: Request):
 async def crypto_enabled_route():
     return JSONResponse({"enabled": bool(_CRYPTO_OK and crypto_enabled())})
 
+# ─── GrgAPI self-service keys (companies generate their own API key) ───
+def _fb_db():
+    try:
+        from stripe_handler import db as _db, FIREBASE_AVAILABLE as _fb
+        return _db if _fb else None
+    except Exception:  # noqa: BLE001
+        return None
+
+@app.get("/api/grgapi/key")
+async def grgapi_get_key(request: Request):
+    uid = request.query_params.get("uid")
+    db = _fb_db()
+    if not uid or not db:
+        return JSONResponse({"key": None})
+    try:
+        data = db.collection("users").document(uid).get().to_dict() or {}
+        return JSONResponse({"key": data.get("grgapi_key")})
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi key GET] {e}")
+        return JSONResponse({"key": None})
+
+@app.post("/api/grgapi/key")
+async def grgapi_make_key(request: Request):
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+    uid = body.get("uid"); email = body.get("email", "")
+    db = _fb_db()
+    if not uid or not db:
+        return JSONResponse({"error": "Sign in required"}, status_code=400)
+    try:
+        key = "grgk_" + secrets.token_hex(20)
+        uref = db.collection("users").document(uid)
+        old = (uref.get().to_dict() or {}).get("grgapi_key")
+        if old:
+            try:
+                db.collection("apikeys").document(old).set({"active": False}, merge=True)
+            except Exception:  # noqa: BLE001
+                pass
+        db.collection("apikeys").document(key).set(
+            {"uid": uid, "email": email, "active": True, "created": time.time()})
+        uref.set({"grgapi_key": key}, merge=True)
+        return JSONResponse({"key": key})
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi key POST] {e}")
+        return JSONResponse({"error": "Could not generate the key"}, status_code=500)
+
+@app.post("/api/grgapi/validate")
+async def grgapi_validate(request: Request):
+    # Called by the GrgAPI box to check a company key. Returns {valid, company, uid}.
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"valid": False}, status_code=400)
+    key = body.get("key", "")
+    db = _fb_db()
+    if not key or not db:
+        return JSONResponse({"valid": False})
+    try:
+        d = db.collection("apikeys").document(key).get().to_dict() or {}
+        if d.get("active"):
+            return JSONResponse({"valid": True, "company": d.get("email", ""), "uid": d.get("uid", "")})
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi validate] {e}")
+    return JSONResponse({"valid": False})
+
 @app.get("/api/account")
 async def account(request: Request):
     uid = request.query_params.get("uid")

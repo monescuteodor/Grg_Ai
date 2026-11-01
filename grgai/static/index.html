@@ -1392,6 +1392,48 @@
     </div>
 </div>
 
+<!-- GrgAPI SECTION — self-service API for companies -->
+<div class="nhash-sec-overlay" id="api-overlay" onclick="if(event.target===this)closeApiSection()">
+    <div class="nhash-sec-card">
+        <button class="nhs-close" onclick="closeApiSection()">&#10005;</button>
+        <div class="nhs-head">
+            <svg viewBox="0 0 44 44" width="42" height="42" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="12" fill="#8b5cf6"/><g fill="none" stroke="#fff" stroke-width="2.2"><circle cx="17" cy="27" r="5"/><path d="M20.5 23.5 31 13m-4 4 3 3m-6-1 3 3"/></g></svg>
+            <div class="nhs-title">GrgAPI</div>
+        </div>
+        <div class="nhs-sub">Privacy-first AI for your app &mdash; your users' sensitive data is redacted before it ever reaches the model provider.</div>
+
+        <div class="nhs-block">
+            <h3>&#128273; Your API key</h3>
+            <p>One key for your whole app. Keep it server-side &mdash; never ship it to the browser.</p>
+            <div class="nhs-cmd"><code id="api-key-val">Sign in to get your key</code><button onclick="copyApiKey()">copy</button></div>
+            <button class="nhs-dl-btn" id="api-gen-btn" onclick="generateApiKey()" style="margin-top:10px">Generate key</button>
+        </div>
+
+        <div class="nhs-block">
+            <h3>&#127760; Base URL</h3>
+            <div class="nhs-cmd"><code id="api-base-url">https://api.grg-ai.com/v1</code><button onclick="nhashCopy('api-base-url')">copy</button></div>
+            <p style="margin-top:8px">OpenAI-compatible &mdash; just point your existing OpenAI SDK at this URL.</p>
+        </div>
+
+        <div class="nhs-block">
+            <h3>&#9889; Integrate in 1 minute</h3>
+            <p style="margin:0 0 6px"><b>cURL</b></p>
+            <div class="nhs-cmd"><code id="api-snippet-curl">curl https://api.grg-ai.com/v1/chat/completions -H "Authorization: Bearer YOUR_KEY" -H "Content-Type: application/json" -d '{"model":"grg-pro","messages":[{"role":"user","content":"Hello"}]}'</code><button onclick="nhashCopy('api-snippet-curl')">copy</button></div>
+            <p style="margin:10px 0 6px"><b>Python (OpenAI SDK)</b></p>
+            <div class="nhs-cmd"><code id="api-snippet-py">from openai import OpenAI
+client = OpenAI(base_url="https://api.grg-ai.com/v1", api_key="YOUR_KEY")
+r = client.chat.completions.create(model="grg-pro", messages=[{"role":"user","content":"Hello"}])
+print(r.choices[0].message.content)</code><button onclick="nhashCopy('api-snippet-py')">copy</button></div>
+        </div>
+
+        <div class="nhs-block">
+            <h3>&#128274; How the privacy works</h3>
+            <p>You send raw data (names, CNPs, emails, IBANs&hellip;). GrgAPI redacts it to placeholders <b>before</b> calling the AI, then restores the real values in the reply &mdash; so OpenAI/Anthropic/etc. never see your users' real data.</p>
+            <p style="margin-top:6px">Models: <code>grg-flagship</code> (Claude Opus) &middot; <code>grg-pro</code> (Sonnet) &middot; <code>grg-gpt</code> &middot; <code>grg-gemini</code> &middot; <code>grg-code</code> &middot; <code>grg-fast</code></p>
+        </div>
+    </div>
+</div>
+
 <!-- nHASH PAYMENT MODAL -->
 <div class="nhash-overlay" id="nhash-overlay" onclick="if(event.target===this)closeNhashModal()">
     <div class="nhash-card">
@@ -1467,6 +1509,10 @@
         <button class="mode-btn" id="btn-nhash-mode" onclick="openNhashSection()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8v8M14.5 8v8M8.5 10.5h8M8 13.5h8"/></svg>
             nHash
+        </button>
+        <button class="mode-btn" id="btn-api-mode" onclick="openApiSection()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3 21 2m-4 4 3 3m-6-1 3 3"/></svg>
+            GrgAPI
         </button>
 
         <button class="mode-btn" id="btn-chat-mode" onclick="setChatMode()" style="border-color:rgba(139,92,246,0.3);background:var(--accent-soft);color:var(--accent);">
@@ -4922,6 +4968,40 @@ function nhashCopy(id){ var t=document.getElementById(id).textContent.replace(' 
 /* ─── nHash section ─── */
 function openNhashSection(){ var o=document.getElementById('nhash-sec-overlay'); if(o){ o.classList.add('visible'); loadNhashStats(); } }
 function closeNhashSection(){ var o=document.getElementById('nhash-sec-overlay'); if(o) o.classList.remove('visible'); }
+
+// ─── GrgAPI (self-service B2B API) ───
+function openApiSection(){ var o=document.getElementById('api-overlay'); if(!o) return; o.classList.add('visible'); loadApiKey(); }
+function closeApiSection(){ var o=document.getElementById('api-overlay'); if(o) o.classList.remove('visible'); }
+function _apiFillSnippets(key){
+    var k = key || 'YOUR_KEY';
+    var valEl=document.getElementById('api-key-val'); if(valEl) valEl.textContent = key || 'Sign in to get your key';
+    var curl=document.getElementById('api-snippet-curl');
+    if(curl) curl.textContent = 'curl https://api.grg-ai.com/v1/chat/completions -H "Authorization: Bearer '+k+'" -H "Content-Type: application/json" -d \'{"model":"grg-pro","messages":[{"role":"user","content":"Hello"}]}\'';
+    var py=document.getElementById('api-snippet-py');
+    if(py) py.textContent = 'from openai import OpenAI\nclient = OpenAI(base_url="https://api.grg-ai.com/v1", api_key="'+k+'")\nr = client.chat.completions.create(model="grg-pro", messages=[{"role":"user","content":"Hello"}])\nprint(r.choices[0].message.content)';
+    var gen=document.getElementById('api-gen-btn'); if(gen) gen.textContent = key ? 'Regenerate key' : 'Generate key';
+}
+async function loadApiKey(){
+    if(!_currentUser){ _apiFillSnippets(null); var g=document.getElementById('api-gen-btn'); if(g) g.textContent='Sign in first'; return; }
+    try{ var r=await fetch('/api/grgapi/key?uid='+_currentUser.uid); var d=await r.json(); _apiFillSnippets(d && d.key ? d.key : null); }
+    catch(e){ _apiFillSnippets(null); }
+}
+async function generateApiKey(){
+    if(!_currentUser){ closeApiSection(); openAuthModal(false); return; }
+    var g=document.getElementById('api-gen-btn'); if(g){ g.disabled=true; g.textContent='Generating…'; }
+    try{
+        var r=await fetch('/api/grgapi/key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:_currentUser.uid,email:_currentUser.email})});
+        var d=await r.json();
+        if(d && d.key){ _apiFillSnippets(d.key); flashToast('API key ready'); }
+        else { alert((d&&(d.error||d.detail))||'Could not generate the key.'); }
+    }catch(e){ alert('Error generating the key.'); }
+    if(g){ g.disabled=false; }
+}
+function copyApiKey(){
+    var el=document.getElementById('api-key-val'); var t=el?el.textContent:'';
+    if(!t || t.indexOf('grgk_')<0){ flashToast('Generate a key first'); return; }
+    try{ navigator.clipboard.writeText(t).then(function(){ flashToast('API key copied'); }); }catch(e){}
+}
 function _gcRenderAccount(){
     var box=document.getElementById('gc-account'); if(!box) return;
     if (typeof _currentUser !== 'undefined' && _currentUser){
