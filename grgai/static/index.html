@@ -2325,7 +2325,7 @@ async function sendMessage(regenerate) {
     $input.disabled = true;
     _abortController = new AbortController();
     addMsgUI('user', displayMsg, true);
-    if (_redactOn()) { try { var _pp = _piiPreview(msg); if (_pp.total > 0) { var _umh = $msgs.querySelector('.message:last-child .msg-header'); if (_umh) { var _b = document.createElement('span'); _b.className = 'msg-priv-badge'; _b.title = _pp.total + ' date sensibile redactate înainte de trimitere'; _b.innerHTML = _PP_SHIELD + _pp.total + ' redactate'; _umh.appendChild(_b); } } } catch (e) {} }
+    if (_redactOn()) { try { var _pp = _piiPreview(msg); if (_pp.total > 0) { var _umh = $msgs.querySelector('.message:last-child .msg-header'); if (_umh) { var _b = document.createElement('span'); _b.className = 'msg-priv-badge'; _b.title = _pp.total + ' sensitive items redacted before sending'; _b.innerHTML = _PP_SHIELD + _pp.total + ' redacted'; _umh.appendChild(_b); } } } catch (e) {} }
     $input.value = ''; $input.style.height = 'auto';
     try { updatePrivacyPreview(); } catch (e) {}
 
@@ -4014,7 +4014,7 @@ function _piiRestore(text) {
     return String(text).replace(/\[[A-Z]+_\d+\]/g, function (ph) { return _piiMap.p2o[ph] != null ? _piiMap.p2o[ph] : ph; });
 }
 // ── Visible redaction preview: show exactly what leaves the device (privacy agents) ──
-var _PP_LABELS = { NAME: 'nume', EMAIL: 'email', CNP: 'CNP', PHONE: 'telefon', IBAN: 'IBAN', CARD: 'card', SECRET: 'secret' };
+var _PP_LABELS = { NAME: 'names', EMAIL: 'emails', CNP: 'CNPs', PHONE: 'phones', IBAN: 'IBANs', CARD: 'cards', SECRET: 'secrets' };
 var _PP_SHIELD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 // Run the real redaction on a COPY of the maps so the live preview never pollutes the
 // actual send/restore mapping. Returns the redacted text + per-type counts.
@@ -4044,8 +4044,8 @@ function updatePrivacyPreview() {
     if (p.total === 0) { el.className = 'privacy-preview'; el.innerHTML = ''; return; }
     el.className = 'privacy-preview show';
     el.innerHTML = '<div class="pp-head">' + _PP_SHIELD
-        + '<span>Ce pleacă de pe dispozitiv</span>'
-        + '<span class="pp-count">' + p.total + ' redactate · ' + esc(_piiCountLabel(p.counts)) + '</span></div>'
+        + '<span>What leaves your device</span>'
+        + '<span class="pp-count">' + p.total + ' redacted · ' + esc(_piiCountLabel(p.counts)) + '</span></div>'
         + '<div class="pp-body">' + _ppHighlight(p.redacted) + '</div>';
 }
 var GRGAGENT_PROMPT = "You are GrgAgent — a confidential, privacy-first assistant for legal, technical and privacy work. "
