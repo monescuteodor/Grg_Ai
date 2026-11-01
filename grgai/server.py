@@ -1225,6 +1225,16 @@ async def chat(request: Request):
     uid = body.get("uid")
     is_premium = provider == "openrouter" and not str(model).endswith(":free")
 
+    # FREE models (Groq / ':free') cost the platform nothing, so give them a big output
+    # budget — long answers (especially code) won't get truncated mid-message. Paired with
+    # the auto-continue below, a free answer is never cut off. (Premium keeps the effort
+    # budget the user actually paid for.)
+    if not is_premium:
+        try:
+            max_tokens = max(int(max_tokens or 0), 8192)
+        except (TypeError, ValueError):
+            max_tokens = 8192
+
     def _err_stream(msg):
         async def g():
             yield "data: " + json.dumps({"error": msg}) + "\n\n"
@@ -1301,44 +1311,71 @@ async def chat(request: Request):
             yield "data: " + json.dumps({"charge": {"cost": _charge.get("cost"), "balance": _charge.get("balance")}}) + "\n\n"
         try:
             async with httpx.AsyncClient(timeout=httpx.Timeout(180.0, connect=15.0)) as client:
-                async with client.stream("POST", url, headers=headers, json=payload) as resp:
-                    if resp.status_code != 200:
-                        detail = (await resp.aread()).decode("utf-8", "ignore")[:300]
-                        yield "data: " + json.dumps(
-                            {"error": f"{provider} {resp.status_code}: {detail}"}
-                        ) + "\n\n"
-                        return
-                    async for line in resp.aiter_lines():
-                        if not line:
-                            continue
-                        line = line.strip()
-                        if not line.startswith("data:"):
-                            continue
-                        data = line[5:].strip()
-                        if data == "[DONE]":
-                            break
-                        try:
-                            chunk = json.loads(data)
-                        except Exception:
-                            continue
-                        # Exact usage arrives in a final chunk (often with empty choices).
-                        if is_premium and isinstance(chunk.get("usage"), dict):
-                            real_usage = chunk["usage"]
-                        try:
-                            delta = chunk["choices"][0]["delta"]
-                        except (KeyError, IndexError, TypeError):
-                            delta = None
-                        if delta:
-                            # Reasoning / chain-of-thought tokens (gpt-oss, deepseek-r1, etc.)
-                            rc = delta.get("reasoning")
-                            if rc is None:
-                                rc = delta.get("reasoning_content")
-                            if rc:
-                                yield "data: " + json.dumps({"reasoning": rc}) + "\n\n"
-                            content = delta.get("content")
-                            if content:
-                                out_chars += len(content)
-                                yield "data: " + json.dumps({"token": content}) + "\n\n"
+                # FREE answers that hit the length cap are transparently continued and
+                # stitched (_cont_budget segments), so the user never sees a mid-message
+                # cutoff. Premium isn't auto-continued (its charge is sized to the paid
+                # max_tokens); instead we flag {"truncated": true} so the UI can offer it.
+                _cont_budget = 0 if is_premium else 3
+                _cur_payload = payload
+                _assistant_so_far = ""
+                while True:
+                    _finish = None
+                    async with client.stream("POST", url, headers=headers, json=_cur_payload) as resp:
+                        if resp.status_code != 200:
+                            detail = (await resp.aread()).decode("utf-8", "ignore")[:300]
+                            yield "data: " + json.dumps(
+                                {"error": f"{provider} {resp.status_code}: {detail}"}
+                            ) + "\n\n"
+                            return
+                        async for line in resp.aiter_lines():
+                            if not line:
+                                continue
+                            line = line.strip()
+                            if not line.startswith("data:"):
+                                continue
+                            data = line[5:].strip()
+                            if data == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data)
+                            except Exception:
+                                continue
+                            # Exact usage arrives in a final chunk (often with empty choices).
+                            if is_premium and isinstance(chunk.get("usage"), dict):
+                                real_usage = chunk["usage"]
+                            try:
+                                _choice0 = chunk["choices"][0]
+                            except (KeyError, IndexError, TypeError):
+                                _choice0 = None
+                            if not _choice0:
+                                continue
+                            if _choice0.get("finish_reason"):
+                                _finish = _choice0["finish_reason"]
+                            delta = _choice0.get("delta")
+                            if delta:
+                                # Reasoning / chain-of-thought tokens (gpt-oss, deepseek-r1, etc.)
+                                rc = delta.get("reasoning")
+                                if rc is None:
+                                    rc = delta.get("reasoning_content")
+                                if rc:
+                                    yield "data: " + json.dumps({"reasoning": rc}) + "\n\n"
+                                content = delta.get("content")
+                                if content:
+                                    out_chars += len(content)
+                                    _assistant_so_far += content
+                                    yield "data: " + json.dumps({"token": content}) + "\n\n"
+                    # Cut off by the length cap? For FREE models, continue seamlessly.
+                    if _finish == "length" and _cont_budget > 0 and _assistant_so_far:
+                        _cont_budget -= 1
+                        _cur_payload = dict(payload)
+                        _cur_payload["messages"] = messages + [
+                            {"role": "assistant", "content": _assistant_so_far},
+                            {"role": "user", "content": "Continue exactly where you left off. Do not repeat anything already written; pick up from the very next character."},
+                        ]
+                        continue
+                    if _finish == "length" and is_premium:
+                        yield "data: " + json.dumps({"truncated": True}) + "\n\n"
+                    break
             # ── BULLETPROOF SETTLE ── Premium was held at the worst-case ceiling up front.
             # Reconcile to the provider's REAL token usage: refund the overcharge (or claw
             # back a rare underestimate), so the user pays exactly real_cost×MARKUP and the
