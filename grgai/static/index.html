@@ -1121,8 +1121,8 @@
                 <button class="topup-btn tc-go" onclick="startTopupCustom()">Add</button>
             </div>
             <div class="pay-methods" style="margin-top:10px;display:flex;gap:10px;justify-content:center;align-items:center;font-size:11px;flex-wrap:wrap">
-                <span style="color:var(--accent-2);font-weight:600">🪙 USDC · Solana</span>
-                <span style="color:var(--text-mute);opacity:.45;text-decoration:line-through">💳 Card</span>
+                <span style="color:var(--accent-2);font-weight:600"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="vertical-align:-2px"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M9.7 9.7c0-1 1-1.6 2.3-1.6s2.3.7 2.3 1.6-1 1.5-2.3 1.5-2.3.6-2.3 1.6 1 1.6 2.3 1.6 2.3-.6 2.3-1.6"/></svg> USDC · Solana</span>
+                <span style="color:var(--text-mute);opacity:.45;text-decoration:line-through"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="vertical-align:-2px"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</span>
                 <span style="color:var(--text-mute)">(coming soon)</span>
             </div>
             <div class="credit-meta" id="credit-meta"></div>
@@ -1315,7 +1315,7 @@
                     <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span><strong>DeepSeek</strong> V4 · <strong>Grok</strong> 4.6</span></div>
                     <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span>+ AutoGrg, Grg Image &amp; all house models</span></div>
                 </div>
-                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startCryptoPay('subscription',{plan:'pro'});closePlansModal()">🪙 Pay with crypto — €5/mo</button>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-btn" onclick="startCryptoPay('subscription',{plan:'pro'});closePlansModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M9.7 9.7c0-1 1-1.6 2.3-1.6s2.3.7 2.3 1.6-1 1.5-2.3 1.5-2.3.6-2.3 1.6 1 1.6 2.3 1.6 2.3-.6 2.3-1.6"/></svg>Pay with crypto — €5/mo</button>
                 <button class="plan-col-btn nhash-btn" onclick="payWithNhash()"><svg viewBox="0 0 40 40" width="16" height="16" aria-hidden="true"><defs><linearGradient id="nhgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect x="2" y="2" width="36" height="36" rx="10" fill="url(#nhgB)"/><text x="18" y="28" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="20" fill="#fff">n</text></svg>Pay with nHash</button>
             </div>
 
@@ -1338,7 +1338,7 @@
                     <div class="plan-feature-section">Models</div>
                     <div class="plan-feature plan-model-item"><span class="pf-icon ok">✓</span><span>Every GrgPro model — Claude · ChatGPT · Gemini · DeepSeek · Grok</span></div>
                 </div>
-                <button class="plan-col-btn pro-btn" id="plans-upgrade-ultra-btn" onclick="startCryptoPay('subscription',{plan:'ultra'});closePlansModal()">🪙 Pay with crypto — €20/mo</button>
+                <button class="plan-col-btn pro-btn" id="plans-upgrade-ultra-btn" onclick="startCryptoPay('subscription',{plan:'ultra'});closePlansModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M9.7 9.7c0-1 1-1.6 2.3-1.6s2.3.7 2.3 1.6-1 1.5-2.3 1.5-2.3.6-2.3 1.6 1 1.6 2.3 1.6 2.3-.6 2.3-1.6"/></svg>Pay with crypto — €20/mo</button>
             </div>
         </div>
     </div>
@@ -1403,20 +1403,20 @@
         <div class="nhs-sub">Privacy-first AI for your app &mdash; your users' sensitive data is redacted before it ever reaches the model provider.</div>
 
         <div class="nhs-block">
-            <h3>&#128273; Your API key</h3>
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px;margin-right:6px"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3m-3 3 2 2m-5 0 2 2"/></svg>Your API key</h3>
             <p>One key for your whole app. Keep it server-side &mdash; never ship it to the browser.</p>
             <div class="nhs-cmd"><code id="api-key-val">Sign in to get your key</code><button onclick="copyApiKey()">copy</button></div>
             <button class="nhs-dl-btn" id="api-gen-btn" onclick="generateApiKey()" style="margin-top:10px">Generate key</button>
         </div>
 
         <div class="nhs-block">
-            <h3>&#127760; Base URL</h3>
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Base URL</h3>
             <div class="nhs-cmd"><code id="api-base-url">https://api.grg-ai.com/v1</code><button onclick="nhashCopy('api-base-url')">copy</button></div>
             <p style="margin-top:8px">OpenAI-compatible &mdash; just point your existing OpenAI SDK at this URL.</p>
         </div>
 
         <div class="nhs-block">
-            <h3>&#9889; Integrate in 1 minute</h3>
+            <h3><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="vertical-align:-3px;margin-right:6px"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>Integrate in 1 minute</h3>
             <p style="margin:0 0 6px"><b>cURL</b></p>
             <div class="nhs-cmd"><code id="api-snippet-curl">curl https://api.grg-ai.com/v1/chat/completions -H "Authorization: Bearer YOUR_KEY" -H "Content-Type: application/json" -d '{"model":"grg-pro","messages":[{"role":"user","content":"Hello"}]}'</code><button onclick="nhashCopy('api-snippet-curl')">copy</button></div>
             <p style="margin:10px 0 6px"><b>Python (OpenAI SDK)</b></p>
@@ -1427,7 +1427,7 @@ print(r.choices[0].message.content)</code><button onclick="nhashCopy('api-snippe
         </div>
 
         <div class="nhs-block">
-            <h3>&#128274; How the privacy works</h3>
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px;margin-right:6px"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>How the privacy works</h3>
             <p>You send raw data (names, CNPs, emails, IBANs&hellip;). GrgAPI redacts it to placeholders <b>before</b> calling the AI, then restores the real values in the reply &mdash; so OpenAI/Anthropic/etc. never see your users' real data.</p>
             <p style="margin-top:6px">Models: <code>grg-flagship</code> (Claude Opus) &middot; <code>grg-pro</code> (Sonnet) &middot; <code>grg-gpt</code> &middot; <code>grg-gemini</code> &middot; <code>grg-code</code> &middot; <code>grg-fast</code></p>
         </div>
@@ -4830,7 +4830,7 @@ function showPlansModal() {
         if (freeBadge) freeBadge.style.display = 'block';
         if (proBadge)  proBadge.style.display = 'none';
         if (ultraBadge) ultraBadge.style.display = 'none';
-        if (upgradeBtn) { upgradeBtn.textContent = '🪙 Pay with crypto — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startCryptoPay('subscription',{plan:'pro'}); closePlansModal(); }; }
+        if (upgradeBtn) { upgradeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M9.7 9.7c0-1 1-1.6 2.3-1.6s2.3.7 2.3 1.6-1 1.5-2.3 1.5-2.3.6-2.3 1.6 1 1.6 2.3 1.6 2.3-.6 2.3-1.6"/></svg>Pay with crypto — €5/mo'; upgradeBtn.classList.remove('current'); upgradeBtn.onclick = function() { startCryptoPay('subscription',{plan:'pro'}); closePlansModal(); }; }
         if (freeBtn) freeBtn.textContent = 'Current Plan';
     }
 
