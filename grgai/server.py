@@ -264,6 +264,10 @@ async def rate_limit(request, call_next):
 
 @app.get("/")
 async def index():
+    return FileResponse(STATIC_DIR / "landing.html")
+
+@app.get("/app")
+async def app_page():
     return FileResponse(STATIC_DIR / "index.html")
 
 @app.get("/privacy")

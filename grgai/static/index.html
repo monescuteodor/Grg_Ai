@@ -3665,6 +3665,7 @@ window.addEventListener('load', function() {
     setTimeout(function() {
         if (!window._fb) return;
         window._fb.onAuthStateChanged(window._fb.auth, function(user) {
+            try { if (user) localStorage.setItem('grg_auth','1'); else localStorage.removeItem('grg_auth'); } catch(e){}
             if (user) _onUserSignedIn(user);
             else _onUserSignedOut();
         });

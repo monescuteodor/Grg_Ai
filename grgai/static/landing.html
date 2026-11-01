@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{if(localStorage.getItem('grg_auth')==='1')location.replace('/app');}catch(e){}</script>
+<title>GrgAI — The AI that can't leak your data</title>
+<meta name="description" content="GrgAI redacts your sensitive data (names, IDs, IBANs, cards) before it ever reaches OpenAI or Anthropic, and restores it in the reply. Privacy-first, GDPR-friendly, self-hostable.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0711; --bg:#0e0b17; --surface:#15111f; --surface-2:#1a1528;
+    --border:#241d38; --border-light:#372c50;
+    --text:#ece9f6; --text-dim:#9990b3; --text-mute:#645a7c;
+    --accent:#8b5cf6; --accent-2:#a78bfa; --accent-deep:#6d28d9;
+    --accent-soft:rgba(139,92,246,.12); --accent-glow:rgba(139,92,246,.35);
+    --danger:#ff7a7a;
+    --radius:14px; --radius-lg:22px; --maxw:1120px;
+    --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg-deep);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  .accent{color:var(--accent-2)}
+  .danger{color:var(--danger)}
+
+  /* glow backdrop */
+  .glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(60vw 50vh at 70% -10%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(50vw 40vh at 10% 10%, rgba(109,40,217,.12), transparent 60%);}
+  main,header,footer{position:relative;z-index:1}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
+    background:rgba(10,7,17,.72);border-bottom:1px solid var(--border)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+  .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent-glow)}
+  .logo span{font-size:16px}
+  .nav-links{display:flex;align-items:center;gap:26px}
+  .nav-links a{color:var(--text-dim);font-size:14px;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font);font-weight:600;
+    font-size:14.5px;border-radius:999px;padding:10px 20px;cursor:pointer;border:1px solid transparent;
+    transition:transform .12s ease, box-shadow .2s ease, background .2s ease}
+  .btn-primary{background:linear-gradient(135deg,#a78bfa 0%,#8b5cf6 45%,#6d28d9 100%);color:#fff;
+    box-shadow:0 6px 24px -6px var(--accent-glow)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px -6px var(--accent-glow)}
+  .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--border-light)}
+  .btn-ghost:hover{border-color:var(--accent);color:#fff}
+  .btn svg{width:16px;height:16px}
+
+  /* HERO */
+  .hero{text-align:center;padding:84px 0 56px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);
+    border:1px solid rgba(139,92,246,.28);color:var(--accent-2);font-size:12.5px;font-weight:600;
+    padding:6px 14px;border-radius:999px;letter-spacing:.02em}
+  .pill svg{width:14px;height:14px}
+  .hero h1{font-size:clamp(34px,6vw,62px);line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:22px auto 0;max-width:16ch}
+  .hero h1 .grad{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.sub{font-size:clamp(16px,2.2vw,20px);color:var(--text-dim);max-width:60ch;margin:22px auto 0}
+  .hero .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .hero .cta .btn{padding:13px 26px;font-size:15.5px}
+  .trust-row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:28px;color:var(--text-mute);font-size:13.5px}
+  .trust-row span{display:inline-flex;align-items:center;gap:7px}
+  .trust-row svg{width:15px;height:15px;color:var(--accent-2)}
+
+  /* DIAGRAM */
+  .diagram-sec{padding:34px 0 20px}
+  .diagram-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:14px;box-shadow:0 30px 80px -40px rgba(0,0,0,.8)}
+  .diagram-card svg{display:block;width:100%;height:auto}
+
+  /* SECTION HEADS */
+  .sec{padding:72px 0}
+  .sec-head{text-align:center;max-width:62ch;margin:0 auto 44px}
+  .sec-head .pill{margin-bottom:16px}
+  .sec-head h2{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .sec-head p{color:var(--text-dim);margin-top:14px;font-size:17px}
+
+  /* FEATURES */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;
+    transition:border-color .2s ease, transform .2s ease}
+  .card:hover{border-color:var(--border-light);transform:translateY(-3px)}
+  .ic{width:44px;height:44px;border-radius:12px;background:var(--accent-soft);border:1px solid rgba(139,92,246,.25);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .ic svg{width:22px;height:22px;color:var(--accent-2)}
+  .card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  .card p{color:var(--text-dim);font-size:15px}
+
+  /* WHO */
+  .who{background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .who-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .who-item{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:15px}
+  .who-item svg{width:18px;height:18px;color:var(--accent-2);flex-shrink:0}
+
+  /* API band */
+  .api-band{background:linear-gradient(135deg,rgba(139,92,246,.10),rgba(109,40,217,.06));
+    border:1px solid rgba(139,92,246,.25);border-radius:var(--radius-lg);padding:40px;
+    display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap}
+  .api-band h2{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.01em}
+  .api-band p{color:var(--text-dim);margin-top:10px;max-width:52ch}
+  .code{background:#07050d;border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+    font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;color:var(--text-dim);
+    overflow-x:auto;white-space:pre;min-width:300px}
+  .code .k{color:var(--accent-2)}
+
+  /* PRICING */
+  .grid3.price{align-items:stretch}
+  .price .card{display:flex;flex-direction:column}
+  .price .plan{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mute)}
+  .price .amt{font-size:38px;font-weight:800;margin:8px 0 2px}
+  .price .amt small{font-size:15px;font-weight:600;color:var(--text-mute)}
+  .price ul{list-style:none;margin:18px 0 22px;display:flex;flex-direction:column;gap:10px}
+  .price li{display:flex;gap:9px;align-items:flex-start;color:var(--text-dim);font-size:14.5px}
+  .price li svg{width:17px;height:17px;color:var(--accent-2);flex-shrink:0;margin-top:2px}
+  .price .card.feature{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 20px 60px -30px var(--accent-glow)}
+  .price .badge{align-self:flex-start;background:var(--accent-soft);color:var(--accent-2);font-size:11px;
+    font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:12px}
+  .price .btn{margin-top:auto;justify-content:center}
+
+  /* FINAL CTA */
+  .final{text-align:center;padding:90px 0}
+  .final h2{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.02em;max-width:18ch;margin:0 auto}
+  .final p{color:var(--text-dim);margin-top:16px;font-size:18px}
+  .final .btn{margin-top:28px;padding:15px 34px;font-size:16px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:34px 0;color:var(--text-mute);font-size:13.5px}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .foot a{color:var(--text-mute)}.foot a:hover{color:var(--text-dim)}
+
+  @media(max-width:860px){
+    .nav-links a:not(.btn){display:none}
+    .grid3,.who-grid{grid-template-columns:1fr 1fr}
+    .sec{padding:54px 0}
+    .api-band{padding:28px}
+  }
+  @media(max-width:560px){
+    .grid3,.who-grid{grid-template-columns:1fr}
+    .hero{padding:56px 0 40px}
+    .trust-row{gap:14px}
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span><span>GrgAI</span></div>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#api">API</a>
+      <a href="#pricing">Pricing</a>
+      <a class="btn btn-primary" href="/app">Start free</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap">
+    <span class="pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+      Privacy-first AI · GDPR-friendly
+    </span>
+    <h1>The AI that <span class="grad">can't leak</span> your data.</h1>
+    <p class="sub">GrgAI strips names, national IDs, emails, IBANs and card numbers out of your prompts <b>before</b> they ever reach OpenAI or Anthropic — then restores the real values in the reply. Use the best models without handing them your secrets.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="/app">Start free
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn-ghost" href="#how">See how it works</a>
+    </div>
+    <div class="trust-row">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> No credit card to start</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> We never train on your data</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Self-hostable</span>
+    </div>
+  </section>
+
+  <!-- DIAGRAM -->
+  <section class="diagram-sec wrap" id="how">
+    <div class="diagram-card">
+      <svg viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif" role="img" aria-label="How GrgAI keeps your real data private">
+        <defs>
+          <marker id="arw" markerWidth="10" markerHeight="10" refX="7.5" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#8b5cf6"/></marker>
+          <linearGradient id="zoneTrust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6" stop-opacity="0.10"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0.03"/></linearGradient>
+        </defs>
+        <rect x="1" y="1" width="818" height="518" rx="18" fill="#0e0b17" stroke="#241d38"/>
+        <text x="410" y="40" text-anchor="middle" fill="#ece9f6" font-size="20" font-weight="700">How GrgAI keeps your real data private</text>
+        <text x="410" y="64" text-anchor="middle" fill="#9990b3" font-size="13">Only redacted placeholders ever leave your device</text>
+        <rect x="28" y="88" width="360" height="388" rx="14" fill="url(#zoneTrust)" stroke="#8b5cf6" stroke-opacity="0.32"/>
+        <rect x="432" y="88" width="360" height="388" rx="14" fill="#15111f" stroke="#241d38"/>
+        <text x="48" y="112" fill="#a78bfa" font-size="11" font-weight="700" letter-spacing="1.6">YOUR DEVICE · TRUSTED</text>
+        <text x="772" y="112" text-anchor="end" fill="#645a7c" font-size="11" font-weight="700" letter-spacing="1.6">OPENAI / ANTHROPIC</text>
+        <line x1="410" y1="92" x2="410" y2="472" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6 5" stroke-opacity="0.7"/>
+        <circle cx="410" cy="268" r="15" fill="#0e0b17" stroke="#8b5cf6" stroke-opacity="0.7"/>
+        <path d="M404 267 h12 v8 a1 1 0 0 1 -1 1 h-10 a1 1 0 0 1 -1 -1 Z M406 267 v-3 a4 4 0 0 1 8 0 v3" fill="none" stroke="#a78bfa" stroke-width="1.6"/>
+        <line x1="368" y1="186" x2="452" y2="186" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arw)"/>
+        <circle cx="410" cy="186" r="23" fill="#17122a" stroke="#8b5cf6"/>
+        <path d="M410 174 l9 3.5 v5 c0 6 -4 9.5 -9 11.5 c-5 -2 -9 -5.5 -9 -11.5 v-5 Z" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M406 184 l3 3 l5 -6" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="410" y="228" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700" letter-spacing="1.2">REDACT</text>
+        <circle cx="38" cy="186" r="11" fill="#8b5cf6"/><text x="38" y="190" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">1</text>
+        <rect x="52" y="134" width="316" height="104" rx="10" fill="#15111f" stroke="#372c50"/>
+        <text x="68" y="158" fill="#645a7c" font-size="10" font-weight="700" letter-spacing="1.4">YOUR PROMPT</text>
+        <text x="68" y="184" font-size="13.5" fill="#ece9f6">Reply to <tspan fill="#ff7a7a" font-weight="600">Maria Ionescu</tspan> —</text>
+        <text x="68" y="208" font-size="13.5" fill="#ece9f6">IBAN <tspan fill="#ff7a7a" font-weight="600">RO49 BANK 0000 1234</tspan></text>
+        <circle cx="438" cy="186" r="11" fill="#8b5cf6"/><text x="438" y="190" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">2</text>
+        <rect x="452" y="134" width="316" height="104" rx="10" fill="#120f1d" stroke="#2a2340"/>
+        <text x="468" y="158" fill="#645a7c" font-size="10" font-weight="700" letter-spacing="1.4">WHAT THE MODEL SEES</text>
+        <text x="468" y="184" font-size="13.5" fill="#9990b3">Reply to <tspan fill="#a78bfa" font-weight="600">[NAME_1]</tspan> —</text>
+        <text x="468" y="208" font-size="13.5" fill="#9990b3">IBAN <tspan fill="#a78bfa" font-weight="600">[IBAN_1]</tspan></text>
+        <line x1="762" y1="238" x2="762" y2="298" stroke="#8b5cf6" stroke-width="2" stroke-opacity="0.55" marker-end="url(#arw)"/>
+        <line x1="452" y1="352" x2="368" y2="352" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arw)"/>
+        <circle cx="410" cy="352" r="23" fill="#17122a" stroke="#8b5cf6"/>
+        <path d="M419 352 a9 9 0 1 1 -2.6 -6.4" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M417 338 l0 7 l-7 0" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="410" y="312" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700" letter-spacing="1.2">RESTORE</text>
+        <circle cx="438" cy="352" r="11" fill="#8b5cf6"/><text x="438" y="356" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">3</text>
+        <rect x="452" y="300" width="316" height="104" rx="10" fill="#120f1d" stroke="#2a2340"/>
+        <text x="468" y="324" fill="#645a7c" font-size="10" font-weight="700" letter-spacing="1.4">THE MODEL REPLIES</text>
+        <text x="468" y="350" font-size="13.5" fill="#9990b3">Drafted a reply to</text>
+        <text x="468" y="372" font-size="13.5" fill="#9990b3"><tspan fill="#a78bfa" font-weight="600">[NAME_1]</tspan> about <tspan fill="#a78bfa" font-weight="600">[IBAN_1]</tspan>.</text>
+        <circle cx="38" cy="352" r="11" fill="#8b5cf6"/><text x="38" y="356" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">4</text>
+        <rect x="52" y="300" width="316" height="104" rx="10" fill="#15111f" stroke="#372c50"/>
+        <text x="68" y="324" fill="#645a7c" font-size="10" font-weight="700" letter-spacing="1.4">WHAT YOU GET BACK</text>
+        <text x="68" y="350" font-size="13.5" fill="#ece9f6">Drafted a reply to</text>
+        <text x="68" y="372" font-size="13.5" fill="#ece9f6"><tspan fill="#ff7a7a" font-weight="600">Maria Ionescu</tspan> about</text>
+        <text x="68" y="392" font-size="13.5" fill="#ece9f6"><tspan fill="#ff7a7a" font-weight="600">RO49 BANK 0000 1234</tspan>.</text>
+        <text x="410" y="502" text-anchor="middle" fill="#9990b3" font-size="13">Your real data never leaves your device — the AI only ever sees placeholders like <tspan fill="#a78bfa" font-weight="600">[NAME_1]</tspan>.</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="sec wrap" id="features">
+    <div class="sec-head">
+      <span class="pill">Why GrgAI</span>
+      <h2>Top models. None of the exposure.</h2>
+      <p>You get Claude, GPT and Gemini-class answers — without sending your users' personal data out in the clear.</p>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3Z"/></svg></div>
+        <h3>PII redacted automatically</h3>
+        <p>Names, national IDs, emails, phones, IBANs, card numbers and API secrets are swapped for placeholders before anything is sent — and restored in the answer.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div>
+        <h3>The best models, privately</h3>
+        <p>Route to Claude, ChatGPT, Gemini, DeepSeek or Grok — the provider only ever sees redacted placeholders, never your real data.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h3>Built for GDPR &amp; teams</h3>
+        <p>Designed for people who handle sensitive data. Free tier, pay-as-you-go, no lock-in — and you can self-host the whole stack.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO -->
+  <section class="who">
+    <div class="sec wrap">
+      <div class="sec-head" style="margin-bottom:28px">
+        <h2 style="font-size:clamp(22px,3vw,30px)">Made for people who can't just paste it into ChatGPT</h2>
+      </div>
+      <div class="who-grid">
+        <div class="who-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg> Developers</div>
+        <div class="who-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 7v6l9 4 9-4V7"/></svg> Legal &amp; compliance</div>
+        <div class="who-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10Z"/></svg> Healthcare</div>
+        <div class="who-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 11a3 3 0 0 0 0-6M21 20a6 6 0 0 0-5-5.9"/></svg> HR &amp; finance</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API band -->
+  <section class="sec wrap" id="api">
+    <div class="api-band">
+      <div>
+        <span class="pill" style="margin-bottom:14px">GrgAPI · for companies</span>
+        <h2>Embed privacy AI in your product</h2>
+        <p>An OpenAI-compatible API with PII redaction built in. Point your existing SDK at it and your users' data is protected automatically — restored only in the response you get back.</p>
+        <a class="btn btn-primary" href="/app" style="margin-top:20px">Get an API key</a>
+      </div>
+      <div class="code"><span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = OpenAI(
+  base_url=<span class="k">"https://api.grg-ai.com/v1"</span>,
+  api_key=<span class="k">"YOUR_KEY"</span>)
+client.chat.completions.create(
+  model=<span class="k">"grg-pro"</span>,
+  messages=[...])</div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="sec wrap" id="pricing">
+    <div class="sec-head">
+      <span class="pill">Pricing</span>
+      <h2>Start free. Pay only for what you use.</h2>
+      <p>Free models stay free. Premium models are pay-as-you-go or included in a plan — no surprise bills.</p>
+    </div>
+    <div class="grid3 price">
+      <div class="card">
+        <div class="plan">GrgFree</div>
+        <div class="amt">€0</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Fast open models</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Full PII redaction</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> No credit card</li>
+        </ul>
+        <a class="btn btn-ghost" href="/app">Start free</a>
+      </div>
+      <div class="card feature">
+        <span class="badge">Most popular</span>
+        <div class="plan">GrgPro</div>
+        <div class="amt">€5<small>/mo</small></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Claude · ChatGPT · Gemini</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Monthly premium budget</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Priority speed</li>
+        </ul>
+        <a class="btn btn-primary" href="/app">Go Pro</a>
+      </div>
+      <div class="card">
+        <div class="plan">GrgUltra</div>
+        <div class="amt">€20<small>/mo</small></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Everything in Pro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Up to 4× more usage</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Largest context windows</li>
+        </ul>
+        <a class="btn btn-ghost" href="/app">Go Ultra</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final wrap">
+    <h2>Use great AI. Keep your data yours.</h2>
+    <p>Free to start — your sensitive data never leaves in the clear.</p>
+    <a class="btn btn-primary" href="/app">Start free
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="logo"><span class="dot"></span><span>GrgAI</span></div>
+    <div>Privacy-first AI · GDPR-friendly · Self-hostable</div>
+    <div><a href="/app">Open app</a> · <a href="#pricing">Pricing</a> · <a href="#api">API</a></div>
+  </div>
+</footer>
+
+</body>
+</html>
