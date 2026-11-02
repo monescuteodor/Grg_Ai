@@ -84,6 +84,26 @@
   .trust-row span{display:inline-flex;align-items:center;gap:7px}
   .trust-row svg{width:15px;height:15px;color:var(--accent-2)}
 
+  /* HERO mascot — 8-bit blue dart frog coding on a keyboard */
+  .hero-mascot{width:128px;height:112px;margin:0 auto 8px;display:block;cursor:pointer;
+    image-rendering:pixelated;-webkit-user-select:none;user-select:none;
+    filter:drop-shadow(0 6px 15px rgba(139,92,246,.4))}
+  .hero-mascot svg{width:100%;height:100%;overflow:visible;shape-rendering:crispEdges;display:block}
+  .gm-frog{transform-box:fill-box;transform-origin:50% 100%;animation:gm-bob 1.7s ease-in-out infinite}
+  .hero-mascot.gm-hop .gm-frog{animation:gm-hop .6s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes gm-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+  @keyframes gm-hop{0%{transform:translateY(0)}35%{transform:translateY(-16px)}70%{transform:translateY(0)}100%{transform:translateY(0)}}
+  .gm-lid{transform-box:fill-box;transform-origin:center;transform:scaleY(0);animation:gm-blink 4.4s infinite}
+  @keyframes gm-blink{0%,95%,100%{transform:scaleY(0)}97.5%{transform:scaleY(1)}}
+  .gm-key.gm-lit{animation:gm-keyflash 1.2s steps(1,end) infinite}
+  .gm-k2{animation-delay:.4s}.gm-k3{animation-delay:.8s}
+  @keyframes gm-keyflash{0%,30%{fill:#2a5bb0}12%{fill:#8ad9ff}}
+  .gm-bubble{opacity:0;transform-box:fill-box;transform-origin:0 100%}
+  .hero-mascot.gm-say .gm-bubble{animation:gm-say 2.1s ease}
+  @keyframes gm-say{0%{opacity:0;transform:translateY(3px) scale(.8)}14%,80%{opacity:1;transform:none}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.gm-frog,.gm-lid,.gm-key.gm-lit{animation:none}}
+  @media(max-width:560px){.hero-mascot{width:94px;height:84px}}
+
   /* DIAGRAM */
   .diagram-sec{padding:34px 0 20px}
   .diagram-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);
@@ -182,6 +202,7 @@
 <main>
   <!-- HERO -->
   <section class="hero wrap">
+    <div class="hero-mascot" id="gm-hero" title="Grg is coding…" aria-hidden="true"></div>
     <span class="pill">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
       Privacy-first AI · GDPR-friendly
@@ -375,6 +396,38 @@ client.chat.completions.create(
     <div><a href="/app">Open app</a> · <a href="#pricing">Pricing</a> · <a href="#api">API</a></div>
   </div>
 </footer>
+
+<!-- Grg mascot (hero) — 8-bit blue dart frog, pure inline SVG pixel art -->
+<script>
+(function(){
+  var host=document.getElementById('gm-hero'); if(!host) return;
+  var P={o:'#041a3d',B:'#2f8dff',s:'#1c6ae0',d:'#0e3f96',D:'#0a2f74',y:'#8ad9ff',k:'#05132f',e:'#05122b',w:'#dff2ff'};
+  var MAP=[
+  ".........ooooo................",".......ooBBBBBoo..............",".....ooBBBBBBBBBoo............",
+  "....oBBBBBBkBBBBBBoo..........","...oBBBBBBBBBBBBBBBBoo........","..oBBBBBBBBBBkBBBBBBBBoo......",
+  "..oBBBBBBBBBBBBBBBBkBBBBoo....",".oBBwBBBBBBBBBBBBBBBBBBBBBo...",".oBeeeBBBBBBBkBBBBBBBBBsBBBo..",
+  "oBeeeeeBBBBBBBBBBBBBBBsDDDBo..","oBeeeeeBBBBBBBBBBkBBBsDDDDDo..","oBBeeeBBBBBBBBBBBBBBsDDDDDDo..",
+  "oBBBBBBBBBBBBBBBBBBsDDDDDDDo..",".sBBBBBBBBBBBBBBBBsDDDDDDDdo..",".oyBBBBBBBBBBBByyysDDDDDDddo..",
+  "..oyyyyBBBByyyyyyosDDDDDddo...","..ooyyyyyyyyyyyyo.sDDddddddo..","...odddo.oyyyyo..oDDdddddddo..",
+  "...oddddo.......oDDddddddddo..","..oddoddo......oDdddddddddo...",".ooo.oddo.....odo.odo.oddo....",
+  ".....ooo.....oo...oo...oo....."];
+  var CELL=3,Wc=MAP[0].length,Hc=MAP.length,rects='';
+  for(var r=0;r<Hc;r++)for(var c=0;c<Wc;c++){var ch=MAP[r][c];if(ch&&ch!=='.'&&P[ch])rects+='<rect x="'+(c*CELL)+'" y="'+(r*CELL)+'" width="'+CELL+'" height="'+CELL+'" fill="'+P[ch]+'"/>';}
+  var fw=Wc*CELL,fh=Hc*CELL;
+  var lid='<g class="gm-lid"><rect x="'+(1*CELL)+'" y="'+(7*CELL)+'" width="'+(6*CELL)+'" height="'+(6*CELL)+'" fill="'+P.B+'"/></g>';
+  var kbX=CELL,kbW=Math.round(fw*0.62),kbY=fh-CELL*2;
+  var kb='<g><rect x="'+kbX+'" y="'+kbY+'" width="'+kbW+'" height="'+(CELL*3)+'" rx="2" fill="#0a1330"/><rect x="'+kbX+'" y="'+kbY+'" width="'+kbW+'" height="2" fill="#22407e"/>';
+  var keyN=7,gap=2,kw=Math.floor((kbW-gap*(keyN+1))/keyN);
+  for(var i=0;i<keyN;i++){var cls=(i===1?'gm-key gm-lit':i===3?'gm-key gm-lit gm-k2':i===5?'gm-key gm-lit gm-k3':'gm-key');kb+='<rect class="'+cls+'" x="'+(kbX+gap+i*(kw+gap))+'" y="'+(kbY+3)+'" width="'+kw+'" height="'+(CELL*3-5)+'" rx="1" fill="#2a5bb0"/>';}
+  kb+='</g>';
+  var bub='<g class="gm-bubble" transform="translate('+Math.round(fw*0.5)+',-8)"><rect x="0" y="0" width="26" height="15" rx="3" fill="#0e1b3d" stroke="#3aa0ff" stroke-width="1"/><text x="13" y="11" font-family="monospace" font-size="9" fill="#8ad9ff" text-anchor="middle">&lt;/&gt;</text></g>';
+  host.innerHTML='<svg viewBox="-2 -20 '+(fw+4)+' '+(fh+26)+'">'+bub+kb+'<g class="gm-frog">'+rects+lid+'</g></svg>';
+  function hop(){host.classList.remove('gm-hop');void host.offsetWidth;host.classList.add('gm-hop');}
+  function say(){host.classList.remove('gm-say');void host.offsetWidth;host.classList.add('gm-say');}
+  host.addEventListener('click',function(){hop();say();});
+  setInterval(function(){hop();if(Math.random()<.5)say();},7000);
+})();
+</script>
 
 </body>
 </html>
