@@ -159,6 +159,21 @@
     font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:12px}
   .price .btn{margin-top:auto;justify-content:center}
 
+  /* ENTERPRISE band */
+  .ent-band{margin-top:20px;background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(109,40,217,.07));
+    border:1px solid rgba(139,92,246,.3);border-radius:var(--radius-lg);padding:30px 34px;
+    display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+  .ent-band .plan{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2)}
+  .ent-band h3{font-size:clamp(20px,2.4vw,26px);font-weight:800;letter-spacing:-.01em;margin:6px 0 8px}
+  .ent-band p{color:var(--text-dim);max-width:62ch;margin-bottom:14px;font-size:15px}
+  .ent-feats{display:flex;flex-wrap:wrap;gap:10px 22px}
+  .ent-feats span{display:inline-flex;align-items:center;gap:7px;color:var(--text-dim);font-size:14px}
+  .ent-feats svg{width:16px;height:16px;color:var(--accent-2);flex-shrink:0}
+  .ent-cta{text-align:center;flex-shrink:0}
+  .ent-cta .ent-price{font-size:26px;font-weight:800;margin-bottom:12px}
+  .ent-cta .ent-price small{display:block;font-size:11px;font-weight:600;color:var(--text-mute);letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+  @media(max-width:640px){.ent-band{padding:24px}}
+
   /* FINAL CTA */
   .final{text-align:center;padding:90px 0}
   .final h2{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.02em;max-width:18ch;margin:0 auto}
@@ -375,6 +390,24 @@ client.chat.completions.create(
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Largest context windows</li>
         </ul>
         <a class="btn btn-ghost" href="/app">Go Ultra</a>
+      </div>
+    </div>
+
+    <div class="ent-band">
+      <div>
+        <span class="plan">GrgEnterprise</span>
+        <h3>Private AI for your whole company</h3>
+        <p>Self-hosted or deployed in your own cloud, so regulated data never leaves your infrastructure. Volume API, SSO, a signed DPA, custom redaction tuning, SLAs and priority support.</p>
+        <div class="ent-feats">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Self-host / on-prem</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Signed DPA · GDPR</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> SSO &amp; volume API</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> SLA &amp; priority support</span>
+        </div>
+      </div>
+      <div class="ent-cta">
+        <div class="ent-price">Custom<small>Tailored to your team</small></div>
+        <a class="btn btn-primary" href="mailto:monescu@grg-ai.com?subject=GrgAI%20Enterprise%20inquiry&amp;body=Hi%2C%20I%27d%20like%20to%20talk%20about%20GrgAI%20Enterprise%20for%20my%20company.%0A%0ACompany%3A%20%0ATeam%20size%3A%20%0AUse%20case%3A%20">Contact sales</a>
       </div>
     </div>
   </section>
