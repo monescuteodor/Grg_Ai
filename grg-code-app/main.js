@@ -11,7 +11,7 @@ const MAX_ITERS = 30;
 // This build's version number — BUMP with each release (must match the vN in artifactName).
 // Hardcoded on purpose: electron-builder strips the `build` field from the packaged
 // package.json, so reading artifactName at runtime returned 0 and the updater always fired.
-const APP_VERSION = 42;
+const APP_VERSION = 43;
 
 let win = null;
 let projectDir = process.cwd();
@@ -21,6 +21,15 @@ let running = false;
 let autoApprove = false;
 let agentModel = 'auto';  // AutoGrg by default — the backend classifies the task and routes to the best affordable model
 let agentUid = null;  // set from the renderer when signed in; used for premium gating/metering
+let agentToken = null;  // Firebase ID token (refreshed by the renderer); lets the server verify identity instead of trusting a client-sent uid
+
+// Authorization header for backend calls — present only when signed in. The server verifies the
+// token and derives the uid from it, so a client cannot act on another account by guessing a uid.
+function authHeaders(extra) {
+    const h = Object.assign({}, extra || {});
+    if (agentToken) h['Authorization'] = 'Bearer ' + agentToken;
+    return h;
+}
 let activeAgent = null;  // {id,name,prompt,privacy} — a specialist agent chosen in the renderer (null = normal Grg Code)
 // Privacy preamble (only added for a PRIVATE agent): the renderer redacts the user's typed
 // PII to placeholders before it reaches the model, and restores them locally in the reply.
@@ -542,7 +551,7 @@ function systemPrompt() {
 async function streamBackend(messages, toolsArg) {
     const res = await fetch(BACKEND + '/api/agent/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ messages, tools: toolsArg || allTools(), model: agentModel, uid: agentUid, agent: activeAgent ? activeAgent.id : undefined })
     });
     if (!res.ok || !res.body) {
@@ -1045,6 +1054,7 @@ ipcMain.on('set-folder', (e, p) => {
     } catch (x) {}
 });
 ipcMain.on('set-uid', (e, uid) => { agentUid = uid || null; });
+ipcMain.on('set-token', (e, t) => { agentToken = (typeof t === 'string' && t) ? t : null; });
 ipcMain.on('set-approve-mode', (e, auto) => { autoApprove = !!auto; });
 ipcMain.on('set-model', (e, m) => { if (typeof m === 'string' && m) agentModel = m; });
 ipcMain.on('set-agent', (e, a) => { activeAgent = (a && a.id && a.prompt) ? { id: a.id, name: a.name || 'Agent', prompt: a.prompt, privacy: !!a.privacy } : null; });
@@ -1124,11 +1134,25 @@ ipcMain.handle('open-preview', (e, html) => {
 });
 
 // Billing API proxied through the main process (Node fetch → no CORS, no API opening).
+// The signed-in user's token rides along so the server can trust the identity, not a client uid.
 ipcMain.handle('bill-account', async (e, uid) => {
-    try { const r = await fetch(BACKEND + '/api/account?uid=' + encodeURIComponent(uid)); return await r.json(); }
+    try { const r = await fetch(BACKEND + '/api/account?uid=' + encodeURIComponent(uid), { headers: authHeaders() }); return await r.json(); }
     catch (err) { return { error: String((err && err.message) || err) }; }
 });
 ipcMain.handle('bill-post', async (e, apiPath, body) => {
-    try { const r = await fetch(BACKEND + apiPath, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }); return await r.json(); }
+    try { const r = await fetch(BACKEND + apiPath, { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body || {}) }); return await r.json(); }
+    catch (err) { return { error: String((err && err.message) || err) }; }
+});
+
+// Referral: fetch the user's code/stats (GET) or attach a code to this account (POST). Both are
+// identity-gated on the server via the Firebase token, so they only work while signed in.
+ipcMain.handle('referral-get', async (e, tok) => {
+    if (tok) agentToken = tok;   // caller passes a fresh token → no cross-channel race with set-token
+    try { const r = await fetch(BACKEND + '/api/referral', { headers: authHeaders() }); return await r.json(); }
+    catch (err) { return { error: String((err && err.message) || err) }; }
+});
+ipcMain.handle('referral-post', async (e, code, tok) => {
+    if (tok) agentToken = tok;
+    try { const r = await fetch(BACKEND + '/api/referral', { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ code: String(code || '') }) }); return await r.json(); }
     catch (err) { return { error: String((err && err.message) || err) }; }
 });

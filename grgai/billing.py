@@ -208,19 +208,29 @@ def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
         wallet = float(data.get("wallet_eur", 0.0))
         daily_credits = int(daily["daily_credits"])
         premium_credits = int(prem["premium_credits"])
+        bonus_credits = int(data.get("bonus_credits", 0))     # referral reward: FREE models only, persistent
         wallet_credits = eur_to_credits(wallet)
         is_free = _is_free_model(model)
-        bucket = daily_credits if is_free else premium_credits    # which bucket pays
-        usable = bucket + wallet_credits
-        total_all = daily_credits + premium_credits + wallet_credits
+        total_all = daily_credits + premium_credits + bonus_credits + wallet_credits
+        # FREE models draw: daily bucket → referral bonus → wallet. PREMIUM models: premium
+        # bucket → wallet only (the referral bonus is free-only, so it can NEVER pay for paid
+        # OpenRouter usage → giving referral credits can never cost the owner real money).
+        usable = (daily_credits + bonus_credits + wallet_credits) if is_free else (premium_credits + wallet_credits)
         if usable < cost:
             if is_free:
                 reason = "out_of_credits"
             else:
                 reason = "needs_pro" if data.get("plan") not in PAID_PLANS else "out_of_premium"
             return {"allowed": False, "cost": cost, "balance": total_all, "reason": reason}
-        use_bucket = min(bucket, cost)
-        use_wallet = cost - use_bucket
+        use_daily = use_prem = use_bonus = 0
+        if is_free:
+            use_daily = min(daily_credits, cost)
+            _rem = cost - use_daily
+            use_bonus = min(bonus_credits, _rem)
+            use_wallet = _rem - use_bonus
+        else:
+            use_prem = min(premium_credits, cost)
+            use_wallet = cost - use_prem
         um = dict(data.get("usage_models", {}))
         cur = um.get(model, {})
         um[model] = {"messages": int(cur.get("messages", 0)) + 1,
@@ -234,20 +244,22 @@ def charge_message(uid: str, model: str, effort: str = "low", images: int = 0,
             "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
         }
         if is_free:
-            updates["daily_credits"] = daily_credits - use_bucket
+            updates["daily_credits"] = daily_credits - use_daily
             updates["daily_credits_day"] = daily["daily_credits_day"]
+            if use_bonus:
+                updates["bonus_credits"] = max(0, bonus_credits - use_bonus)
             if prem.get("_reset"):   # also persist a just-refilled premium bucket
                 updates["premium_credits"] = premium_credits
                 updates["premium_credits_period"] = prem["premium_credits_period"]
         else:
-            updates["premium_credits"] = premium_credits - use_bucket
+            updates["premium_credits"] = premium_credits - use_prem
             updates["premium_credits_period"] = prem["premium_credits_period"]
             if daily.get("_reset"):
                 updates["daily_credits"] = daily_credits
                 updates["daily_credits_day"] = daily["daily_credits_day"]
         ref.set(updates, merge=True)
         return {"allowed": True, "cost": cost, "charged": cost, "balance": total_all - cost,
-                "from_bucket": use_bucket, "from_wallet": use_wallet, "is_free": is_free}
+                "from_bucket": use_prem if not is_free else use_daily, "from_wallet": use_wallet, "is_free": is_free}
     except Exception as e:  # noqa: BLE001 — never block a message on a billing error
         print(f"[charge_message ERROR] {e}")
         return {"allowed": True, "cost": cost, "charged": 0, "balance": None, "error": str(e)[:120]}
@@ -391,6 +403,7 @@ def get_account(uid: str) -> dict:
     has_credit = wallet > 0.0005
     daily_credits = int(daily.get("daily_credits", 0))
     premium_credits = int(prem.get("premium_credits", 0))
+    bonus_credits = int(data.get("bonus_credits", 0))       # referral reward, free-models only
     daily_total = (ULTRA_DAILY_CREDITS if plan == "ultra"
                    else PRO_DAILY_CREDITS if plan == "pro" else FREE_WEEKLY_CREDITS)
     premium_total = PREMIUM_MONTHLY.get(plan, 0)
@@ -399,8 +412,9 @@ def get_account(uid: str) -> dict:
         "currency": CURRENCY,
         "has_credit": has_credit,
         "wallet_eur": round(wallet, 4),          # internal only; never shown as a € balance
-        # Spendable now = free-model bucket + premium bucket + bought wallet.
-        "credits_balance": daily_credits + premium_credits + eur_to_credits(wallet),
+        # Spendable now = free-model bucket + premium bucket + referral bonus + bought wallet.
+        "credits_balance": daily_credits + premium_credits + bonus_credits + eur_to_credits(wallet),
+        "bonus_credits": bonus_credits,          # referral credits (free Grg models only)
         "daily_credits": daily_credits,
         "daily_credits_total": daily_total,
         "premium_credits": premium_credits,
@@ -450,6 +464,114 @@ def api_funds_credits(uid: str) -> int:
     prem = _roll_premium(data)
     wallet = float(data.get("wallet_eur", 0.0))
     return int(prem.get("premium_credits", 0)) + eur_to_credits(wallet)
+
+
+# ─────────────── GrgAPI per-KEY spend caps + usage dashboard ───────────────
+# A self-service API key is billed to the account that created it. These add a per-KEY
+# monthly spend cap (so a single leaked key can't drain the whole account) plus per-key
+# usage tracking for a dashboard. State lives on apikeys/{key} (server-only, admin SDK).
+API_KEY_PERIOD = 30 * 86400          # per-key spend window: resets every 30 days
+
+def _api_key_ref(key: str):
+    if not key or _db is None:
+        return None
+    return _db.collection("apikeys").document(key)
+
+def _api_key_data(key: str) -> dict:
+    ref = _api_key_ref(key)
+    if not ref:
+        return {}
+    try:
+        return ref.get().to_dict() or {}
+    except Exception as e:  # noqa: BLE001
+        print(f"[_api_key_data ERROR] {e}")
+        return {}
+
+def _roll_key_period(data: dict) -> dict:
+    """Reset the key's spend counter when its monthly window rolls over."""
+    period = int(time.time() // API_KEY_PERIOD)
+    if int(data.get("spent_period", -1)) != period:
+        return {"spent_credits": 0, "spent_period": period, "_reset": True}
+    return {"spent_credits": int(data.get("spent_credits", 0)), "spent_period": period}
+
+def api_key_allowed(key: str, uid: str) -> dict:
+    """GrgAPI precheck: the owning account must have funds AND the key must be under its
+    own monthly spend cap (0/absent = unlimited). Returns {allowed, reason, credits, ...}."""
+    funds = api_funds_credits(uid)
+    if funds <= 0:
+        return {"allowed": False, "reason": "out_of_credits", "credits": funds}
+    d = _api_key_data(key)
+    limit = int(d.get("monthly_limit_credits", 0) or 0)
+    if limit > 0:
+        roll = _roll_key_period(d)
+        if roll["spent_credits"] >= limit:
+            return {"allowed": False, "reason": "key_limit", "credits": funds,
+                    "limit": limit, "spent": roll["spent_credits"]}
+    return {"allowed": True, "credits": funds}
+
+def charge_api_key(key: str, uid: str, model: str, in_tokens: int, out_tokens: int,
+                   agent_mult: float = 1.0) -> dict:
+    """Charge the owning account (charge_api) AND record the spend against the key for its
+    monthly cap + usage dashboard. Key bookkeeping never fails the billed call."""
+    res = charge_api(uid, model, in_tokens, out_tokens, agent_mult)
+    charged = int(res.get("charged", 0) or 0)
+    if key and _db is not None and charged:
+        try:
+            kref = _api_key_ref(key)
+            d = kref.get().to_dict() or {}
+            roll = _roll_key_period(d)
+            um = dict(d.get("usage_models", {}))
+            cur = um.get(model, {})
+            um[model] = {"requests": int(cur.get("requests", 0)) + 1,
+                         "credits": int(cur.get("credits", 0)) + charged,
+                         "tokens": int(cur.get("tokens", 0)) + max(0, int(in_tokens)) + max(0, int(out_tokens))}
+            kref.set({
+                "spent_credits": roll["spent_credits"] + charged,
+                "spent_period": roll["spent_period"],
+                "spent_total": firestore.Increment(charged) if firestore else int(d.get("spent_total", 0)) + charged,
+                "req_count": firestore.Increment(1) if firestore else int(d.get("req_count", 0)) + 1,
+                "usage_models": um,
+                "last_used": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+            }, merge=True)
+        except Exception as e:  # noqa: BLE001
+            print(f"[charge_api_key ERROR] {e}")
+    return res
+
+def set_api_key_limit(uid: str, key: str, monthly_limit_credits) -> dict:
+    """Owner sets this key's monthly spend cap in credits (0 = unlimited). Ownership-checked."""
+    if not key or _db is None:
+        return {"ok": False, "reason": "unavailable"}
+    try:
+        kref = _api_key_ref(key)
+        d = kref.get().to_dict() or {}
+        if not d or d.get("uid") != uid:
+            return {"ok": False, "reason": "not_owner"}
+        try:
+            lim = max(0, int(monthly_limit_credits or 0))
+        except (TypeError, ValueError):
+            return {"ok": False, "reason": "bad_value"}
+        kref.set({"monthly_limit_credits": lim}, merge=True)
+        return {"ok": True, "monthly_limit_credits": lim}
+    except Exception as e:  # noqa: BLE001
+        print(f"[set_api_key_limit ERROR] {e}")
+        return {"ok": False, "reason": "error"}
+
+def api_key_usage(uid: str, key: str) -> dict:
+    """Dashboard snapshot for one key (owner-only): cap, spend this period, totals, per-model."""
+    d = _api_key_data(key)
+    if not d or d.get("uid") != uid:
+        return {"ok": False, "reason": "not_owner"}
+    roll = _roll_key_period(d)
+    return {
+        "ok": True,
+        "monthly_limit_credits": int(d.get("monthly_limit_credits", 0) or 0),
+        "spent_credits": roll["spent_credits"],
+        "spent_total": int(d.get("spent_total", 0)),
+        "req_count": int(d.get("req_count", 0)),
+        "usage_models": d.get("usage_models", {}),
+        "period_end": (roll["spent_period"] + 1) * API_KEY_PERIOD,
+        "active": bool(d.get("active", True)),
+    }
 
 
 def charge_api(uid: str, model: str, in_tokens: int, out_tokens: int,
@@ -606,7 +728,181 @@ def grant_plan(uid: str, plan: str = "pro"):
         "plan_period_end": int(now + 30 * 86400),
         "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(now),
     }, merge=True)
+    # If this user was referred by a friend, reward the friend on this FIRST paid plan.
+    # Idempotent + renewal-safe (see _maybe_reward_referral); never breaks the payment flow.
+    try:
+        _maybe_reward_referral(uid, plan)
+    except Exception as e:  # noqa: BLE001
+        print(f"[grant_plan referral] {e}")
 
 def grant_pro_budget(uid: str):
     """Back-compat wrapper — grants the GrgPro plan."""
     grant_plan(uid, "pro")
+
+
+# ─────────────── REFERRALS — invite a friend, earn FREE credits ───────────────
+# Flow: every user gets a stable ref_code (claimed in the `refcodes` map for reverse lookup).
+# A friend arrives via /?ref=CODE, the browser stores it, and on sign-in the server records
+# `referred_by` on the new account (set-once, never self). The referrer then earns credits into
+# a FREE-only `bonus_credits` bucket — usable ONLY on free Grg/Groq models, never premium — so
+# giving referral credits can NEVER cost the owner real money:
+#   • REFERRAL_SIGNUP_CREDITS when the referred friend confirms their account (email verified),
+#   • REFERRAL_SUB_CREDITS more if that friend later subscribes to any paid plan.
+# Each reward fires exactly once per (friend, kind) via a marker doc. Because the credits are
+# free-only, even fake-account farming mints only zero-cost free usage — abuse is self-limiting.
+REFERRAL_SIGNUP_CREDITS = 10      # earned when a referred friend confirms their account
+REFERRAL_SUB_CREDITS    = 100     # earned when a referred friend subscribes to any paid plan
+_REF_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"   # no ambiguous 0/O/1/I/L
+
+def _gen_ref_code(n: int = 7) -> str:
+    import secrets as _sec
+    return "".join(_sec.choice(_REF_CODE_ALPHABET) for _ in range(n))
+
+def ensure_ref_code(uid: str) -> str:
+    """Return the user's stable referral code, generating a unique one (collision-safe via
+    the `refcodes` map) the first time. Empty string if billing/Firestore is unavailable."""
+    if not uid or not FIREBASE_AVAILABLE:
+        return ""
+    ref = _get_user_ref(uid)
+    if not ref:
+        return ""
+    try:
+        data = ref.get().to_dict() or {}
+        code = data.get("ref_code")
+        if code:
+            return code
+        code = _gen_ref_code()
+        if _db is not None:
+            for _ in range(8):                      # retry on the (rare) code collision
+                cand = _gen_ref_code()
+                marker = _db.collection("refcodes").document(cand)
+                try:
+                    marker.create({"uid": uid,
+                                   "created_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())})
+                    code = cand
+                    break
+                except Exception:                   # AlreadyExists → try another
+                    continue
+        ref.set({"ref_code": code,
+                 "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())}, merge=True)
+        return code
+    except Exception as e:  # noqa: BLE001
+        print(f"[ensure_ref_code ERROR] {e}")
+        return ""
+
+def _uid_for_ref_code(code: str) -> str:
+    """Resolve a referral code back to the referrer's uid via the `refcodes` map."""
+    if not code or _db is None:
+        return ""
+    try:
+        d = _db.collection("refcodes").document(str(code).strip().upper()).get().to_dict() or {}
+        return d.get("uid", "") or ""
+    except Exception as e:  # noqa: BLE001
+        print(f"[_uid_for_ref_code ERROR] {e}")
+        return ""
+
+def attach_referral(uid: str, code: str, email_verified: bool = False) -> dict:
+    """Record that `uid` was referred with `code`. Set-once (a referrer can never be changed),
+    never a self-referral. Then, if the account is already confirmed, award the referrer the
+    signup bonus. Safe to call on every sign-in; it no-ops once set. Returns {ok, reason}."""
+    if not uid or not FIREBASE_AVAILABLE:
+        return {"ok": False, "reason": "unavailable"}
+    code = str(code or "").strip().upper()
+    if not code:
+        return {"ok": False, "reason": "no_code"}
+    ref = _get_user_ref(uid)
+    if not ref:
+        return {"ok": False, "reason": "unavailable"}
+    try:
+        data = ref.get().to_dict() or {}
+        if data.get("referred_by"):
+            return {"ok": False, "reason": "already_set"}
+        referrer = _uid_for_ref_code(code)
+        if not referrer:
+            return {"ok": False, "reason": "bad_code"}
+        if referrer == uid:
+            return {"ok": False, "reason": "self"}
+        ref.set({"referred_by": referrer, "referred_code": code,
+                 "referred_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+                 "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())}, merge=True)
+        try:
+            maybe_reward_signup(uid, email_verified)   # reward now if already verified (e.g. Google)
+        except Exception:  # noqa: BLE001
+            pass
+        return {"ok": True}
+    except Exception as e:  # noqa: BLE001
+        print(f"[attach_referral ERROR] {e}")
+        return {"ok": False, "reason": "error"}
+
+def _reward_referrer(referred_uid: str, referrer_uid: str, amount: int, kind: str) -> bool:
+    """Credit `amount` FREE bonus_credits to the referrer for one referred friend, exactly once
+    per (friend, kind) via a marker doc (kind = 'signup' or 'sub'). Returns True if it credited."""
+    if not referrer_uid or not FIREBASE_AVAILABLE or referrer_uid == referred_uid:
+        return False
+    if _db is not None:
+        marker = (_db.collection("users").document(referrer_uid)
+                     .collection("ref_rewards").document(f"{referred_uid}_{kind}"))
+        try:
+            marker.create({"amount": int(amount), "kind": kind,
+                           "at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())})
+        except Exception:                           # AlreadyExists → already rewarded this (friend, kind)
+            return False
+    rref = _get_user_ref(referrer_uid)
+    if not rref:
+        return False
+    upd = {
+        "bonus_credits": firestore.Increment(int(amount)) if firestore else int(amount),
+        "ref_earned_credits": firestore.Increment(int(amount)) if firestore else int(amount),
+        "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time()),
+    }
+    if kind == "signup":                            # count distinct friends who joined
+        upd["ref_count"] = firestore.Increment(1) if firestore else 1
+    rref.set(upd, merge=True)
+    return True
+
+def maybe_reward_signup(referred_uid: str, email_verified: bool = False) -> None:
+    """When a referred friend confirms their account (email verified), give the referrer the
+    FREE signup bonus. Safe to call on every sign-in; no-ops until verified / once rewarded."""
+    try:
+        if not referred_uid or not FIREBASE_AVAILABLE or not email_verified:
+            return
+        data = _user_data(referred_uid)
+        referrer = data.get("referred_by")
+        if not referrer or data.get("ref_signup_rewarded"):
+            return
+        if _reward_referrer(referred_uid, referrer, REFERRAL_SIGNUP_CREDITS, "signup"):
+            _get_user_ref(referred_uid).set({"ref_signup_rewarded": True,
+                "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())}, merge=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"[maybe_reward_signup ERROR] {e}")
+
+def _maybe_reward_referral(referred_uid: str, plan: str = "") -> None:
+    """On a referred friend's FIRST paid plan, give the referrer the FREE subscription bonus
+    (same bonus_credits bucket). Idempotent + renewal-safe; never raises into the payment flow."""
+    try:
+        if not referred_uid or not FIREBASE_AVAILABLE:
+            return
+        data = _user_data(referred_uid)
+        referrer = data.get("referred_by")
+        if not referrer or data.get("ref_sub_rewarded"):
+            return
+        if _reward_referrer(referred_uid, referrer, REFERRAL_SUB_CREDITS, "sub"):
+            _get_user_ref(referred_uid).set({"ref_sub_rewarded": True,
+                "updated_at": firestore.SERVER_TIMESTAMP if firestore else int(time.time())}, merge=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"[_maybe_reward_referral ERROR] {e}")
+
+def referral_stats(uid: str) -> dict:
+    """Snapshot for the referral UI: the user's code, the two reward sizes, how many friends
+    have joined, and total FREE credits earned as a referrer."""
+    code = ensure_ref_code(uid)
+    data = _user_data(uid)
+    return {
+        "code": code,
+        "signup_reward": REFERRAL_SIGNUP_CREDITS,
+        "sub_reward": REFERRAL_SUB_CREDITS,
+        "reward": REFERRAL_SIGNUP_CREDITS,          # back-compat alias
+        "referred_count": int(data.get("ref_count", 0)),
+        "earned_credits": int(data.get("ref_earned_credits", 0)),
+        "has_referrer": bool(data.get("referred_by")),
+    }

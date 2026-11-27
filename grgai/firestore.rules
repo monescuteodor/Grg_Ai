@@ -22,6 +22,17 @@ service cloud.firestore {
         allow read:  if request.auth != null && request.auth.uid == userId;
         allow write: if false;
       }
+      // Referral reward markers (one per referred friend + reward kind) — server-only; owner may read.
+      match /ref_rewards/{rewardId} {
+        allow read:  if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
+    }
+
+    // Referral code → uid map. Written and read ONLY by the server (admin SDK); a client must
+    // never resolve a code to a uid or claim one, so both are denied here.
+    match /refcodes/{code} {
+      allow read, write: if false;
     }
 
     // Everything else (e.g. the apikeys collection) is denied by default and reachable

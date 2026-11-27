@@ -933,6 +933,20 @@
         .sidebar-signout-btn { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: none; border: none; color: var(--red); font-family: var(--font); font-size: 12px; cursor: pointer; transition: all 0.2s; width: 100%; border-radius: var(--radius-sm); margin-top: 4px; }
         .sidebar-signout-btn:hover { background: rgba(239,68,68,0.08); }
         .sidebar-signout-btn svg { width: 14px; height: 14px; }
+        /* Floating share / referral button — peeks from the right wall, whooshes into it on click */
+        .sharefab { position: fixed; right: 0; top: 42%; transform: translateY(-50%); z-index: 4200; display: flex; align-items: center; }
+        .sharefab-btn { width: 52px; height: 52px; border: none; border-radius: 16px 0 0 16px; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: -4px 6px 22px rgba(0,0,0,0.38); transform: translateX(15px); transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .45s ease, box-shadow .25s ease; }
+        .sharefab-btn:hover { transform: translateX(0); box-shadow: -7px 7px 28px var(--accent-glow); }
+        .sharefab-btn:active { transform: translateX(0) scale(.94); }
+        .sharefab.enter .sharefab-btn { animation: sharefab-in .62s cubic-bezier(.2,.85,.25,1) both; }
+        @keyframes sharefab-in { from { transform: translateX(90px); opacity: 0; } to { transform: translateX(15px); opacity: 1; } }
+        /* click: slide right INTO the wall and vanish */
+        .sharefab.whoosh .sharefab-btn { transform: translateX(96px) rotate(8deg); opacity: 0; transition: transform .45s cubic-bezier(.5,0,.75,0), opacity .4s ease; }
+        .sharefab-bubble { margin-right: 11px; background: var(--bg-surface); color: var(--text); border: 1px solid var(--border); padding: 7px 13px; border-radius: 11px; font-size: 12.5px; font-weight: 500; white-space: nowrap; box-shadow: 0 8px 22px rgba(0,0,0,0.32); opacity: 0; transform: translateX(12px); pointer-events: none; transition: opacity .25s ease, transform .3s cubic-bezier(.2,.85,.25,1); }
+        .sharefab.copied .sharefab-bubble { opacity: 1; transform: translateX(0); }
+        /* On phones/tablets (incl. landscape) pin the share button near the TOP, at a fixed
+           offset, so it can never overlap the composer/send button wherever it sits. */
+        @media (max-width: 820px) { .sharefab { top: 80px; transform: none; } .sharefab-btn { width: 46px; height: 46px; } }
         /* Account settings modal */
         .account-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 5000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .account-modal.visible { opacity: 1; pointer-events: auto; }
@@ -1184,6 +1198,18 @@
             </div>
             <div class="credit-meta" id="credit-meta"></div>
         </div>
+        <div class="referral-box" id="referral-box" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-surface)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;color:var(--accent)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span style="font-weight:600;font-size:14px">Invite a friend</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-mute);margin-bottom:10px">Share your link. Earn <b id="ref-signup-reward">10</b> credits when a friend joins, and <b id="ref-sub-reward">100</b> more if they subscribe &mdash; free Grg credits to spend.</div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input id="ref-link" type="text" readonly value="" onclick="this.select()" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:12px;outline:none">
+                <button class="topup-btn" id="ref-copy-btn" onclick="copyReferralLink()" style="white-space:nowrap">Copy</button>
+            </div>
+            <div id="ref-stats" style="font-size:12px;color:var(--text-mute);margin-top:10px"></div>
+        </div>
         <div class="account-danger">
             <button class="account-manage-sub" id="account-manage-sub" onclick="openCustomerPortal()" style="display:none;">
                 Manage Subscription
@@ -1191,6 +1217,14 @@
             <button class="account-signout" onclick="doSignOut()">Sign Out</button>
         </div>
     </div>
+</div>
+
+<!-- FLOATING SHARE / REFERRAL BUTTON -->
+<div class="sharefab" id="sharefab" style="display:none" title="Invite a friend — earn free credits when they join">
+    <div class="sharefab-bubble" id="sharefab-bubble">Link copied</div>
+    <button class="sharefab-btn" id="sharefab-btn" onclick="shareFabClick()" aria-label="Share your invite link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
 </div>
 
 <!-- PRIVACY MODE EXIT CONFIRM -->
@@ -1427,6 +1461,16 @@
             <p>One key for your whole app. Keep it server-side &mdash; never ship it to the browser.</p>
             <div class="nhs-cmd"><code id="api-key-val">Sign in to get your key</code><button onclick="copyApiKey()">copy</button></div>
             <button class="nhs-dl-btn" id="api-gen-btn" onclick="generateApiKey()" style="margin-top:10px">Generate key</button>
+        </div>
+
+        <div class="nhs-block" id="api-usage-block" style="display:none">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:-3px;margin-right:6px"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Usage &amp; spending cap</h3>
+            <div id="api-usage-stats" style="font-size:13px;color:var(--text-mute)">Loading&hellip;</div>
+            <p style="margin:12px 0 6px">Monthly spending cap, in credits (1 credit = &euro;0.01). If this key leaks, it can&rsquo;t spend past the cap. Leave <b>0</b> for unlimited.</p>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                <input id="api-cap-input" type="number" min="0" step="100" placeholder="0 = unlimited" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;outline:none">
+                <button class="nhs-dl-btn" onclick="saveApiCap()" style="margin:0;white-space:nowrap">Save cap</button>
+            </div>
         </div>
 
         <div class="nhs-block">
@@ -1728,11 +1772,11 @@ print(r.choices[0].message.content)</code><button onclick="nhashCopy('api-snippe
             <div class="gc-feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span><b>Safe by default</b>Every file write &amp; command needs your approval</span></div>
         </div>
         <div class="gc-account" id="gc-account"></div>
-        <a class="gc-download" href="/static/downloads/GrgApp-win-x64-v40.exe" download>
+        <a class="gc-download" href="/static/downloads/GrgApp-win-x64-v43.exe" download>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Windows
         </a>
-        <div class="gc-note">Single portable app · just run <b>GrgApp-win-x64-v40.exe</b> — no install · ~71 MB · updates itself from inside the app</div>
+        <div class="gc-note">Single portable app · just run <b>GrgApp-win-x64-v43.exe</b> — no install · ~74 MB · updates itself from inside the app</div>
     </div>
 </div>
 
@@ -3468,6 +3512,37 @@ var _currentUser = null;
 var _freeMessagesUsed = parseInt(localStorage.getItem('grg_free_msgs') || '0');
 var FREE_LIMIT = 3;
 
+// ─── REFERRALS ─── capture a /?ref=CODE link and remember it until the visitor signs up.
+(function(){
+    try {
+        var _rc = new URLSearchParams(window.location.search).get('ref');
+        if (_rc) {
+            _rc = _rc.trim().toUpperCase().slice(0, 16);
+            if (_rc) localStorage.setItem('grg_ref', _rc);
+        }
+    } catch(e){}
+})();
+
+// After sign-in, if a referral code is stored, attach it to the account (set-once on the server).
+async function _attachReferralIfAny() {
+    try {
+        var code = localStorage.getItem('grg_ref');
+        if (!code || !_currentUser) return;
+        var tok = await _currentUser.getIdToken();
+        var r = await fetch('/api/referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+            body: JSON.stringify({ code: code })
+        });
+        var d = await r.json().catch(function(){ return {}; });
+        // Stop retrying once it's attached, self-referral, or already set — only keep it for
+        // transient failures (so a flaky first request can still attach on the next sign-in).
+        if (d && (d.ok || d.reason === 'self' || d.reason === 'already_set' || d.reason === 'bad_code')) {
+            localStorage.removeItem('grg_ref');
+        }
+    } catch(e){}
+}
+
 // Auth modal helpers
 function openAuthModal(fromLimit) {
     var overlay = document.getElementById('auth-overlay');
@@ -3639,7 +3714,84 @@ function openAccountModal() {
     document.getElementById('account-chats').textContent = chats.length;
     renderBilling();
     loadAccount();
+    loadReferral();
     document.getElementById('account-modal').classList.add('visible');
+}
+
+// Referral: fetch the user's code/stats and render the share link + copy button.
+var _refCode = '';
+async function loadReferral() {
+    var box = document.getElementById('referral-box');
+    if (!box || !_currentUser) { if (box) box.style.display = 'none'; return; }
+    try {
+        var tok = await _currentUser.getIdToken();
+        var r = await fetch('/api/referral', { headers: { 'Authorization': 'Bearer ' + tok } });
+        var d = await r.json();
+        if (!d || !d.code) { box.style.display = 'none'; return; }
+        _refCode = d.code;
+        box.style.display = '';
+        var rs = document.getElementById('ref-signup-reward'); if (rs) rs.textContent = d.signup_reward || 10;
+        var rb = document.getElementById('ref-sub-reward'); if (rb) rb.textContent = d.sub_reward || 100;
+        var link = document.getElementById('ref-link');
+        if (link) link.value = 'https://grg-ai.com/?ref=' + d.code;
+        var stats = document.getElementById('ref-stats');
+        if (stats) {
+            var n = d.referred_count || 0, earned = d.earned_credits || 0;
+            stats.textContent = n > 0
+                ? (n + (n === 1 ? ' friend' : ' friends') + ' joined — ' + earned + ' credits earned')
+                : 'No referrals yet.';
+        }
+        _showShareFab();
+    } catch(e) { box.style.display = 'none'; }
+}
+
+// Floating share button (right-edge). Appears for signed-in users with a referral code.
+function _showShareFab() {
+    var fab = document.getElementById('sharefab');
+    if (!fab || !_refCode) return;
+    fab.style.display = 'flex';
+    if (!fab._shown) {
+        fab.classList.add('enter'); fab._shown = true;
+        setTimeout(function(){ fab.classList.remove('enter'); }, 720);
+    }
+}
+function showShareBubble(msg) {
+    var fab = document.getElementById('sharefab'), b = document.getElementById('sharefab-bubble');
+    if (!fab || !b) return;
+    b.textContent = msg || 'Link copied';
+    fab.classList.add('copied');
+    clearTimeout(fab._bubbleT);
+    fab._bubbleT = setTimeout(function(){ fab.classList.remove('copied'); }, 2400);
+}
+// Click: whoosh into the wall, then give the link (native share sheet, else copy to clipboard).
+async function shareFabClick() {
+    var fab = document.getElementById('sharefab');
+    var linkEl = document.getElementById('ref-link');
+    var url = (linkEl && linkEl.value) ? linkEl.value : ('https://grg-ai.com/?ref=' + (_refCode || ''));
+    if (!_refCode) { try { await loadReferral(); url = 'https://grg-ai.com/?ref=' + (_refCode || ''); } catch(e){} }
+    if (fab) { fab.classList.add('whoosh'); setTimeout(function(){ fab.classList.remove('whoosh'); }, 1500); }
+    if (navigator.share) {
+        try { await navigator.share({ title: 'Grg AI', text: 'Try Grg AI — the AI that keeps your data private.', url: url }); return; }
+        catch(e) { /* cancelled / unsupported → fall back to copy */ }
+    }
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(url); }
+        else { var t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+        showShareBubble('Invite link copied');
+    } catch(e) { showShareBubble('Could not copy'); }
+}
+
+function copyReferralLink() {
+    var link = document.getElementById('ref-link');
+    var btn = document.getElementById('ref-copy-btn');
+    if (!link) return;
+    var txt = link.value || ('https://grg-ai.com/?ref=' + _refCode);
+    function done() { if (btn) { btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1600); } }
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done, function(){ link.select(); document.execCommand('copy'); done(); });
+        } else { link.select(); document.execCommand('copy'); done(); }
+    } catch(e) { link.select(); }
 }
 
 async function openCustomerPortal() {
@@ -3677,6 +3829,8 @@ function _onUserSignedIn(user) {
     document.getElementById('sidebar-email').textContent = user.email;
     // Load subscription + restore the E2E key (device-local; present after this-device login)
     loadSubscriptionStatus();
+    _attachReferralIfAny();   // if the visitor arrived via a /?ref= link, record the referrer
+    loadReferral();           // populate the referral link + reveal the floating share button
     (async function(){ if (!_ek) await _loadKeyFromStorage(user.uid); _loadChatsFromFirestore(); })();
 }
 
@@ -3688,6 +3842,7 @@ function _onUserSignedOut() {
     _planLoaded = true;
     document.getElementById('topbar-signin-btn').style.display = 'flex';
     document.getElementById('sidebar-user-section').style.display = 'none';
+    var _fab = document.getElementById('sharefab'); if (_fab) { _fab.style.display = 'none'; _fab._shown = false; }
     _account = null;
     updateTopbarCredit();
     chats.length = 0;
@@ -4491,9 +4646,13 @@ async function _renderGrgDoc(aiBody, spec) {
 
 async function _streamChat(provider, modelName, message, history, onToken, onReasoning, summary) {
     var cfg = _EFFORT_CFG[_currentEffort] || _EFFORT_CFG.ultra;
+    // Send the verified Firebase ID token — the server derives the billing uid from it, never
+    // from the body, so credits can only ever be charged to the signed-in account.
+    var _headers = { 'Content-Type': 'application/json' };
+    try { if (typeof _currentUser !== 'undefined' && _currentUser) { _headers['Authorization'] = 'Bearer ' + (await _currentUser.getIdToken()); } } catch(e) {}
     var res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: _headers,
         body: JSON.stringify({
             provider: provider,
             model: modelName,
@@ -5098,6 +5257,48 @@ function _apiFillSnippets(key){
     var py=document.getElementById('api-snippet-py');
     if(py) py.textContent = 'from openai import OpenAI\nclient = OpenAI(base_url="https://api.grg-ai.com/v1", api_key="'+k+'")\nr = client.chat.completions.create(model="grg-pro", messages=[{"role":"user","content":"Hello"}])\nprint(r.choices[0].message.content)';
     var gen=document.getElementById('api-gen-btn'); if(gen) gen.textContent = key ? 'Regenerate key' : 'Generate key';
+    window._grgApiKey = key || '';
+    var ub=document.getElementById('api-usage-block');
+    if(ub){ if(key){ ub.style.display=''; loadApiUsage(key); } else { ub.style.display='none'; } }
+}
+// Per-key usage dashboard + monthly spending cap.
+async function loadApiUsage(key){
+    if(!_currentUser || !key) return;
+    var stats=document.getElementById('api-usage-stats');
+    try{
+        var _tok=await _currentUser.getIdToken();
+        var r=await fetch('/api/grgapi/usage?key='+encodeURIComponent(key),{headers:{'Authorization':'Bearer '+_tok}});
+        var d=await r.json();
+        if(!d || !d.ok){ if(stats) stats.textContent='No usage yet.'; var ci=document.getElementById('api-cap-input'); if(ci && document.activeElement!==ci) ci.value=''; return; }
+        var cap=d.monthly_limit_credits||0, spent=d.spent_credits||0;
+        var pct = cap>0 ? Math.min(100, Math.round(spent/cap*100)) : 0;
+        var html='<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>This month</span><span>'+spent.toLocaleString()+(cap>0?(' / '+cap.toLocaleString()):'')+' credits</span></div>';
+        if(cap>0){ html+='<div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:'+pct+'%;background:var(--accent)"></div></div>'; }
+        html+='<div style="display:flex;justify-content:space-between;color:var(--text-mute)"><span>Requests</span><span>'+(d.req_count||0).toLocaleString()+'</span></div>';
+        html+='<div style="display:flex;justify-content:space-between;color:var(--text-mute)"><span>Total spent</span><span>'+(d.spent_total||0).toLocaleString()+' credits</span></div>';
+        var um=d.usage_models||{}, ids=Object.keys(um);
+        if(ids.length){
+            html+='<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">';
+            ids.sort(function(a,b){return (um[b].credits||0)-(um[a].credits||0);}).forEach(function(id){
+                html+='<div style="display:flex;justify-content:space-between;color:var(--text-mute);font-size:12px"><span>'+_grgModelName(id)+'</span><span>'+(um[id].requests||0)+' req · '+(um[id].credits||0)+' cr</span></div>';
+            });
+            html+='</div>';
+        }
+        if(stats) stats.innerHTML=html;
+        var inp=document.getElementById('api-cap-input'); if(inp && document.activeElement!==inp) inp.value = cap>0 ? cap : '';
+    }catch(e){ if(stats) stats.textContent='Could not load usage.'; }
+}
+async function saveApiCap(){
+    var key=window._grgApiKey;
+    if(!key || !_currentUser){ flashToast('Generate a key first'); return; }
+    var inp=document.getElementById('api-cap-input'); var val=parseInt((inp&&inp.value)||'0',10); if(isNaN(val)||val<0) val=0;
+    try{
+        var _tok=await _currentUser.getIdToken();
+        var r=await fetch('/api/grgapi/limit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({key:key,monthly_limit_credits:val})});
+        var d=await r.json();
+        if(d && d.ok){ flashToast(val>0?('Cap set: '+val+' credits/mo'):'Cap removed (unlimited)'); loadApiUsage(key); }
+        else { flashToast('Could not save cap'); }
+    }catch(e){ flashToast('Could not save cap'); }
 }
 async function loadApiKey(){
     if(!_currentUser){ _apiFillSnippets(null); var g=document.getElementById('api-gen-btn'); if(g) g.textContent='Sign in first'; return; }
