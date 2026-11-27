@@ -5,7 +5,7 @@
 <title>GrgApp</title>
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, onIdTokenChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
     const firebaseConfig = {
         apiKey: "AIzaSyB5UAUcnxlp6O1mjCWrx6NdxF3TLtksJ_A",
         authDomain: "grg-ai.firebaseapp.com",
@@ -16,7 +16,7 @@
     };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    window._fb = { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken };
+    window._fb = { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, onIdTokenChanged, signInWithCustomToken };
     window.dispatchEvent(new Event('fb-ready'));
 </script>
 <style>
@@ -660,6 +660,19 @@
                 </div>
                 <div class="bc-custom"><span>€</span><input id="bc-custom-amt" type="number" min="1" max="500" step="1" placeholder="Custom amount"><button class="bc-btn bc-go" onclick="startTopupCustom()">Add</button></div>
                 <div class="bc-meta" id="bc-meta"></div>
+            </div>
+            <div class="bill-referral" id="bill-referral" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-surface)">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;color:var(--accent)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span style="font-weight:600;font-size:14px">Invite a friend</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-mute);margin-bottom:10px">Share your link. Earn <b id="ref-signup-reward">10</b> credits when a friend joins, and <b id="ref-sub-reward">100</b> more if they subscribe &mdash; free Grg credits to spend.</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input id="ref-link" type="text" readonly value="" onclick="this.select()" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:12px;outline:none">
+                    <button class="bc-btn" id="ref-copy-btn" onclick="copyReferralLink()" style="white-space:nowrap">Copy</button>
+                    <button class="bc-btn" id="ref-share-btn" onclick="shareReferral()" style="white-space:nowrap">Share</button>
+                </div>
+                <div id="ref-stats" style="font-size:12px;color:var(--text-mute);margin-top:10px"></div>
             </div>
             <div class="bill-foot">
                 <button class="bill-upgrade" id="bill-upgrade" onclick="upgradePlan()">Upgrade to Grg Pro — €5/mo</button>

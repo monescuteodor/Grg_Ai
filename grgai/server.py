@@ -187,7 +187,7 @@ except Exception as _e:  # noqa: BLE001
     print(f"[crypto] not available: {_e}")
     _CRYPTO_OK = False
 try:
-    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT, api_funds_credits, charge_api
+    from billing import get_account, premium_allowed, charge_usage, charge_message, settle_premium, AGENT_MULT, api_funds_credits, charge_api, api_key_allowed, charge_api_key
     _BILLING_OK = True
 except Exception as _e:  # noqa: BLE001
     print(f"[billing] not available: {_e}")
@@ -268,7 +268,10 @@ async def index():
 
 @app.get("/app")
 async def app_page():
-    return FileResponse(STATIC_DIR / "index.html")
+    # no-cache: the app shell must always revalidate so deploys reach users immediately
+    # (otherwise a phone browser can keep serving a stale index.html for a long time).
+    return FileResponse(STATIC_DIR / "index.html",
+                        headers={"Cache-Control": "no-cache, must-revalidate"})
 
 @app.get("/privacy")
 async def privacy():
@@ -568,6 +571,20 @@ async def _verify_uid(request):
         print(f"[verify_uid] {e}")
         return None
 
+async def _verify_claims(request):
+    """Like _verify_uid, but returns the full verified token (uid, email_verified, …) or None.
+    Used by referral endpoints that must know whether the caller's email is confirmed."""
+    h = request.headers.get("authorization", "")
+    tok = h[7:].strip() if h.lower().startswith("bearer ") else ""
+    if not tok:
+        return None
+    try:
+        from firebase_admin import auth as _fbauth
+        return _fbauth.verify_id_token(tok)
+    except Exception as e:  # noqa: BLE001
+        print(f"[verify_claims] {e}")
+        return None
+
 @app.get("/api/grgapi/key")
 async def grgapi_get_key(request: Request):
     uid = await _verify_uid(request)        # uid from the verified Firebase token, not the client
@@ -668,9 +685,10 @@ async def grgapi_precheck(request: Request):
     if not uid:
         return JSONResponse({"allowed": True, "uid": ""})          # static/non-account key → not billed
     try:
-        funds = api_funds_credits(uid)
-        return JSONResponse({"allowed": bool(funds > 0), "uid": uid, "credits": int(funds),
-                             "reason": "" if funds > 0 else "out_of_credits"})
+        gate = api_key_allowed(key, uid)           # funds AND the key's own monthly spend cap
+        return JSONResponse({"allowed": bool(gate.get("allowed")), "uid": uid,
+                             "credits": int(gate.get("credits", 0) or 0),
+                             "reason": gate.get("reason", "")})
     except Exception as e:  # noqa: BLE001 — fail-open on a backend hiccup
         print(f"[grgapi precheck] {e}")
         return JSONResponse({"allowed": True, "uid": uid})
@@ -695,11 +713,48 @@ async def grgapi_charge(request: Request):
     if not uid:
         return JSONResponse({"ok": True, "charged": 0})
     try:
-        res = charge_api(uid, model, in_tok, out_tok)
+        res = charge_api_key(key, uid, model, in_tok, out_tok)   # charge account + record per-key spend/usage
         return JSONResponse({"ok": True, "charged": int(res.get("charged", 0) or 0), "balance": res.get("balance")})
     except Exception as e:  # noqa: BLE001
         print(f"[grgapi charge] {e}")
         return JSONResponse({"ok": True, "charged": 0})
+
+@app.get("/api/grgapi/usage")
+async def grgapi_usage(request: Request):
+    """Owner-only dashboard for one of their API keys: spend this period, cap, totals, per-model."""
+    uid = await _verify_uid(request)        # verified token only — owner-scoped
+    if not uid:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    key = request.query_params.get("key", "")
+    if not key or not _BILLING_OK:
+        return JSONResponse({"ok": False})
+    try:
+        from billing import api_key_usage
+        return JSONResponse(api_key_usage(uid, key))
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi usage] {e}")
+        return JSONResponse({"ok": False})
+
+@app.post("/api/grgapi/limit")
+async def grgapi_limit(request: Request):
+    """Owner sets a monthly spend cap (in credits, 0 = unlimited) on one of their API keys."""
+    uid = await _verify_uid(request)        # verified token only — owner-scoped
+    if not uid:
+        return JSONResponse({"ok": False, "reason": "auth"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    key = body.get("key", "")
+    limit = body.get("monthly_limit_credits", 0)
+    if not key or not _BILLING_OK:
+        return JSONResponse({"ok": False, "reason": "unavailable"})
+    try:
+        from billing import set_api_key_limit
+        return JSONResponse(set_api_key_limit(uid, key, limit))
+    except Exception as e:  # noqa: BLE001
+        print(f"[grgapi limit] {e}")
+        return JSONResponse({"ok": False, "reason": "error"}, status_code=500)
 
 @app.get("/api/account")
 async def account(request: Request):
@@ -721,6 +776,56 @@ async def account(request: Request):
     except Exception as e:  # noqa: BLE001
         print(f"[account ERROR] {e}")
         return JSONResponse(defaults)
+
+# ─── REFERRALS: invite a friend, earn FREE credits (10 on signup, 100 on subscribe) ───
+@app.get("/api/referral")
+async def referral_get(request: Request):
+    """Return the signed-in user's referral code + stats. Also reward the referrer for THIS
+    user's signup if their email is now verified (handles verify-after-signup, since this runs
+    on every sign-in)."""
+    claims = await _verify_claims(request)
+    uid = (claims or {}).get("uid") or (claims or {}).get("user_id")
+    if not uid:
+        return JSONResponse({"error": "auth"}, status_code=401)
+    fallback = {"code": "", "signup_reward": 10, "sub_reward": 100, "reward": 10,
+                "referred_count": 0, "earned_credits": 0, "has_referrer": False}
+    if not _BILLING_OK:
+        return JSONResponse(fallback)
+    try:
+        from billing import referral_stats, maybe_reward_signup
+        try:
+            maybe_reward_signup(uid, bool((claims or {}).get("email_verified")))
+        except Exception as _re:  # noqa: BLE001 — never fail the stats read over a reward hiccup
+            print(f"[referral signup reward] {_re}")
+        return JSONResponse(referral_stats(uid))
+    except Exception as e:  # noqa: BLE001
+        print(f"[referral GET] {e}")
+        return JSONResponse(fallback)
+
+@app.post("/api/referral")
+async def referral_post(request: Request):
+    """Attach a referral code to the signed-in user (set-once). Called by the browser after
+    sign-in when a stored /?ref=CODE is present. If the account is already email-verified, the
+    referrer's signup bonus is awarded immediately (otherwise on a later sign-in via GET)."""
+    claims = await _verify_claims(request)
+    uid = (claims or {}).get("uid") or (claims or {}).get("user_id")
+    if not uid:
+        return JSONResponse({"ok": False, "reason": "auth"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    code = (body.get("code") or "").strip()
+    if not code:
+        return JSONResponse({"ok": False, "reason": "no_code"}, status_code=400)
+    if not _BILLING_OK:
+        return JSONResponse({"ok": False, "reason": "unavailable"})
+    try:
+        from billing import attach_referral
+        return JSONResponse(attach_referral(uid, code, bool((claims or {}).get("email_verified"))))
+    except Exception as e:  # noqa: BLE001
+        print(f"[referral POST] {e}")
+        return JSONResponse({"ok": False, "reason": "error"}, status_code=500)
 
 # ─── nHASH PAYMENTS ───
 @app.post("/api/nhash/create-order")
@@ -1144,6 +1249,12 @@ async def chat(request: Request):
     max_tokens = body.get("max_tokens", 2048)
     effort = str(body.get("effort") or "low")
 
+    # Authoritative uid: from the verified Firebase ID token ONLY — never from the request body.
+    # This closes billing/identity spoofing: a caller can no longer charge another account by
+    # putting its uid in the body. No token → anonymous (free models only, per-IP rate-limited,
+    # not charged). A stale body `uid` is ignored.
+    uid = await _verify_uid(request)
+
     # ─── Grg Private routing ── prefer the user's own 980 GPU box; spill to cloud when busy/down.
     # Normal path: everything runs LOCAL on the 980 (free, private, fast). Only when the box is
     # saturated (≥ LOCAL_MAX_CONCURRENT generations in flight) or unreachable do we switch to the
@@ -1171,7 +1282,7 @@ async def chat(request: Request):
         _cat = _auto_classify(messages)
         _avail = await _get_availability()
         # Premium only when the user has funds AND OpenRouter actually has credit right now.
-        _funded = bool(_BILLING_OK and premium_allowed(body.get("uid")).get("allowed") and _avail.get("premium_ok"))
+        _funded = bool(_BILLING_OK and premium_allowed(uid).get("allowed") and _avail.get("premium_ok"))
         provider, model, _label, _brief = _auto_route(_cat, _funded)
         # If the chosen FREE model isn't live on Groq now, fall back to one that is.
         if provider == "groq" and _avail.get("groq") and model not in _avail["groq"]:
@@ -1250,7 +1361,7 @@ async def chat(request: Request):
         )
 
     # Premium models (paid OpenRouter, not ':free') need funds: Pro budget or wallet.
-    uid = body.get("uid")
+    # (uid is the verified-token uid resolved at the top — body uid is intentionally ignored.)
     is_premium = provider == "openrouter" and not str(model).endswith(":free")
 
     # FREE models (Groq / ':free') cost the platform nothing, so give them a big output

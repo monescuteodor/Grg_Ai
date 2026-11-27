@@ -1659,7 +1659,14 @@ function renderAcct() {
 }
 function initAuth() {
     if (!window._fb) return;
-    window._fb.onAuthStateChanged(window._fb.auth, (u) => { _user = u; _account = null; try { window.grg.setUid(u ? u.uid : null); } catch (e) {} renderAcct(); if (u) loadAccount(); else { try { _reconcileAgent(); } catch (e) {} } });
+    window._fb.onAuthStateChanged(window._fb.auth, (u) => { _user = u; _account = null; try { window.grg.setUid(u ? u.uid : null); } catch (e) {} if (!u) { try { window.grg.setToken(null); } catch (e) {} const rb = $('bill-referral'); if (rb) rb.style.display = 'none'; } renderAcct(); if (u) loadAccount(); else { try { _reconcileAgent(); } catch (e) {} } });
+    // Keep the Firebase ID token fresh in the main process so backend calls are identity-verified
+    // (the server derives the uid from this token instead of trusting a client-sent field).
+    if (window._fb.onIdTokenChanged) {
+        window._fb.onIdTokenChanged(window._fb.auth, async (u) => {
+            try { window.grg.setToken(u ? await u.getIdToken() : null); } catch (e) {}
+        });
+    }
 }
 
 // ─── Billing / credits (mirrors the website; card entry happens in the browser) ───
@@ -1680,8 +1687,53 @@ async function loadAccount() {
     if (!_user) { _account = null; return; }
     try { _account = await window.grg.billAccount(_user.uid); } catch (e) { _account = null; }
     renderBilling(); renderAcct();
+    try { loadReferral(); } catch (e) {}      // populate the invite-a-friend card
     try { _reconcileAgent(); } catch (e) {}   // agents are paid-only; drop/restore based on plan
 }
+
+// ─── Referral / invite a friend (mirrors the website) ───
+let _refCode = '';
+async function loadReferral() {
+    const box = $('bill-referral');
+    if (!box || !_user) { if (box) box.style.display = 'none'; return; }
+    try {
+        // Pass a fresh token with the request so the server can verify identity (no uid trust).
+        let tok = null; try { tok = await _user.getIdToken(); } catch (e) {}
+        const d = await window.grg.referralGet(tok);
+        if (!d || !d.code) { box.style.display = 'none'; return; }
+        _refCode = d.code;
+        box.style.display = '';
+        const rs = $('ref-signup-reward'); if (rs) rs.textContent = d.signup_reward || 10;
+        const rb = $('ref-sub-reward'); if (rb) rb.textContent = d.sub_reward || 100;
+        const link = $('ref-link'); if (link) link.value = 'https://grg-ai.com/?ref=' + d.code;
+        const stats = $('ref-stats');
+        if (stats) {
+            const n = d.referred_count || 0, earned = d.earned_credits || 0;
+            stats.textContent = n > 0
+                ? (n + (n === 1 ? ' friend' : ' friends') + ' joined — ' + earned + ' credits earned')
+                : 'No referrals yet.';
+        }
+    } catch (e) { box.style.display = 'none'; }
+}
+function _refUrl() { const link = $('ref-link'); return (link && link.value) ? link.value : ('https://grg-ai.com/?ref=' + (_refCode || '')); }
+function copyReferralLink() {
+    const btn = $('ref-copy-btn'); const txt = _refUrl();
+    function done() { if (btn) { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 1600); } }
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, () => { const l = $('ref-link'); if (l) { l.select(); document.execCommand('copy'); } done(); }); }
+        else { const l = $('ref-link'); if (l) { l.select(); document.execCommand('copy'); } done(); }
+    } catch (e) { const l = $('ref-link'); if (l) l.select(); }
+}
+async function shareReferral() {
+    const url = _refUrl();
+    if (navigator.share) {
+        try { await navigator.share({ title: 'Grg AI', text: 'Try Grg AI — the AI that keeps your data private.', url: url }); return; }
+        catch (e) { /* cancelled / unsupported → fall back to the system browser */ }
+    }
+    try { window.grg.openExternal('mailto:?subject=' + encodeURIComponent('Try Grg AI') + '&body=' + encodeURIComponent('Try Grg AI — the AI that keeps your data private. ' + url)); }
+    catch (e) { copyReferralLink(); }
+}
+window.copyReferralLink = copyReferralLink; window.shareReferral = shareReferral;
 function openBilling() { if (!_user) { openAuth(); return; } $('bill-ov').classList.add('show'); loadAccount(); }
 function closeBilling() { $('bill-ov').classList.remove('show'); }
 window.openBilling = openBilling; window.closeBilling = closeBilling;
